@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snack Empire — Klassenoverzicht</title>
+<style>
+  :root{
+    --cream:#fdf6ea;
+    --paper:#fffaf0;
+    --line:#e3d5b8;
+    --ink:#2e2a24;
+    --muted:#8a8072;
+    --accent:#d97706;
+    --accent2:#f59e0b;
+    --green:#16a34a;
+    --red:#c0392b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, #fef1d8 0%, transparent 45%),
+      radial-gradient(circle at 85% 0%, #fde3c0 0%, transparent 40%),
+      var(--cream);
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px 16px 64px;
+  }
+  .wrap{max-width:920px; margin:0 auto;}
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:28px;
+    border-bottom:3px dashed var(--line);
+    padding-bottom:20px;
+  }
+  h1{
+    font-size:28px;
+    margin:0 0 6px;
+    letter-spacing:-0.02em;
+  }
+  h1 .emoji{font-size:26px; margin-right:6px;}
+  .sub{color:var(--muted); font-size:14px; margin:0;}
+  .controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  select, button{
+    font-family:inherit;
+    font-size:14px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    padding:9px 14px;
+    background:#fff;
+    color:var(--ink);
+  }
+  button{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  button:hover{background:var(--accent2);}
+  button:disabled{opacity:0.6; cursor:default;}
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:18px 0 10px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .ticket{
+    background:var(--paper);
+    border-radius:14px;
+    box-shadow:0 12px 30px rgba(120,90,30,0.08);
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  table{width:100%; border-collapse:collapse;}
+  thead th{
+    text-align:left;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--muted);
+    padding:14px 16px;
+    border-bottom:2px solid var(--line);
+    cursor:pointer;
+    user-select:none;
+    white-space:nowrap;
+  }
+  thead th:hover{color:var(--accent);}
+  thead th.active{color:var(--accent);}
+  thead th .arrow{font-size:10px; margin-left:3px;}
+  tbody tr{border-bottom:1px dashed var(--line);}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:#fff6e5;}
+  td{
+    padding:13px 16px;
+    font-size:14px;
+    vertical-align:middle;
+  }
+  td.num{font-variant-numeric:tabular-nums; font-weight:600;}
+  .rank-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px; height:26px;
+    border-radius:50%;
+    background:var(--line);
+    color:var(--ink);
+    font-weight:700;
+    font-size:12px;
+  }
+  .rank-badge.gold{background:#f5c542; color:#5c4400;}
+  .rank-badge.silver{background:#d7d7d7; color:#4a4a4a;}
+  .rank-badge.bronze{background:#e0a45f; color:#5c3600;}
+  .name-cell{font-weight:700;}
+  .class-pill{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:999px;
+    background:#fde7c7;
+    color:#92400e;
+  }
+  .day-bar-wrap{
+    width:80px;
+    height:6px;
+    background:var(--line);
+    border-radius:99px;
+    overflow:hidden;
+    margin-top:5px;
+  }
+  .day-bar{height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+  }
+  .empty-state .emoji{font-size:40px; display:block; margin-bottom:10px;}
+  .error-banner{
+    background:#fdeceb;
+    border:1px solid #f3c6c2;
+    color:var(--red);
+    padding:12px 16px;
+    border-radius:10px;
+    font-size:14px;
+    margin-bottom:16px;
+  }
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:28px;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .ticket{animation:rise 0.35s ease;}
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @media (max-width:640px){
+    thead th:nth-child(4), td:nth-child(4){display:none;} /* hide "geld" on small screens */
+  }
+</style>
+</head>
+<body>
+<div id="gateOverlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#fef3e2,#fde7c7);display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;padding:32px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);max-width:340px;width:90%;text-align:center;">
+    <div style="font-size:26px;margin-bottom:8px;">🔒🧾</div>
+    <h2 style="margin:0 0 12px;color:#2e2a24;font-size:20px;">Docentendashboard</h2>
+    <p style="color:#6a6359;font-size:14px;margin-bottom:18px;">Vul je docentensleutel in om de klassenstand te bekijken.</p>
+    <input id="gateKeyInput" type="password" placeholder="Docentensleutel" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:14px;border:1px solid #e3d5b8;border-radius:8px;font-size:15px;">
+    <button id="gateSubmitBtn" type="button" style="width:100%;padding:12px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">Ontgrendelen</button>
+    <div id="gateErrorMsg" style="color:#c0392b;font-size:13px;margin-top:10px;min-height:16px;"></div>
+  </div>
+</div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span class="emoji">🧾</span>Klassenoverzicht</h1>
+      <p class="sub">Live stand van Snack Empire — ververst niet vanzelf, klik op "Ververs".</p>
+    </div>
+    <div class="controls">
+      <select id="classFilter">
+        <option value="">Alle klassen</option>
+      </select>
+      <button id="refreshBtn" type="button">🔄 Ververs</button>
+    </div>
+  </header>
+
+  <div id="errorBanner" class="error-banner" style="display:none;"></div>
+
+  <div class="meta-row">
+    <span id="countLabel">Bezig met laden…</span>
+    <span id="lastUpdated"></span>
+  </div>
+
+  <div class="ticket">
+    <table>
+      <thead>
+        <tr>
+          <th data-key="rank">#</th>
+          <th data-key="name">Naam</th>
+          <th data-key="class">Klas</th>
+          <th data-key="money">Geld</th>
+          <th data-key="xp">XP</th>
+          <th data-key="level">Level</th>
+          <th data-key="day">Dag</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="7" class="empty-state"><span class="emoji">🍟</span>Bezig met laden…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>Snack Empire — docentendashboard. Deze link is niet apart beveiligd; deel 'm alleen binnen de klas of collega's.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  const SUPABASE_URL = "https://tbrxvnlbfrliwohugtjs.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRicnh2bmxiZnJsaXdvaHVndGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NDkzODYsImV4cCI6MjEwMzIyNTM4Nn0.M-yT3EXe_30zNfOtM6UXFW0ExcZHScwPXUzqy6YEnhc";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let rows = [];
+  let sortKey = 'xp';
+  let sortDir = 'desc';
+  let selectedClass = '';
+
+  const tableBody = document.getElementById('tableBody');
+  const countLabel = document.getElementById('countLabel');
+  const lastUpdated = document.getElementById('lastUpdated');
+  const errorBanner = document.getElementById('errorBanner');
+  const classFilter = document.getElementById('classFilter');
+  const refreshBtn = document.getElementById('refreshBtn');
+
+  function money(n){
+    return '€' + Number(n || 0).toLocaleString('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function rankBadgeClass(rank){
+    if(rank === 1) return 'gold';
+    if(rank === 2) return 'silver';
+    if(rank === 3) return 'bronze';
+    return '';
+  }
+
+  function populateClassFilter(){
+    const classes = Array.from(new Set(rows.map(r => r.class))).sort();
+    const current = classFilter.value;
+    classFilter.innerHTML = '<option value="">Alle klassen</option>' +
+      classes.map(c => `<option value="${c}">${c}</option>`).join('');
+    if(classes.includes(current)) classFilter.value = current;
+  }
+
+  function sortRows(list){
+    const sorted = [...list].sort((a, b) => {
+      let av = a[sortKey], bv = b[sortKey];
+      if(typeof av === 'string') av = av.toLowerCase();
+      if(typeof bv === 'string') bv = bv.toLowerCase();
+      if(av < bv) return sortDir === 'asc' ? -1 : 1;
+      if(av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }
+
+  function render(){
+    document.querySelectorAll('thead th').forEach(th => {
+      th.classList.toggle('active', th.dataset.key === sortKey);
+      const arrow = th.querySelector('.arrow');
+      if(arrow) arrow.remove();
+      if(th.dataset.key === sortKey){
+        const span = document.createElement('span');
+        span.className = 'arrow';
+        span.textContent = sortDir === 'asc' ? '▲' : '▼';
+        th.appendChild(span);
+      }
+    });
+
+    let filtered = selectedClass ? rows.filter(r => r.class === selectedClass) : rows;
+    filtered = sortRows(filtered);
+
+    countLabel.textContent = filtered.length === 0
+      ? 'Nog geen leerlingen gevonden.'
+      : filtered.length + (filtered.length === 1 ? ' leerling' : ' leerlingen');
+
+    if(filtered.length === 0){
+      tableBody.innerHTML = `<tr><td colspan="7" class="empty-state"><span class="emoji">🍟</span>Nog geen leerlingen hebben gespeeld${selectedClass ? ' in ' + selectedClass : ''}.</td></tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = filtered.map((r, i) => {
+      const rank = sortKey === 'xp' && sortDir === 'desc' ? (i + 1) : null;
+      const dayPct = Math.min(100, Math.round((r.day / 100) * 100));
+      return `
+        <tr>
+          <td>${rank ? `<span class="rank-badge ${rankBadgeClass(rank)}">${rank}</span>` : (i + 1)}</td>
+          <td class="name-cell">${escapeHtml(r.name)}</td>
+          <td><span class="class-pill">${escapeHtml(r.class)}</span></td>
+          <td class="num">${money(r.money)}</td>
+          <td class="num">${r.xp}</td>
+          <td class="num">${r.level}</td>
+          <td>
+            ${r.day} / 100
+            <div class="day-bar-wrap"><div class="day-bar" style="width:${dayPct}%;"></div></div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  async function loadData(){
+    errorBanner.style.display = 'none';
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = '⏳ Laden…';
+    try{
+      const { data, error } = await sb
+        .from('leaderboard')
+        .select('class, name, xp, money, level, day, rank_in_class, rank_overall');
+      if(error) throw error;
+      rows = data || [];
+      populateClassFilter();
+      render();
+      lastUpdated.textContent = 'Laatst ververst: ' + new Date().toLocaleTimeString('nl-NL');
+    }catch(e){
+      console.error(e);
+      errorBanner.style.display = 'block';
+      errorBanner.textContent = 'Kon de gegevens niet laden. Probeer het opnieuw met "Ververs".';
+    }finally{
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = '🔄 Ververs';
+    }
+  }
+
+  document.querySelectorAll('thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if(sortKey === key){
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortKey = key;
+        sortDir = key === 'name' || key === 'class' ? 'asc' : 'desc';
+      }
+      render();
+    });
+  });
+
+  classFilter.addEventListener('change', () => {
+    selectedClass = classFilter.value;
+    render();
+  });
+
+  refreshBtn.addEventListener('click', loadData);
+
+  function wireGate(){
+    const overlay = document.getElementById('gateOverlay');
+    const keyInput = document.getElementById('gateKeyInput');
+    const submitBtn = document.getElementById('gateSubmitBtn');
+    const errorMsg = document.getElementById('gateErrorMsg');
+
+    async function tryUnlock(){
+      const key = keyInput.value.trim();
+      if(!key){
+        errorMsg.textContent = 'Vul je docentensleutel in.';
+        return;
+      }
+      submitBtn.disabled = true;
+      errorMsg.textContent = '';
+      try{
+        const { data, error } = await sb.rpc('verify_teacher_key', { p_teacher_key: key });
+        if(error) throw error;
+        if(data === true){
+          sessionStorage.setItem('snackEmpireDashboardUnlocked', 'true');
+          overlay.style.display = 'none';
+          loadData();
+        } else {
+          errorMsg.textContent = 'Onjuiste docentensleutel.';
+        }
+      }catch(e){
+        console.error(e);
+        errorMsg.textContent = 'Er ging iets mis. Probeer het opnieuw.';
+      }finally{
+        submitBtn.disabled = false;
+      }
+    }
+
+    submitBtn.addEventListener('click', tryUnlock);
+    keyInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') tryUnlock(); });
+
+    if(sessionStorage.getItem('snackEmpireDashboardUnlocked') === 'true'){
+      overlay.style.display = 'none';
+      loadData();
+    }
+  }
+
+  wireGate();
+})();
+</script>
+</body>
+</html>
