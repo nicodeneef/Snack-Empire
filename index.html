@@ -3895,6 +3895,20 @@ body.analysis-mode .history-side-control .history-toggle-btn{
 
 </head>
 <body>
+<div id="loginOverlay" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#fef3e2,#fde7c7);display:flex;align-items:center;justify-content:center;font-family:inherit;">
+  <div style="background:#fff;padding:32px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15);max-width:360px;width:90%;text-align:center;">
+    <div style="font-size:28px;margin-bottom:8px;">🍟🌭🍔</div>
+    <h2 style="margin:0 0 16px;color:#2e2a24;">Welkom bij Snack Empire</h2>
+    <p style="color:#6a6359;font-size:14px;margin-bottom:20px;">Vul je naam en klas in om te starten of verder te spelen.</p>
+    <input id="loginNameInput" type="text" placeholder="Jouw naam" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:10px;border:1px solid #d8cdbb;border-radius:8px;font-size:15px;">
+    <input id="loginClassInput" type="text" placeholder="Klas (bv. 3TL1)" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:10px;border:1px solid #d8cdbb;border-radius:8px;font-size:15px;">
+    <input id="loginPinInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="Pincode (4 cijfers)" style="width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:16px;border:1px solid #d8cdbb;border-radius:8px;font-size:15px;letter-spacing:4px;">
+    <p style="color:#8a8478;font-size:12px;margin:-8px 0 16px;">Eerste keer? Kies zelf een pincode. Volgende keer typ je dezelfde in om verder te spelen.</p>
+    <button id="loginSubmitBtn" style="width:100%;padding:12px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">Start / Ga verder</button>
+    <div id="loginErrorMsg" style="color:#c0392b;font-size:13px;margin-top:10px;min-height:16px;"></div>
+    <div id="loginLoadingMsg" style="color:#6a6359;font-size:13px;margin-top:10px;display:none;">Bezig met laden...</div>
+  </div>
+</div>
 <header class="topbar">
 <div>
 <div class="topbar-title">🍟 🌭 🍔 SNACK EMPIRE 🍔 🌭 🍟</div>
@@ -4221,6 +4235,216 @@ body.analysis-mode .history-side-control .history-toggle-btn{
 <div class="expectation-note" id="expectationNote">Kies eerst een prijs voor patat om een verwachting te zien.</div>
 </section>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+  const SUPABASE_URL = "https://tbrxvnlbfrliwohugtjs.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRicnh2bmxiZnJsaXdvaHVndGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NDkzODYsImV4cCI6MjEwMzIyNTM4Nn0.M-yT3EXe_30zNfOtM6UXFW0ExcZHScwPXUzqy6YEnhc";
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.__sbClient = sb;
+  window.__currentStudentId = null;
+  window.__currentStudentPin = null;
+
+  async function loginOrCreateStudent(name, klas, pin){
+    name = name.trim();
+    klas = klas.trim();
+    pin = pin.trim();
+    if(!name || !klas) throw new Error('Vul zowel je naam als je klas in.');
+    if(!/^[0-9]{4}$/.test(pin)) throw new Error('invalid_pin_format');
+    const { data, error } = await sb.rpc('register_or_login_student', {
+      p_name: name,
+      p_class: klas,
+      p_pin: pin
+    });
+    if(error) throw error;
+    const student = Array.isArray(data) ? data[0] : data;
+    window.__currentStudentId = student.id;
+    window.__currentStudentPin = pin;
+    return student;
+  }
+
+  function applySavedStateToGame(saved){
+    if(!saved) return;
+    try{
+      const hasSavedState = saved.game_state && Object.keys(saved.game_state).length;
+      if(hasSavedState && typeof state !== 'undefined'){
+        Object.assign(state, saved.game_state);
+      } else if(typeof state !== 'undefined'){
+        state.day = saved.day || state.day;
+        state.money = saved.money != null ? saved.money : state.money;
+        state.xp = saved.xp != null ? saved.xp : state.xp;
+        state.reputation = saved.reputation != null ? saved.reputation : state.reputation;
+        state.level = saved.level || state.level;
+      }
+    }catch(e){ console.error('Kon opgeslagen voortgang niet toepassen', e); }
+  }
+
+  window.__snackEmpireSaveProgress = async function(){
+    if(!window.__currentStudentId || !window.__currentStudentPin || typeof state === 'undefined') return;
+    try{
+      const { error } = await sb.rpc('save_student_progress', {
+        p_student_id: window.__currentStudentId,
+        p_pin: window.__currentStudentPin,
+        p_day: state.day,
+        p_money: state.money,
+        p_xp: state.xp,
+        p_reputation: state.reputation,
+        p_level: state.level,
+        p_game_state: state
+      });
+      if(error) console.error('Opslaan mislukt', error);
+    }catch(e){ console.error('Opslaan mislukt', e); }
+  };
+
+  window.__snackEmpireSaveDailyHistory = async function(dayNumber, profit){
+    if(!window.__currentStudentId || typeof state === 'undefined') return;
+    try{
+      await sb.from('daily_saves').upsert({
+        student_id: window.__currentStudentId,
+        day: dayNumber,
+        money: state.money,
+        xp: state.xp,
+        reputation: state.reputation,
+        level: state.level,
+        profit: profit
+      }, { onConflict: 'student_id,day' });
+    }catch(e){ console.error('Kon dagvoortgang niet opslaan', e); }
+  };
+
+  window.__snackEmpireSaveFinalReport = async function(companyValue, efficiencyScore){
+    if(!window.__currentStudentId || typeof state === 'undefined') return;
+    try{
+      await sb.from('final_reports').upsert({
+        student_id: window.__currentStudentId,
+        company_value: companyValue,
+        level: state.level,
+        xp: state.xp,
+        money: state.money,
+        reputation: state.reputation,
+        efficiency_score: efficiencyScore,
+        days_played: state.day
+      }, { onConflict: 'student_id' });
+    }catch(e){ console.error('Kon eindrapport niet opslaan', e); }
+  };
+
+  function wireTeacherPinReset(){
+    const btn = document.getElementById('teacherResetPinBtn');
+    if(!btn) return;
+    const nameInput = document.getElementById('teacherResetNameInput');
+    const classInput = document.getElementById('teacherResetClassInput');
+    const keyInput = document.getElementById('teacherResetKeyInput');
+    const pinInput = document.getElementById('teacherResetPinInput');
+    const msg = document.getElementById('teacherResetMsg');
+
+    btn.addEventListener('click', async function(){
+      msg.style.color = '#6a6359';
+      msg.textContent = 'Bezig...';
+      const name = (nameInput.value || '').trim();
+      const klas = (classInput.value || '').trim();
+      const key = (keyInput.value || '').trim();
+      const pin = (pinInput.value || '').trim();
+      if(!name || !klas || !key || !/^[0-9]{4}$/.test(pin)){
+        msg.style.color = '#c0392b';
+        msg.textContent = 'Vul naam, klas, docentensleutel en een pincode van 4 cijfers in.';
+        return;
+      }
+      btn.disabled = true;
+      try{
+        const { error } = await sb.rpc('reset_student_pin', {
+          p_name: name,
+          p_class: klas,
+          p_teacher_key: key,
+          p_new_pin: pin
+        });
+        if(error) throw error;
+        msg.style.color = '#16a34a';
+        msg.textContent = 'Gelukt! ' + name + ' (' + klas + ') kan nu inloggen met pincode ' + pin + '.';
+        keyInput.value = '';
+        pinInput.value = '';
+      }catch(e){
+        const emsg = (e && e.message) || '';
+        msg.style.color = '#c0392b';
+        if(emsg.includes('wrong_teacher_key')){
+          msg.textContent = 'Onjuiste docentensleutel.';
+        } else if(emsg.includes('student_not_found')){
+          msg.textContent = 'Geen leerling gevonden met die naam + klas.';
+        } else if(emsg.includes('invalid_pin_format')){
+          msg.textContent = 'De nieuwe pincode moet uit precies 4 cijfers bestaan.';
+        } else {
+          msg.textContent = 'Er ging iets mis. Probeer het opnieuw.';
+        }
+      }finally{
+        btn.disabled = false;
+      }
+    });
+  }
+
+  if(document.readyState !== 'loading'){
+    wireTeacherPinReset();
+  } else {
+    document.addEventListener('DOMContentLoaded', wireTeacherPinReset);
+  }
+
+  function wireLoginForm(){
+    const btn = document.getElementById('loginSubmitBtn');
+    const nameInput = document.getElementById('loginNameInput');
+    const classInput = document.getElementById('loginClassInput');
+    const pinInput = document.getElementById('loginPinInput');
+    const errorMsg = document.getElementById('loginErrorMsg');
+    const loadingMsg = document.getElementById('loginLoadingMsg');
+    const overlay = document.getElementById('loginOverlay');
+
+    async function doLogin(){
+      errorMsg.textContent = '';
+      const name = nameInput.value;
+      const klas = classInput.value;
+      const pin = pinInput.value;
+      if(!name.trim() || !klas.trim()){
+        errorMsg.textContent = 'Vul zowel je naam als je klas in.';
+        return;
+      }
+      if(!/^[0-9]{4}$/.test(pin.trim())){
+        errorMsg.textContent = 'Vul een pincode van precies 4 cijfers in.';
+        return;
+      }
+      btn.disabled = true;
+      loadingMsg.style.display = 'block';
+      try{
+        const student = await loginOrCreateStudent(name, klas, pin);
+        applySavedStateToGame(student);
+        overlay.style.display = 'none';
+        if(typeof window.startSnackEmpireGame === 'function'){
+          window.startSnackEmpireGame();
+        }
+      }catch(e){
+        console.error(e);
+        const msg = (e && e.message) || '';
+        if(msg.includes('wrong_pin')){
+          errorMsg.textContent = 'Onjuiste pincode voor deze naam + klas. Weet je hem nog?';
+        } else if(msg.includes('invalid_pin_format')){
+          errorMsg.textContent = 'De pincode moet uit precies 4 cijfers bestaan.';
+        } else {
+          errorMsg.textContent = 'Er ging iets mis. Probeer het opnieuw.';
+        }
+      }finally{
+        btn.disabled = false;
+        loadingMsg.style.display = 'none';
+      }
+    }
+
+    btn.addEventListener('click', doLogin);
+    pinInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
+    classInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') pinInput.focus(); });
+    nameInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') classInput.focus(); });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wireLoginForm);
+  } else {
+    wireLoginForm();
+  }
+})();
+</script>
 <script>
 const SNACK_QUOTES = [
   { author:'William Snackspeare', text:'To snack or not to snack, that’s the question!', avatar:'🎩' },
@@ -5202,6 +5426,10 @@ function showEndgameReport(){
   els.selectionMessage.className = 'message good';
   els.selectionMessage.textContent = 'De campagne van 100 dagen is afgelopen. Bekijk je economisch rapport.';
   showTab('endgame');
+  if(typeof window.__snackEmpireSaveFinalReport === 'function'){
+    const avgScore = state.history.length ? Math.round(state.history.reduce((s,i)=>s+(i.efficiencyScore||0),0)/state.history.length) : 0;
+    window.__snackEmpireSaveFinalReport(getCompanyValue(), avgScore);
+  }
 }
 function resetGameState(){
   state.location = 'school';
@@ -6899,6 +7127,8 @@ function playDay(){
   if(shouldTriggerSnackBattle(currentDay)) state.pendingSnackBattleDay = currentDay;
   state.day += 1;
   state.sessionProgress += 1;
+  if(typeof window.__snackEmpireSaveProgress === 'function') window.__snackEmpireSaveProgress();
+  if(typeof window.__snackEmpireSaveDailyHistory === 'function') window.__snackEmpireSaveDailyHistory(currentDay, profit);
   const teacherShouldOpenQuiz = state.teacherSessionArmed && currentDay === state.teacherTargetQuizDay;
   if(teacherShouldOpenQuiz){
     state.sessionProgress = state.sessionLength;
@@ -8268,7 +8498,7 @@ function showDayReportPopup(data){
 }
 function init(){ attachEvents(); startMissionForLevel(state.level); renderStatus(); renderUpgrades(); renderHistory(); renderLeaderboard(); clearDaySelections(); updateDailyTip(); drawDemandCurve(); drawProfitCurve(); drawSupplyDemandChart(); renderRoundPerformanceChart(); startAdRotation();
 startHeroQuoteRotation(); showTab('play'); }
-init();
+window.startSnackEmpireGame = init;
 function showFloatingXP(text){
   const el = document.createElement('div');
   el.textContent = text;
@@ -8726,6 +8956,18 @@ function closeMap(){
 <button id="teacherApplyRushBtn" type="button">Forceer spits</button>
 </div>
 <p class="teacher-note">Deze modus staat bewust helemaal onderin, zodat de leerlinginterface schoon blijft.</p>
+<div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.15);">
+<h4 style="margin:0 0 6px;">🔑 Pincode van een leerling resetten</h4>
+<p class="teacher-note" style="margin-top:0;">Vergeten leerlingen hun pincode? Vul hun naam en klas in, samen met jouw docentensleutel, en kies een nieuwe pincode voor ze.</p>
+<div class="teacher-grid">
+<input id="teacherResetNameInput" placeholder="Naam leerling" style="width:100%;" type="text"/>
+<input id="teacherResetClassInput" placeholder="Klas (bv. 3TL1)" style="width:100%;" type="text"/>
+<input id="teacherResetKeyInput" placeholder="Docentensleutel" style="width:100%;" type="password"/>
+<input id="teacherResetPinInput" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="Nieuwe pincode (4 cijfers)" style="width:100%; letter-spacing:3px;" type="text"/>
+<button id="teacherResetPinBtn" type="button">Pincode resetten</button>
+</div>
+<div id="teacherResetMsg" style="margin-top:8px; font-size:13px;"></div>
+</div>
 </section>
 <div aria-hidden="true" class="day-clock-overlay" id="dayClockOverlay">
 <div class="day-clock-shell">
