@@ -1560,8 +1560,8 @@ async function openMenu(){
   state = null;
   show('menuScreen');
   $('topSub').textContent = 'Hoofdstuk 3 en 4 – ondernemen en werken';
-  $('menuHello').textContent = session.trial ? 'Proefmodus' : `Hoi ${session.student.name}!`;
-  $('menuSub').textContent = session.trial ? 'Je voortgang wordt alleen in deze browser bewaard, niet bij je docent.' : `Klas ${session.student.class}`;
+  $('menuHello').textContent = session.teacherTest ? 'Docent – testmodus' : session.trial ? 'Proefmodus' : `Hoi ${session.student.name}!`;
+  $('menuSub').textContent = session.teacherTest ? 'Testmodus: er wordt niets in de database opgeslagen. Log uit om te stoppen.' : session.trial ? 'Je voortgang wordt alleen in deze browser bewaard, niet bij je docent.' : `Klas ${session.student.class}`;
   $('menuGrid').innerHTML = '<div class="small muted">Laden…</div>';
   let d1 = null, d2 = null, unlocked = false;
   try{
@@ -1656,7 +1656,17 @@ async function teacherPanel(){
       ${rows.length ? `<div style="overflow-x:auto"><table class="teacher"><thead><tr><th>Klas</th><th>Naam</th><th>Deel</th><th>Dag</th><th>Nettoresultaat</th><th>Quiz</th></tr></thead><tbody>
         ${rows.map(r => `<tr><td>${escapeHtml(r.class)}</td><td>${escapeHtml(r.name)}</td><td>${r.game === GAME_KEY ? '1' : r.game === DEEL2_KEY ? '2' : escapeHtml(r.game)}</td><td>${r.finished ? '✅' : (r.day || '–')}</td><td>${r.net_result != null ? eur(+r.net_result) : '–'}</td><td>${r.quiz_correct}/${r.quiz_total}</td></tr>`).join('')}
       </tbody></table></div>` : '<p class="small muted">Nog geen leerlingen begonnen aan game 2.</p>'}
+      <h3>Zelf testen</h3>
+      <p class="small muted" style="margin-top:0">Speel als docent, zonder inloggen. Er wordt niets opgeslagen bij je leerlingen.</p>
+      <div class="options">
+        <button class="option" id="tTest1"><b>🍟 Test deel 1</b><span class="small">Begin bij dag 1.</span></button>
+        <button class="option" id="tTest2"><b>👷 Test deel 2</b><span class="small">Begin direct bij dag 13 met een voorbeeldkraam:
+          <select id="tTestInv" onclick="event.stopPropagation()" style="margin-top:4px;padding:4px 6px;border-radius:8px;border:1px solid var(--line);font-family:inherit">
+            <option value="modern">moderne frituur</option><option value="used">tweedehands frituur</option><option value="none">geen nieuwe frituur</option></select></span></button>
+      </div>
       <button class="ghost" style="width:100%;margin-top:12px" id="tClose">Sluiten</button>`);
+    $('tTest1').onclick = () => teacherTest(1);
+    $('tTest2').onclick = () => teacherTest(2, $('tTestInv').value);
     document.querySelectorAll('.toggle').forEach(b => b.onclick = async () => {
       b.disabled = true;
       const { error } = await sb.rpc('game_set_unlock', { p_teacher_key: teacherKey, p_class: b.dataset.c, p_game: DEEL2_KEY, p_unlocked: !b.classList.contains('on') });
@@ -1670,12 +1680,28 @@ async function teacherPanel(){
   }
 }
 
+// docent: testen zonder inloggen en zonder deel 1 af te ronden
+function teacherTest(n, inv){
+  modalQueue = []; $('overlay').classList.add('hidden');
+  session.trial = true; session.teacherTest = true;
+  session.student = { id:null, name:'Docent (test)', class:'TEST' };
+  try{ localStorage.removeItem(LOCAL_KEY + GAME_KEY); localStorage.removeItem(LOCAL_KEY + DEEL2_KEY); }catch(e){}
+  if(n === 1){ startDeel1(null); return; }
+  const sample = freshState();
+  Object.assign(sample, { day:12, finished:true, investment:inv || 'modern', env:'paper', purchaseAdj:-0.04, placeBonus:4, sauce:0.25,
+    money: inv === 'none' ? 640 : inv === 'used' ? 580 : 520,
+    concepts: Object.keys(CONCEPTS).filter(k => +Object.keys(SCHEDULE).find(d => SCHEDULE[d].v.concat(SCHEDULE[d].n).includes(k)) <= 12).concat(inv && inv !== 'none' ? ['afschrijving'] : []),
+    history: [{ day:1, net:550, closed:true, want:0, sold:0, price:0, walkaways:0 }] });
+  try{ localStorage.setItem(LOCAL_KEY + GAME_KEY, JSON.stringify(sample)); }catch(e){}
+  startDeel2(null, sample);
+}
+
 // ---------- START ----------
 $('loginBtn').onclick = doLogin;
 ['inName','inClass','inPin'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); }));
 $('trialBtn').onclick = () => { session.trial = true; session.student = null; openMenu(); };
 $('teacherBtn').onclick = () => queueModal(teacherModal);
-$('logoutBtn').onclick = () => { session.student = null; session.pin = null; session.trial = false; $('inPin').value = ''; show('loginScreen'); };
+$('logoutBtn').onclick = () => { session.student = null; session.pin = null; session.trial = false; session.teacherTest = false; $('inPin').value = ''; show('loginScreen'); };
 $('toMenuBtn').onclick = () => openMenu();
 $('playBtn').onclick = () => { if(state.finished){ part === 1 ? endReport() : endReport2(); return; } playDay(); };
 if(!sb || /[?&]proef\b/.test(location.search)) $('trialBtn').classList.remove('hidden');
