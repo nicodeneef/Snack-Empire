@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snack Empire – Game 2</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+
+  :root{
+    --bg:#ebe6dd; --panel:#fffaf2; --panel-2:#f7f2e8; --line:#d8cdbb;
+    --text:#241f1a; --muted:#6a6359; --accent:#d97706; --accent-2:#f59e0b;
+    --good:#166534; --good-bg:#e8f5ec; --bad:#b91c1c; --bad-bg:#fdecec; --blue:#2563eb; --blue-bg:#eaf1fe;
+    --shadow:0 10px 24px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Verdana,sans-serif;background:linear-gradient(180deg,#efe7db 0%,var(--bg) 100%);color:var(--text);font-size:15px;line-height:1.45}
+  button{font-family:inherit;font-size:inherit;cursor:pointer}
+  .topbar{background:linear-gradient(135deg,#2e2217 0%,#5b3413 100%);color:#fff;padding:14px 18px;text-align:center;
+    box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 12px rgba(217,119,6,.45);border-bottom:3px solid var(--accent);border-radius:0 0 16px 16px;margin:0 12px 14px;position:sticky;top:0;z-index:5}
+  .topbar-title{font-size:24px;font-weight:800;letter-spacing:1px;text-shadow:0 0 6px rgba(255,180,80,.5)}
+  .topbar-sub{font-size:13px;opacity:.85;margin-top:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 14px 40px}
+  .statusbar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow)}
+  .stat .k{font-size:12px;color:var(--muted)}
+  .stat .v{font-size:20px;font-weight:800}
+  .progress{height:8px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:6px;border:1px solid var(--line)}
+  .progress>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width .4s}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;align-items:start}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px}
+  .panel h2{margin:0 0 10px;font-size:18px}
+  .panel h3{margin:14px 0 8px;font-size:15px}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .prices{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:8px 0 4px}
+  .price-btn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 0;font-weight:700;transition:.15s}
+  .price-btn:hover{border-color:var(--accent-2)}
+  .price-btn.sel{background:#fff3dd;border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,119,6,.15)}
+  .calc{background:var(--panel-2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
+  .calc-row{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+  .calc-row.total{border-top:1px solid var(--line);margin-top:4px;padding-top:7px;font-weight:800}
+  .pred{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .pred button{flex:1;min-width:110px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:700}
+  .pred button.sel{border-color:var(--blue);background:var(--blue-bg)}
+  .cta{width:100%;margin-top:14px;border:0;border-radius:14px;padding:14px;font-size:17px;font-weight:800;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 14px rgba(217,119,6,.35)}
+  .cta:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .ghost{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px}
+  .msg{border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
+  .msg.info{background:var(--blue-bg);color:#1e3a8a}
+  .msg.good{background:var(--good-bg);color:var(--good)}
+  .msg.bad{background:var(--bad-bg);color:var(--bad)}
+  .msg.warn{background:#fff4e0;color:#92400e}
+  .pill{display:inline-block;background:#fff3dd;color:#92400e;border:1px solid #f3cf95;border-radius:99px;padding:2px 9px;font-size:12px;font-weight:700}
+  .goal{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:700;font-size:12px}
+  td.pos{color:var(--good);font-weight:700} td.neg{color:var(--bad);font-weight:700}
+  .chart svg{width:100%;height:auto;display:block}
+  .terms{display:flex;flex-wrap:wrap;gap:6px}
+  .term{background:#fff;border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:12px;cursor:pointer}
+  .term:hover{border-color:var(--accent)}
+  .hidden{display:none!important}
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(36,31,26,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal{background:var(--panel);border-radius:20px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3);border-top:6px solid var(--accent)}
+  .modal h2{margin:0 0 10px}
+  .modal .tag{font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--accent);text-transform:uppercase}
+  .modal .formula{background:#fff3dd;border:1px solid #f3cf95;border-radius:12px;padding:10px 12px;font-weight:700;margin:10px 0;text-align:center}
+  .options{display:grid;gap:10px;margin-top:10px}
+  .option{border:2px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;text-align:left}
+  .option:hover:not(:disabled){border-color:var(--accent)}
+  .option.sel{border-color:var(--accent);background:#fff3dd}
+  .option.correct{border-color:var(--good);background:var(--good-bg)}
+  .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+  .option:disabled{cursor:default}
+  .option b{display:block;margin-bottom:3px}
+  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+  .kpi{background:var(--panel-2);border-radius:12px;padding:8px 10px}
+  .kpi .k{font-size:12px;color:var(--muted)} .kpi .v{font-size:18px;font-weight:800}
+  .stars{font-size:34px;letter-spacing:4px;text-align:center;margin:6px 0}
+  input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px}
+  .payback{height:14px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;margin-top:6px}
+  .payback>div{height:100%;background:linear-gradient(90deg,#16a34a,#4ade80);width:0;transition:width .4s}
+
+  /* ===== dagklok ===== */
+  .clock-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:60;transition:background .5s ease;background:rgba(186,146,70,.5);padding:16px}
+  .clock-overlay.show{display:flex}
+  .clock-shell{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:520px}
+  .clock-face{width:240px;height:240px;border-radius:50%;position:relative;flex:none;
+    background:radial-gradient(circle at 35% 30%,#fffdf8 0%,#fffaf2 45%,#f1e4cf 100%);border:10px solid #e8dcc8;
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.10),0 20px 40px rgba(0,0,0,.28);transition:box-shadow .35s,transform .35s,border-color .35s}
+  .clock-face.phase-morning{border-color:#ecd8ae;transform:scale(1.01);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 26px rgba(245,158,11,.28),0 20px 40px rgba(0,0,0,.24)}
+  .clock-face.phase-lunch{border-color:#f0c572;transform:scale(1.04);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 38px rgba(245,158,11,.55),0 20px 44px rgba(0,0,0,.24)}
+  .clock-face.phase-evening{border-color:#e5b66e;transform:scale(1.02);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 32px rgba(217,119,6,.4),0 20px 44px rgba(0,0,0,.26)}
+  .clock-face.phase-night{border-color:#c8d4e6;transform:scale(1.015);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 30px rgba(59,130,246,.28),0 20px 44px rgba(0,0,0,.3)}
+  .clock-center{position:absolute;left:50%;top:50%;width:16px;height:16px;background:#d97706;border-radius:50%;transform:translate(-50%,-50%);z-index:3;box-shadow:0 0 0 4px rgba(217,119,6,.18)}
+  .clock-hand-short{position:absolute;left:50%;top:50%;width:6px;height:72px;background:linear-gradient(180deg,#d97706,#b45309);border-radius:999px;transform-origin:50% 62px;transform:translate(-50%,-62px) rotate(0deg);z-index:2}
+  .clock-hand{position:absolute;left:50%;top:50%;width:8px;height:100px;background:linear-gradient(180deg,#f59e0b,#d97706);border-radius:999px;transform-origin:50% 90px;transform:translate(-50%,-90px) rotate(0deg);z-index:2}
+  .clock-hour{position:absolute;transform:translate(-50%,-50%);font-size:18px;font-weight:700;color:#5b5348}
+  .clock-text{color:#fff;font-weight:700;font-size:24px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.28);min-height:32px}
+  .clock-subtext{color:rgba(255,255,255,.88);font-size:14px;text-align:center;min-height:18px}
+  .live{width:100%;background:rgba(255,250,242,.95);border-radius:16px;padding:12px 14px;box-shadow:0 10px 24px rgba(0,0,0,.2)}
+  .live-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+  .live-stats .k{font-size:11px;color:var(--muted)} .live-stats .v{font-size:20px;font-weight:800}
+  .live-queue{height:30px;margin-top:8px;overflow:hidden;white-space:nowrap;font-size:20px;text-align:right;direction:rtl}
+  .live-queue span{display:inline-block;animation:pop .3s ease}
+  .live-full{font-size:12px;font-weight:700;color:var(--bad);text-align:center;min-height:16px}
+  @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+  .cta.wait{background:#c9bba6;box-shadow:none}
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr}
+    .statusbar{grid-template-columns:repeat(2,1fr)}
+    .prices{grid-template-columns:repeat(4,1fr)}
+    .report-grid{grid-template-columns:1fr}
+  }
+
+  /* ===== game 2: extra ===== */
+  .screen{max-width:760px;margin:30px auto;padding:0 14px}
+  .center{text-align:center}
+  .login-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px 26px;box-shadow:var(--shadow)}
+  .login-card label{display:block;font-weight:700;margin:12px 0 4px;font-size:14px}
+  .login-card input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px}
+  .linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;padding:4px;font-size:13px}
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .menu-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);text-align:left}
+  .menu-card h3{margin:0 0 4px;font-size:18px}
+  .menu-card .status{font-size:13px;color:var(--muted);margin:6px 0 10px}
+  .menu-card.locked{opacity:.65}
+  .voork .tag{color:var(--blue)}
+  .modal.voork{border-top-color:var(--blue)}
+  .vk-badge{display:inline-block;background:var(--blue-bg);color:#1e3a8a;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+  .new-badge{display:inline-block;background:#fff3dd;color:#92400e;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+  .term.vk{border-style:dashed}
+  .savebadge{position:fixed;right:12px;bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12px;box-shadow:var(--shadow);z-index:40}
+  .savebadge.err{color:var(--bad);border-color:#f5b5b5}
+  .quiz-progress{display:flex;gap:6px;margin:4px 0 10px}
+  .quiz-progress span{flex:1;height:6px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line)}
+  .quiz-progress span.ok{background:#16a34a;border-color:#16a34a}
+  .quiz-progress span.bad{background:#b91c1c;border-color:#b91c1c}
+  .quiz-progress span.cur{background:var(--accent-2);border-color:var(--accent)}
+  .teacher table td,.teacher table th{text-align:left}
+  .toggle{border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:#fff;font-size:13px}
+  .toggle.on{background:var(--good-bg);border-color:#86efac;color:var(--good);font-weight:700}
+  .rain .clock-face{filter:saturate(.4)}
+  .badge-line{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+  @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-title">🍟 SNACK EMPIRE · GAME 2</div>
+  <div class="topbar-sub" id="topSub">Hoofdstuk 3 en 4 – ondernemen en werken</div>
+</div>
+
+<!-- ===== INLOGGEN ===== -->
+<div class="screen hidden" id="loginScreen">
+  <div class="login-card">
+    <h2 style="margin:0 0 6px">👋 Inloggen</h2>
+    <p class="small muted" style="margin:0">Gebruik dezelfde naam, klas en pincode als in Snack Empire. Ben je nieuw? Dan wordt je account aangemaakt.</p>
+    <label for="inName">Naam</label><input id="inName" type="text" maxlength="40" autocomplete="off" placeholder="Bijv. Sam de Vries">
+    <label for="inClass">Klas</label><input id="inClass" type="text" maxlength="20" autocomplete="off" placeholder="Bijv. 4TL-B">
+    <label for="inPin">Pincode (4 cijfers)</label><input id="inPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+    <button class="cta" id="loginBtn">Inloggen</button>
+    <div id="loginMsg"></div>
+    <div class="center" style="margin-top:10px">
+      <button class="linkbtn hidden" id="trialBtn">Spelen zonder inloggen (proefmodus, wordt niet opgeslagen)</button>
+      <button class="linkbtn" id="teacherBtn">👩‍🏫 Docent</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MENU ===== -->
+<div class="screen hidden" id="menuScreen">
+  <div class="login-card">
+    <h2 style="margin:0" id="menuHello">Hoi!</h2>
+    <p class="small muted" style="margin:4px 0 0" id="menuSub"></p>
+    <div class="menu-grid" id="menuGrid"></div>
+    <div class="center" style="margin-top:12px"><button class="linkbtn" id="logoutBtn">Uitloggen</button></div>
+  </div>
+</div>
+
+<!-- ===== SPEL ===== -->
+<div class="wrap hidden" id="gameScreen">
+  <div class="statusbar">
+    <div class="stat"><div class="k">Dag</div><div class="v" id="sDay">1 / 12</div><div class="progress"><div id="sDayBar"></div></div></div>
+    <div class="stat"><div class="k">💰 In kas</div><div class="v" id="sMoney">€ 200,00</div></div>
+    <div class="stat"><div class="k">📈 Totaal nettoresultaat</div><div class="v" id="sProfit">€ 0,00</div></div>
+    <div class="stat"><div class="k">🎯 Doel: totaal nettoresultaat</div><div class="v goal" id="sGoal">⭐</div></div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <section class="panel" id="playPanel">
+        <h2>🏪 Dag <span id="pDay">1</span> – je kraam op het schoolplein</h2>
+        <div id="dayNews" class="msg info"></div>
+
+        <div id="priceArea">
+          <h3>1. Kies je consumentenprijs voor een portie patat <span class="small muted">(inclusief btw)</span></h3>
+          <div class="prices" id="prices"></div>
+          <div class="small muted" id="costLine"></div>
+          <div class="calc" id="calcBox">
+            <div class="calc-row"><span>Inkoopprijs per portie</span><b id="cVar">–</b></div>
+            <div class="calc-row"><span>+ brutowinstopslag</span><b id="cMargin">–</b></div>
+            <div class="calc-row total"><span>= Verkoopprijs exclusief btw</span><b id="cPriceEx">–</b></div>
+            <div class="calc-row"><span>+ btw (9%)</span><b id="cBtw">–</b></div>
+            <div class="calc-row total"><span>= Consumentenprijs</span><b id="cPrice">–</b></div>
+            <div id="kpRow" class="calc-row hidden" style="margin-top:6px"><span id="kpLabel">Kostprijs gisteren</span><b id="cKP">–</b></div>
+          </div>
+        </div>
+
+        <div id="predBox" class="hidden">
+          <h3>2. Jouw voorspelling</h3>
+          <div class="small" id="predQ"></div>
+          <div class="pred" id="pred">
+            <button data-p="meer">⬆️ Meer</button>
+            <button data-p="evenveel">↔️ Ongeveer evenveel</button>
+            <button data-p="minder">⬇️ Minder</button>
+          </div>
+        </div>
+
+        <button class="cta" id="playBtn" disabled>Open de kraam 🍟</button>
+        <div id="playHint" class="small muted" style="text-align:center;margin-top:6px">Kies eerst een prijs.</div>
+      </section>
+
+      <section class="panel hidden" id="investPanel">
+        <h2>🛠️ Jouw productie</h2>
+        <div id="investInfo"></div>
+      </section>
+
+      <section class="panel">
+        <h2>📒 Logboek</h2>
+        <div class="small muted" style="margin-bottom:6px">Bij welke prijs was je nettoresultaat het hoogst? (Prijzen inclusief btw, bedragen exclusief btw.)</div>
+        <div style="overflow-x:auto"><table id="log">
+          <thead><tr><th>Dag</th><th>Prijs</th><th>Vraag</th><th>Afzet</th><th>Omzet</th><th>Brutowinst</th><th>Nettoresultaat</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </section>
+    </div>
+
+    <div>
+      <section class="panel chart">
+        <h2>📊 Nettoresultaat per dag</h2>
+        <div id="chart"></div>
+      </section>
+      <section class="panel">
+        <h2>📘 Begrippen</h2>
+        <div class="small muted" style="margin-bottom:8px">Klik op een begrip om de uitleg terug te lezen. Gestippeld = voorkennis.</div>
+        <div class="terms" id="terms"></div>
+      </section>
+      <section class="panel" id="bonusPanel">
+        <h2>🎓 Wat je kennis opleverde</h2>
+        <div id="bonusInfo" class="small"></div>
+      </section>
+      <section class="panel hidden" id="envPanel">
+        <h2>🗑️ Afval op het schoolplein</h2>
+        <div id="envInfo"></div>
+      </section>
+      <section class="panel hidden" id="competitorPanel">
+        <h2>🌭 Concurrent: SnackPoint</h2>
+        <div id="compInfo"></div>
+      </section>
+      <div class="center"><button class="linkbtn" id="toMenuBtn">⬅ Terug naar het menu (je voortgang is bewaard)</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="clock-overlay" id="clockOverlay" aria-hidden="true">
+  <div class="clock-shell">
+    <div class="clock-face" id="clockFace">
+      <div id="clockHours"></div>
+      <div class="clock-hand-short" id="clockHandShort"></div>
+      <div class="clock-hand" id="clockHand"></div>
+      <div class="clock-center"></div>
+    </div>
+    <div class="clock-text" id="clockText"></div>
+    <div class="clock-subtext" id="clockSub"></div>
+    <div class="live">
+      <div class="live-stats">
+        <div><div class="k">🍟 Geholpen</div><div class="v" id="liveServed">0</div></div>
+        <div><div class="k">🚶 Weggelopen</div><div class="v" id="liveWalk" style="color:var(--bad)">0</div></div>
+        <div><div class="k">💶 In de kassa</div><div class="v" id="liveRev">€ 0,00</div></div>
+      </div>
+      <div class="live-queue" id="liveQueue"></div>
+      <div class="live-full" id="liveFull"></div>
+    </div>
+  </div>
+</div>
+<div class="overlay hidden" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="savebadge hidden" id="saveBadge"></div>
+
+<script>
+const SUPABASE_URL = "https://tbrxvnlbfrliwohugtjs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRicnh2bmxiZnJsaXdvaHVndGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NDkzODYsImV4cCI6MjEwMzIyNTM4Nn0.M-yT3EXe_30zNfOtM6UXFW0ExcZHScwPXUzqy6YEnhc";
+// =====================================================================
+// SNACK EMPIRE – GAME 2, DEEL 1: "Ben jij ondernemend?" (hoofdstuk 3)
+// Begrippen volgen de methode (H3 + voorkennis) en de syllabus vmbo CE 2025.
+// =====================================================================
+
+// ---------- INSTELLINGEN ----------
+const GAME_KEY = 'game2_deel1';
+const DEEL2_KEY = 'game2_deel2';
+const DAYS = 12;
+const START_MONEY = 200;
+const RENT = 20;                 // huisvestingskosten per dag (vast)
+const BASE_PURCHASE = 1.20;      // inkoopprijs per portie (variabel)
+const BTW = 0.09;
+const BASE_CAPACITY = 45;
+const PRICES = [2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50]; // consumentenprijzen (incl. btw)
+const DAY = { WHOLESALE:3, INVEST:5, ENV:7, RAIN:8, COMPETITOR:9, KVK:10, CARTEL:11, MERGER:12 };
+const COMPETITOR_PRICE = 2.50;
+const CARTEL_PRICE = 3.00;
+const CARTEL_FINE = 50;
+const COURSE_FEE_PER_WRONG = 5;
+const GOALS = [450, 560, 650];   // totaal nettoresultaat voor 1, 2, 3 sterren
+const CLOCK_DURATION = 7000;
+const REPORT_READ_SECONDS = 4;
+const CUSTOMER_ICONS = ['👨‍🎓','👩‍🎓','🧑‍🎓','👦','👧','🧑','👩','👨'];
+const LOCAL_KEY = 'snackEmpire_game2_proef_v3';
+
+const INVESTMENTS = {
+  modern: { name:'🔥 Moderne frituur', price:200, capacity:75, purchaseDelta:-0.10, life:40,
+    text:'Nieuwe techniek: je bakt in je eentje 75 porties per dag (nu 45) en hij is zuiniger (inkoop € 0,10 lager per portie). Kost € 200 en gaat 40 dagen mee.' },
+  used: { name:'🔧 Tweedehands frituur', price:80, capacity:60, purchaseDelta:0, life:20,
+    text:'Goedkoop en snel geregeld: je bakt 60 porties per dag. Kost € 80 en gaat nog 20 dagen mee.' },
+  none: { name:'🐷 Niets kopen', price:0, capacity:BASE_CAPACITY, purchaseDelta:0, life:0,
+    text:'Je houdt je huidige frituur: 45 porties per dag. Geen uitgaven, maar ook niet meer productie.' }
+};
+const depreciationOf = k => { const i = INVESTMENTS[k]; return i && i.life ? i.price / i.life : 0; };
+
+const ENV_OPTIONS = {
+  none: { name:'🤷 Niets doen', text:'Het afval is niet jouw probleem. Kost niks… maar sommige leerlingen en de school ergeren zich eraan.', lost:4, extraPurchase:0, extraCost:0 },
+  paper: { name:'📦 Papieren bakjes en houten vorkjes', text:'Breken af in de natuur en schelen veel plastic. Wel duurder: de inkoopprijs stijgt met € 0,05 per portie.', lost:0, extraPurchase:0.05, extraCost:0 },
+  bins: { name:'🗑️ Eigen afvalbakken + elke dag opruimen', text:'Je zet afvalbakken neer en ruimt na sluitingstijd het plein op. Dat kost je € 3 per dag aan bedrijfskosten.', lost:0, extraPurchase:0, extraCost:3 }
+};
+
+// ---------- BEGRIPPEN ----------
+// type 'v' = voorkennis ("Weet je het nog?"), 'n' = nieuw (hoofdstuk 3), 's' = extra uit de syllabus
+const CONCEPTS = {
+  produceren:{ t:'v', title:'Produceren', text:'<b>Produceren</b> is het maken van goederen en het leveren van diensten. Jij produceert patat.' },
+  afzet:{ t:'v', title:'Afzet', text:'De <b>afzet</b> is het aantal producten dat je verkoopt.' },
+  omzet:{ t:'v', title:'Omzet', text:'De <b>omzet</b> is de verkoopopbrengst: het totaalbedrag dat je ontvangt door de verkoop van producten. Let op: de btw hoort er niet bij, want die draag je af.', formula:'Omzet = afzet × verkoopprijs (exclusief btw)' },
+  productiefactoren:{ t:'n', title:'Productiefactoren', text:'<b>Productiefactoren</b> zijn alle middelen die je nodig hebt om te produceren: <b>natuur</b> (de aardappelen, het water), <b>arbeid</b> (jij die bakt), <b>kapitaal</b> (je kraam en frituur) en <b>ondernemerschap</b> (jij die beslist en het risico neemt).' },
+  vraag:{ t:'v', title:'Vraag', text:'De <b>vraag</b> is alles wat mensen willen kopen. Bij jou: het aantal leerlingen dat patat wil.' },
+  vastekosten:{ t:'n', title:'Vaste kosten', text:'<b>Vaste kosten</b> veranderen niet meteen als je meer of minder gaat produceren. Bijvoorbeeld de huur van je kraam: € 20 per dag, ook als er niemand komt.' },
+  variabelekosten:{ t:'n', title:'Variabele kosten', text:'<b>Variabele kosten</b> veranderen als je meer of minder gaat produceren. Bijvoorbeeld de kosten van grondstoffen: aardappelen, olie en bakjes.' },
+  brutowinstopslag:{ t:'v', title:'Brutowinstopslag', text:'De <b>brutowinstopslag</b> is het bedrag dat je optelt bij de inkoopprijs om de verkoopprijs te berekenen.', formula:'Inkoopprijs + brutowinstopslag = verkoopprijs (exclusief btw)' },
+  btw:{ t:'v', title:'Btw', text:'<b>Btw</b> is belasting over de toegevoegde waarde. Je moet de btw optellen bij je verkoopprijs. Op eten is dat 9%. Dat geld draag je af aan de Belastingdienst.' },
+  consumentenprijs:{ t:'v', title:'Consumentenprijs', text:'De <b>consumentenprijs</b> is de prijs inclusief btw: de prijs die de klant betaalt.', formula:'Verkoopprijs (excl. btw) + 9% btw = consumentenprijs' },
+  kostprijs:{ t:'n', title:'Kostprijs per product', text:'De <b>kostprijs per product</b> is de gemiddelde kosten voor het maken van één product. Hoe meer porties je verkoopt, hoe lager je kostprijs: je vaste kosten worden dan over meer porties verdeeld.', formula:'Kostprijs = (inkoopwaarde + bedrijfskosten) ÷ afzet' },
+  brutowinst:{ t:'n', title:'Brutowinst', text:'De <b>brutowinst</b> is wat je overhoudt van de omzet nadat je de inkoopwaarde ervan betaald hebt.', formula:'Brutowinst = omzet − inkoopwaarde' },
+  nettoresultaat:{ t:'v', title:'Nettoresultaat', text:'Het <b>nettoresultaat</b> is de nettowinst of het nettoverlies: het bedrag dat je uiteindelijk overhoudt nadat je ook alle bedrijfskosten betaald hebt.', formula:'Nettoresultaat = brutowinst − bedrijfskosten' },
+  investeren:{ t:'n', title:'Investeren', text:'Bij <b>investeren</b> besteden bedrijven geld aan productiemiddelen, zoals kapitaalgoederen. Een frituur is een kapitaalgoed.' },
+  productiecapaciteit:{ t:'n', title:'Productiecapaciteit', text:'De <b>productiecapaciteit</b> is de maximale hoeveelheid die een bedrijf kan produceren. Willen er meer klanten kopen, dan lopen ze weg.' },
+  arbeidsproductiviteit:{ t:'n', title:'Arbeidsproductiviteit', text:'De <b>arbeidsproductiviteit</b> is de productie per persoon in een bepaalde tijd. Een betere machine (nieuwe techniek) maakt de arbeidsproductiviteit hoger.', formula:'Arbeidsproductiviteit = productie ÷ aantal werkenden (per dag)' },
+  afschrijving:{ t:'s', title:'Afschrijving', text:'Een frituur gaat lang mee. Daarom tel je de aankoopprijs niet in één keer als kosten, maar verdeel je hem over de tijd dat je hem gebruikt: de <b>afschrijving</b>. Je kas daalt in één keer bij de aankoop, je nettoresultaat elke dag een klein beetje.', formula:'Afschrijving per dag = aankoopprijs ÷ aantal dagen dat de machine meegaat' },
+  toegevoegdewaarde:{ t:'n', title:'Toegevoegde waarde', text:'<b>Toegevoegde waarde</b> is de extra waarde die ontstaat doordat een bedrijf een product bewerkt. Een rauwe aardappel is weinig waard; een warme portie patat veel meer. In jouw kraam is de toegevoegde waarde gelijk aan je omzet min je inkoopwaarde.' },
+  mvo:{ t:'n', title:'Maatschappelijk verantwoord ondernemen (mvo)', text:'Bij <b>mvo</b> houden bedrijven bij hun productie zo veel mogelijk rekening met de gevolgen voor mens en milieu. Het afval van je kraam komt anders terecht bij de school en de buurt.' },
+  aanbod:{ t:'v', title:'Aanbod', text:'Het <b>aanbod</b> is alles wat producenten te koop aanbieden.' },
+  concretemarkt:{ t:'v', title:'Concrete markt', text:'Een <b>concrete markt</b> is een plaats waar op bepaalde tijden goederen verhandeld worden. Zoals jouw schoolplein in de pauze.' },
+  abstractemarkt:{ t:'v', title:'Abstracte markt', text:'Een <b>abstracte markt</b> is alle vraag naar en aanbod van een product, zoals de wereldmarkt voor aardappelen. Zo\'n markt kun je niet bezoeken.' },
+  evenwichtsprijs:{ t:'n', title:'Evenwichtsprijs', text:'De <b>evenwichtsprijs</b> is de prijs waarbij vraag en aanbod aan elkaar gelijk zijn. In een grafiek is dat het snijpunt van de vraaglijn en de aanbodlijn.' },
+  evenwichtshoeveelheid:{ t:'n', title:'Evenwichtshoeveelheid', text:'De <b>evenwichtshoeveelheid</b> is het aantal producten dat gevraagd en aangeboden wordt bij de evenwichtsprijs.' },
+  transparantemarkt:{ t:'n', title:'Transparante markt', text:'Op een <b>transparante markt</b> kun je de aangeboden producten en prijzen goed met elkaar vergelijken. Twee kramen tegenover elkaar met de prijs op een bord: dat is heel transparant.' },
+  oligopolie:{ t:'n', title:'Oligopolie', text:'Een <b>oligopolie</b> is een marktvorm met een klein aantal aanbieders. Ze kunnen homogene of heterogene goederen aanbieden.' },
+  homogenegoederen:{ t:'n', title:'Homogene goederen', text:'<b>Homogene goederen</b> zijn producten die voor klanten niet van elkaar verschillen. Patat is patat: klanten kiezen dan vooral op prijs.' },
+  marktaandeel:{ t:'n', title:'Marktaandeel', text:'Het <b>marktaandeel</b> is de afzet (of omzet) van een bedrijf in procenten van de totale afzet (of omzet) op de markt.', formula:'Marktaandeel = jouw afzet ÷ totale afzet × 100%' },
+  heterogenegoederen:{ t:'n', title:'Heterogene goederen', text:'<b>Heterogene goederen</b> zijn producten waarbij het voor een klant verschil maakt wie het levert of van welk merk het is. Met een eigen saus wordt jouw patat anders dan die van SnackPoint.' },
+  volkomenconcurrentie:{ t:'n', title:'Volkomen concurrentie', text:'<b>Volkomen concurrentie</b> is een marktvorm met veel aanbieders van homogene goederen, zoals duizenden aardappelboeren die precies dezelfde aardappelen verkopen.' },
+  monopolistischeconcurrentie:{ t:'n', title:'Monopolistische concurrentie', text:'<b>Monopolistische concurrentie</b> is een marktvorm met veel aanbieders van heterogene goederen, zoals alle kappers in een stad: veel aanbieders, maar elk een eigen stijl.' },
+  monopolie:{ t:'n', title:'Monopolie', text:'Een <b>monopolie</b> is een marktvorm met maar één aanbieder. Klanten kunnen nergens anders heen.' },
+  kartel:{ t:'n', title:'Kartel', text:'Een <b>kartel</b> is een verboden afspraak tussen bedrijven om hun onderlinge concurrentie te beperken, bijvoorbeeld door samen dezelfde hoge prijs te vragen. De klant is de dupe: die betaalt meer. In Nederland controleert de toezichthouder ACM hierop en deelt boetes uit.' },
+  fusie:{ t:'n', title:'Fusie', text:'Bij een <b>fusie</b> vormen twee bedrijven samen één nieuw bedrijf.' }
+};
+// Volgorde per dag: [voorkennis, nieuw]
+const SCHEDULE = {
+  1:{ v:['produceren','afzet','omzet'], n:['productiefactoren'] },
+  2:{ v:['vraag'], n:['vastekosten','variabelekosten'] },
+  3:{ v:['brutowinstopslag','btw','consumentenprijs'], n:['kostprijs'] },
+  4:{ v:['nettoresultaat'], n:['brutowinst'] },
+  5:{ v:[], n:['investeren','productiecapaciteit','arbeidsproductiviteit'] },
+  6:{ v:[], n:['toegevoegdewaarde'] },
+  7:{ v:[], n:['mvo'] },
+  8:{ v:['aanbod','concretemarkt','abstractemarkt'], n:['evenwichtsprijs','evenwichtshoeveelheid','transparantemarkt'] },
+  9:{ v:[], n:['oligopolie','homogenegoederen','marktaandeel'] },
+  10:{ v:[], n:['heterogenegoederen','volkomenconcurrentie','monopolistischeconcurrentie','monopolie'] },
+  11:{ v:[], n:['kartel'] },
+  12:{ v:[], n:[] }
+};
+const DAY_NEWS = {
+  1:'Welkom! Vandaag open je voor het eerst je patatkraam op het schoolplein. Kies een prijs en kijk wat er gebeurt.',
+  2:'Nieuw: voorspel elke dag of er meer of minder klanten komen dan gisteren.',
+  3:'Vanochtend kwam de groothandel langs. Kijk wat je inkoopprijs nu is!',
+  4:'Je dagrapport laat nu je brutowinst én je nettoresultaat zien.',
+  5:'Je hebt genoeg in kas om te investeren. Kijk in je logboek: liepen er klanten weg?',
+  6:'Van een rauwe aardappel maak jij een portie patat. Hoeveel waarde voeg jij toe?',
+  7:'Er liggen steeds meer lege patatbakjes op het schoolplein…',
+  8:'🌧️ Het regent pijpenstelen. Niemand komt naar buiten: je kraam blijft vandaag dicht.',
+  9:'Slecht nieuws: aan de overkant van het schoolplein is SnackPoint geopend!',
+  10:'Vanochtend was je bij een workshop van de Kamer van Koophandel.',
+  11:'De eigenaar van SnackPoint wil je iets vragen…',
+  12:'Laatste dag van deel 1! Haal er nog alles uit.'
+};
+
+// ---------- QUIZVRAGEN ----------
+// Elke quiz: 4 vragen. 'fixed' vragen komen altijd, de rest wordt willekeurig gekozen.
+const EQ_GRAPH = { demand:[[0,4],[800,0]], supply:[[0,1],[800,3]], price:2, qty:400 }; // p = 4 − q/200 ; p = 1 + q/400
+const QUIZZES = {
+  wholesale: {
+    title:'🚚 De groothandel', intro:'De groothandel geeft korting aan ondernemers die verstand van zaken hebben. Elk goed antwoord: <b>€ 0,03 korting</b> op je inkoopprijs per portie. Elk fout antwoord: <b>€ 0,02 toeslag</b>.',
+    fixed:[], pool:[
+      { k:'rekenen', q:'De groothandel rekent € 1,20 per portie. Je telt er 100% brutowinstopslag bij op, en daarna 9% btw. Wat wordt je consumentenprijs?', o:['€ 2,40','€ 2,62','€ 2,51','€ 2,18'], a:1, e:'€ 1,20 + 100% opslag (€ 1,20) = € 2,40 exclusief btw. Plus 9% btw: € 2,40 × 1,09 = € 2,62.' },
+      { k:'herkennen', q:'Welke van deze kosten is een variabele kost voor jouw kraam?', o:['De huur van de kraam','De bakjes','De verzekering','De vergunning van de gemeente'], a:1, e:'Hoe meer porties je verkoopt, hoe meer bakjes je nodig hebt. De andere kosten blijven gelijk: vaste kosten.' },
+      { k:'rekenen', q:'Je verkocht vandaag 40 porties. Je totale kosten (inkoopwaarde + bedrijfskosten) waren € 68. Wat is je kostprijs per portie?', o:['€ 1,20','€ 1,70','€ 2,72','€ 0,59'], a:1, e:'Kostprijs = totale kosten ÷ afzet = € 68 ÷ 40 = € 1,70.' },
+      { k:'herkennen', q:'Je frituur is een productiefactor. Welke?', o:['Natuur','Arbeid','Kapitaal','Ondernemerschap'], a:2, e:'Machines en gebouwen die je gebruikt om te produceren zijn kapitaal.' },
+      { k:'rekenen', q:'Een portie kost € 3,27 inclusief 9% btw. Wat is de verkoopprijs exclusief btw?', o:['€ 2,98','€ 3,00','€ 3,18','€ 3,56'], a:1, e:'€ 3,27 ÷ 1,09 = € 3,00. (€ 3,27 − 9% = € 2,98 is fout: de 9% is berekend over de prijs zonder btw.)' },
+      { k:'redeneren', q:'Waarom daalt je kostprijs per portie als je meer porties verkoopt?', o:['Omdat de inkoopprijs daalt','Omdat je vaste kosten over meer porties verdeeld worden','Omdat je minder btw betaalt','Omdat je omzet stijgt'], a:1, e:'De huur blijft € 20, of je nu 20 of 60 porties verkoopt. Bij meer porties draagt elke portie een kleiner stukje van die vaste kosten.' }
+    ]},
+  course: {
+    title:'🌧️ Regendag: de ondernemerscursus', intro:'Je kraam is dicht, dus je volgt een ondernemerscursus over de markt. Elk goed antwoord: een betere plek op het plein, <b>2 klanten per dag extra</b>. Elk fout antwoord: <b>€ 5 extra cursusgeld</b> (bedrijfskosten van vandaag).',
+    fixed:[
+      { k:'grafiek', graph:true, q:'Hierboven zie je de vraag naar en het aanbod van patat op alle scholen in de stad. Wat is de evenwichtsprijs?', o:['€ 1,00','€ 2,00','€ 3,00','€ 4,00'], a:1, e:'De lijnen snijden elkaar bij € 2,00. Bij die prijs is de vraag gelijk aan het aanbod.' },
+      { k:'grafiek', graph:true, q:'Wat is in dezelfde grafiek de evenwichtshoeveelheid?', o:['200 porties','400 porties','600 porties','800 porties'], a:1, e:'Lees vanaf het snijpunt recht naar beneden af: 400 porties worden gevraagd én aangeboden.' }
+    ], pool:[
+      { k:'herkennen', q:'Jouw kraam op het schoolplein is een concrete markt. Wat voor markt is de wereldmarkt voor aardappelen?', o:['Een concrete markt','Een abstracte markt','Een transparante markt','Geen markt'], a:1, e:'Alle vraag naar en aanbod van aardappelen in de wereld: die markt kun je niet bezoeken. Een abstracte markt.' },
+      { k:'redeneren', q:'Waarom zouden klanten snel overstappen als een kraam aan de overkant goedkoper is?', o:['Omdat patat gezond is','Omdat de markt transparant is: ze zien beide prijzen meteen','Omdat er een monopolie is','Omdat de btw verschilt'], a:1, e:'De kramen staan tegenover elkaar met de prijs op een bord. Klanten kunnen prijzen en producten makkelijk vergelijken: een transparante markt.' },
+      { k:'herkennen', q:'Alle patat die de kramen in de stad samen te koop aanbieden, noem je…', o:['de vraag','het aanbod','de afzet','de omzet'], a:1, e:'Aanbod is alles wat producenten te koop aanbieden.' },
+      { k:'redeneren', q:'De prijs ligt bóven de evenwichtsprijs. Wat gebeurt er?', o:['Er wordt meer gevraagd dan aangeboden','Er wordt meer aangeboden dan gevraagd','Vraag en aanbod zijn gelijk','De btw stijgt'], a:1, e:'Bij een hoge prijs willen producenten veel verkopen, maar willen klanten weinig kopen. Het aanbod is groter dan de vraag.' }
+    ]},
+  kvk: {
+    title:'🏢 Workshop Kamer van Koophandel', intro:'Thema: macht op de markt. Heb je 3 of 4 vragen goed, dan ontwikkel je een <b>eigen saus</b>. Je patat wordt dan anders dan die van SnackPoint, en er stappen minder klanten over. Bij 2 of meer fouten: geen saus.',
+    fixed:[], pool:[
+      { k:'herkennen', q:'Op het schoolplein staan nu 2 patatkramen met precies dezelfde patat. Welke marktvorm is dit?', o:['Volkomen concurrentie','Monopolistische concurrentie','Oligopolie','Monopolie'], a:2, e:'Een klein aantal aanbieders: een oligopolie. Hier met homogene goederen.' },
+      { k:'redeneren', q:'Waarom maakt een eigen saus je minder gevoelig voor de lage prijs van SnackPoint?', o:['Omdat saus goedkoop is','Omdat je patat dan heterogeen wordt: klanten kiezen ook op smaak','Omdat je dan een monopolie hebt','Omdat je dan minder btw betaalt'], a:1, e:'Met een eigen saus maakt het voor klanten uit wie de patat levert: een heterogeen product. Ze letten dan niet alleen op de prijs.' },
+      { k:'herkennen', q:'Op het hoofdspoornet in Nederland rijdt maar één bedrijf personentreinen. Welke marktvorm is dat?', o:['Oligopolie','Monopolie','Volkomen concurrentie','Monopolistische concurrentie'], a:1, e:'Maar één aanbieder: een monopolie.' },
+      { k:'herkennen', q:'Duizenden aardappelboeren verkopen precies dezelfde aardappelen. Welke marktvorm is dat?', o:['Volkomen concurrentie','Oligopolie','Monopolie','Monopolistische concurrentie'], a:0, e:'Veel aanbieders van homogene goederen: volkomen concurrentie.' },
+      { k:'herkennen', q:'In jouw stad zitten 60 kappers, en elke kapper heeft een eigen stijl. Welke marktvorm is dat?', o:['Volkomen concurrentie','Monopolistische concurrentie','Oligopolie','Monopolie'], a:1, e:'Veel aanbieders van heterogene goederen: monopolistische concurrentie.' },
+      { k:'rekenen', q:'Jij verkocht gisteren 45 porties, SnackPoint 30. Wat was jouw marktaandeel?', o:['45%','60%','40%','75%'], a:1, e:'Totale afzet = 45 + 30 = 75. Jouw marktaandeel = 45 ÷ 75 × 100% = 60%.' }
+    ]}
+};
+
+// ---------- OPSLAG ----------
+let sb = null;
+try { if(window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e){ sb = null; }
+const session = { student:null, pin:null, trial:false };
+let state = null;
+let saveTimer = null;
+
+function freshState(){
+  return { day:1, money:START_MONEY, price:null, prediction:null, history:[], concepts:[],
+    investment:null, env:null, competitor:false, purchaseAdj:0, placeBonus:0, sauce:0, cartel:null, merger:null,
+    quiz:{}, quizCorrect:0, quizTotal:0, pending:[], finished:false, started:true };
+}
+function setSaveBadge(text, err){
+  const b = $('saveBadge');
+  if(!text){ b.classList.add('hidden'); return; }
+  b.textContent = text; b.classList.toggle('err', !!err); b.classList.remove('hidden');
+  if(!err) setTimeout(() => { if(b.textContent === text) b.classList.add('hidden'); }, 1600);
+}
+async function saveNow(){
+  if(!state) return;
+  if(session.trial){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); }catch(e){} return; }
+  if(!sb || !session.student) return;
+  try{
+    const { error } = await sb.rpc('game_save', {
+      p_student_id: session.student.id, p_pin: session.pin, p_game: GAME_KEY, p_state: state,
+      p_net_result: Math.round(totalNet() * 100) / 100, p_quiz_correct: state.quizCorrect, p_quiz_total: state.quizTotal,
+      p_finished: !!state.finished });
+    if(error) throw error;
+    setSaveBadge('✓ Opgeslagen');
+  }catch(e){
+    console.error('Opslaan mislukt', e);
+    setSaveBadge('⚠️ Niet opgeslagen – controleer je internet', true);
+  }
+}
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
+async function loadState(game){
+  if(session.trial){
+    if(game !== GAME_KEY) return null;
+    try{ return JSON.parse(localStorage.getItem(LOCAL_KEY)); }catch(e){ return null; }
+  }
+  const { data, error } = await sb.rpc('game_load', { p_student_id: session.student.id, p_pin: session.pin, p_game: game });
+  if(error) throw error;
+  return data && Object.keys(data).length ? data : null;
+}
+
+// ---------- HULPFUNCTIES ----------
+const $ = id => document.getElementById(id);
+const eur = v => (v < -0.004 ? '− ' : '') + '€ ' + Math.abs(v).toLocaleString('nl-NL', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const eur0 = v => (v < -0.004 ? '− ' : '') + '€ ' + Math.round(Math.abs(v)).toLocaleString('nl-NL');
+const exBtw = p => p / (1 + BTW);
+const pct = v => Math.round(v * 100) + '%';
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function shuffled(a){ const r = a.slice(); for(let i = r.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; }
+function totalNet(){ return state ? state.history.reduce((s, h) => s + h.net, 0) : 0; }
+function show(screen){
+  ['loginScreen','menuScreen','gameScreen'].forEach(id => $(id).classList.toggle('hidden', id !== screen));
+  window.scrollTo(0, 0);
+}
+
+// ---------- PRODUCTIE EN VRAAG ----------
+function setup(day = state.day){
+  const inv = INVESTMENTS[state.investment] || INVESTMENTS.none;
+  const env = ENV_OPTIONS[state.env];
+  const costs = [['Huisvestingskosten (huur kraam)', RENT]];
+  const dep = depreciationOf(state.investment);
+  if(dep) costs.push(['Afschrijving frituur', dep]);
+  if(env && env.extraCost) costs.push(['Afvalbakken en opruimen', env.extraCost]);
+  return {
+    capacity: inv.capacity, workers: 1,
+    purchase: Math.round((BASE_PURCHASE + inv.purchaseDelta + state.purchaseAdj + (env ? env.extraPurchase : 0)) * 100) / 100,
+    costs, depreciation: dep, envLost: env ? env.lost : 0
+  };
+}
+function demandAt(p, s, opts){
+  let d = 90 - 20 * (p - 2) - 14 * Math.pow(p - 2, 2) + state.placeBonus - s.envLost;
+  let lostToComp = 0;
+  if(opts.competitor){
+    const compPrice = opts.cartel ? CARTEL_PRICE : COMPETITOR_PRICE;
+    lostToComp = opts.cartel ? 10 : (10 + Math.max(0, p - compPrice) * 40) * (1 - state.sauce);
+    d -= lostToComp;
+  }
+  return { demand: Math.max(0, d), lostToComp };
+}
+function simulateDay(p, noise, extraCosts){
+  const s = setup();
+  const closed = state.day === DAY.RAIN;
+  const opts = { competitor: state.competitor, cartel: state.day === DAY.CARTEL && state.cartel === 'join' };
+  const { demand, lostToComp } = closed ? { demand:0, lostToComp:0 } : demandAt(p, s, opts);
+  const want = Math.max(0, Math.round(demand + (closed ? 0 : noise)));
+  const sold = Math.min(want, s.capacity);
+  const pEx = exBtw(p);
+  const costs = s.costs.concat(extraCosts || []);
+  const totalCosts = costs.reduce((a, c) => a + c[1], 0);
+  const revenue = sold * pEx, btwTotal = sold * (p - pEx), purchaseValue = sold * s.purchase;
+  const gross = revenue - purchaseValue, net = gross - totalCosts;
+  return { day: state.day, price: p, pEx, want, sold, walkaways: want - sold, cap: s.capacity, workers: s.workers,
+    purchase: s.purchase, revenue, btwTotal, purchaseValue, gross, costs, totalCosts, net, closed,
+    costPrice: sold ? (purchaseValue + totalCosts) / sold : null, cash: net + s.depreciation,
+    lostToComp: Math.round(lostToComp), envLost: s.envLost };
+}
+
+// ---------- MODALS ----------
+let modalQueue = [];
+function queueModal(fn){ modalQueue.push(fn); if(modalQueue.length === 1) fn(); }
+function closeModal(){
+  modalQueue.shift();
+  if(modalQueue.length) modalQueue[0]();
+  else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); }
+}
+function showModal(html, voork){
+  $('modal').classList.toggle('voork', !!voork);
+  $('modal').innerHTML = html;
+  $('overlay').classList.remove('hidden');
+  $('modal').scrollTop = 0;
+}
+function conceptHtml(k){
+  const c = CONCEPTS[k];
+  return `<h2 style="margin-top:12px">${c.title}</h2><p>${c.text}</p>${c.formula ? `<div class="formula">${c.formula}</div>` : ''}`;
+}
+function conceptModal(k){
+  const c = CONCEPTS[k];
+  showModal(`<div class="tag">${c.t === 'v' ? '🔁 Weet je het nog?' : '📘 Begrip'}</div>${conceptHtml(k)}<button class="cta" onclick="closeModal()">Sluiten</button>`, c.t === 'v');
+}
+function teach(keys, kind){
+  const fresh = keys.filter(k => !state.concepts.includes(k));
+  if(!fresh.length) return;
+  state.concepts.push(...fresh);
+  const voork = kind === 'v';
+  queueModal(() => showModal(`
+    <div class="tag">${voork ? '🔁 Weet je het nog?' : '📘 ' + (fresh.length > 1 ? fresh.length + ' nieuwe begrippen' : 'Nieuw begrip')}</div>
+    ${voork ? '<p class="small muted" style="margin:4px 0 0">Dit ken je nog uit klas 2 of 3.</p>' : ''}
+    ${fresh.map(conceptHtml).join('')}
+    <button class="cta" onclick="closeModal()">${voork ? 'Ja, weet ik weer 👍' : 'Begrepen 👍'}</button>`, voork));
+}
+function teachDay(d){ const s = SCHEDULE[d]; if(!s) return; teach(s.v, 'v'); teach(s.n, 'n'); }
+
+// ---------- QUIZ ----------
+function eqGraphSvg(){
+  const W = 420, H = 262, L = 52, R = 14, T = 26, B = 40;
+  const x = q => L + q / 800 * (W - L - R), y = p => T + (4 - p) / 4 * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:440px;display:block;margin:6px auto" role="img" aria-label="Vraag en aanbod van patat">`;
+  for(let p = 0; p <= 4; p++) s += `<line x1="${L}" x2="${W - R}" y1="${y(p)}" y2="${y(p)}" stroke="#eee4d5"/><text x="${L - 6}" y="${y(p) + 4}" font-size="11" text-anchor="end" fill="#6a6359">€${p},00</text>`;
+  for(let q = 0; q <= 800; q += 200) s += `<line x1="${x(q)}" x2="${x(q)}" y1="${T}" y2="${H - B}" stroke="#eee4d5"/><text x="${x(q)}" y="${H - B + 15}" font-size="11" text-anchor="middle" fill="#6a6359">${q}</text>`;
+  s += `<line x1="${L}" x2="${L}" y1="${T}" y2="${H - B}" stroke="#6a6359"/><line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="#6a6359"/>`;
+  s += `<text x="${(L + W - R) / 2}" y="${H - 6}" font-size="11" text-anchor="middle" fill="#6a6359">hoeveelheid (porties per dag)</text>`;
+  s += `<text x="${L}" y="12" font-size="11" text-anchor="middle" fill="#6a6359">prijs</text>`;
+  const [d0, d1] = EQ_GRAPH.demand, [a0, a1] = EQ_GRAPH.supply;
+  s += `<line x1="${x(d0[0])}" y1="${y(d0[1])}" x2="${x(d1[0])}" y2="${y(d1[1])}" stroke="#2563eb" stroke-width="3"/>`;
+  s += `<line x1="${x(a0[0])}" y1="${y(a0[1])}" x2="${x(a1[0])}" y2="${y(a1[1])}" stroke="#d97706" stroke-width="3"/>`;
+  s += `<text x="${x(160)}" y="${y(3.5)}" font-size="12" font-weight="700" fill="#2563eb">vraag</text>`;
+  s += `<text x="${x(640)}" y="${y(2.95)}" font-size="12" font-weight="700" fill="#d97706">aanbod</text>`;
+  return s + '</svg>';
+}
+function runQuiz(id, onDone){
+  const def = QUIZZES[id];
+  const picked = def.fixed.concat(shuffled(def.pool).slice(0, 4 - def.fixed.length));
+  const results = [];
+  showModal(`
+    <div class="tag">🎓 Quizmoment</div>
+    <h2>${def.title}</h2>
+    <p>${def.intro}</p>
+    <p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p>
+    <button class="cta" id="qStart">Start ▶️</button>`);
+  $('qStart').onclick = () => ask(0);
+  function bar(i){
+    return `<div class="quiz-progress">${picked.map((_, j) => `<span class="${j < i ? (results[j] ? 'ok' : 'bad') : j === i ? 'cur' : ''}"></span>`).join('')}</div>`;
+  }
+  function ask(i){
+    const q = picked[i];
+    showModal(`
+      <div class="tag">${def.title} – vraag ${i + 1} van 4 <span class="pill">${q.k}</span></div>
+      ${bar(i)}
+      ${q.graph ? eqGraphSvg() : ''}
+      <h2 style="font-size:17px">${q.q}</h2>
+      <div class="options" id="qOpts">${shuffled(q.o.map((o, j) => [o, j])).map(([o, j]) => `<button class="option" data-j="${j}">${o}</button>`).join('')}</div>
+      <div id="qFeedback"></div>`);
+    document.querySelectorAll('#qOpts .option').forEach(b => b.onclick = () => {
+      const ok = +b.dataset.j === q.a;
+      results.push(ok);
+      document.querySelectorAll('#qOpts .option').forEach(x => {
+        x.disabled = true;
+        if(+x.dataset.j === q.a) x.classList.add('correct'); else if(x === b) x.classList.add('wrong');
+      });
+      $('qFeedback').innerHTML = `<div class="msg ${ok ? 'good' : 'bad'}">${ok ? '✅ Goed!' : '❌ Helaas.'} ${q.e}</div>
+        <button class="cta" id="qNext">${i < 3 ? 'Volgende vraag ➡️' : 'Bekijk je resultaat'}</button>`;
+      $('qNext').onclick = () => i < 3 ? ask(i + 1) : finish();
+    });
+  }
+  function finish(){
+    const correct = results.filter(Boolean).length;
+    state.quiz[id] = { correct, total: 4 };
+    state.quizCorrect += correct; state.quizTotal += 4;
+    const effect = onDone(correct);
+    save();
+    showModal(`
+      <div class="tag">🎓 Resultaat</div>
+      <h2>${def.title}: ${correct} van de 4 goed</h2>
+      ${bar(4)}
+      <div class="msg ${correct >= 3 ? 'good' : correct >= 2 ? 'warn' : 'bad'}">${effect}</div>
+      <button class="cta" onclick="closeModal()">Verder</button>`);
+  }
+}
+
+// ---------- DAGVERLOOP ----------
+function beginDay(){
+  state.price = null; state.prediction = null;
+  const d = state.day;
+  if(d === DAY.CARTEL && state.cartel === 'join') state.price = CARTEL_PRICE;
+  state.pending = [];
+  if(d === DAY.COMPETITOR && !state.competitor) state.competitor = true;
+  if(d === DAY.WHOLESALE && !state.quiz.wholesale) queueModal(wholesaleIntro);
+  if(d === DAY.RAIN && !state.quiz.course) queueModal(rainIntro);
+  if(d === DAY.COMPETITOR) queueModal(competitorModal);
+  if(d === DAY.KVK && !state.quiz.kvk) queueModal(kvkIntro);
+  if(d === DAY.CARTEL && !state.cartel) queueModal(cartelModal);
+  if(d === DAY.ENV && !state.env) queueModal(envModal);
+  teachDay(d);
+  if(d === DAY.WHOLESALE && !state.quiz.wholesale) queueModal(() => runQuiz('wholesale', c => {
+    const adj = Math.round((-0.03 * c + 0.02 * (4 - c)) * 100) / 100;
+    state.purchaseAdj += adj;
+    return adj < 0 ? `De groothandel is onder de indruk: je inkoopprijs daalt met <b>${eur(-adj)}</b> per portie, naar <b>${eur(setup().purchase)}</b>.`
+      : adj > 0 ? `De groothandel vindt je nog een beginner: je inkoopprijs stijgt met <b>${eur(adj)}</b> per portie, naar <b>${eur(setup().purchase)}</b>.`
+      : 'Geen korting en geen toeslag: je inkoopprijs blijft gelijk.';
+  }));
+  if(d === DAY.RAIN && !state.quiz.course) queueModal(() => runQuiz('course', c => {
+    state.placeBonus += 2 * c;
+    state.courseFee = COURSE_FEE_PER_WRONG * (4 - c);
+    return `${c ? `Je krijgt een betere plek op het plein: <b>${2 * c} klanten per dag extra</b>.` : 'Geen betere plek dit keer.'} ${state.courseFee ? `Je betaalt <b>${eur(state.courseFee)}</b> extra cursusgeld; dat zie je terug bij je bedrijfskosten van vandaag.` : 'Geen extra cursusgeld!'}`;
+  }));
+  if(d === DAY.KVK && !state.quiz.kvk) queueModal(() => runQuiz('kvk', c => {
+    state.sauce = c === 4 ? 0.35 : c === 3 ? 0.25 : 0;
+    return state.sauce ? `Je ontwikkelt de <b>Snackbaas-saus</b>! Je patat is nu een heterogeen product: ${pct(state.sauce)} minder klanten stapt over naar SnackPoint.`
+      : 'Het lukt nog niet om een eigen saus te bedenken. Je patat blijft een homogeen product: klanten kiezen vooral op prijs.';
+  }));
+  if(d === DAY.INVEST && !state.investment) queueModal(investModal);
+  save();
+  render();
+}
+
+function wholesaleIntro(){
+  showModal(`<div class="tag">🚚 Bezoek</div><h2>De groothandel komt langs</h2>
+    <p>Je vaste leverancier van aardappelen, olie en bakjes wil weten hoe goed jij je zaken kent. Wie verstand van zaken heeft, krijgt korting.</p>
+    <p class="small muted">Eerst even je voorkennis opfrissen.</p>
+    <button class="cta" onclick="closeModal()">Verder</button>`);
+}
+function rainIntro(){
+  const s = setup();
+  showModal(`<div class="tag">🌧️ Regendag</div><h2>Je kraam blijft dicht</h2>
+    <p>Het regent zo hard dat niemand naar buiten komt. Je verkoopt vandaag niets. Maar let op: je <b>vaste kosten</b> (${eur(s.costs.reduce((a, c) => a + c[1], 0))}) betaal je gewoon!</p>
+    <p>Je gebruikt de dag voor een <b>ondernemerscursus</b> over de markt.</p>
+    <button class="cta" onclick="closeModal()">Naar de cursus</button>`);
+}
+function kvkIntro(){
+  showModal(`<div class="tag">🏢 Kamer van Koophandel</div><h2>Workshop: macht op de markt</h2>
+    <p>Sinds SnackPoint er is, moet je opletten. De Kamer van Koophandel geeft een workshop over marktvormen en over hoe je je kunt onderscheiden van de concurrent.</p>
+    <button class="cta" onclick="closeModal()">Naar de workshop</button>`);
+}
+function competitorModal(){
+  showModal(`<div class="tag">⚠️ Concurrentie</div><h2>🌭 SnackPoint opent aan de overkant!</h2>
+    <p>SnackPoint verkoopt precies dezelfde patat, voor maar <b>${eur(COMPETITOR_PRICE)}</b> (consumentenprijs). Iedereen kan beide prijsborden zien.</p>
+    <p>Hoe hoger jouw prijs boven die van SnackPoint, hoe meer klanten overstappen. Moet je je prijs aanpassen?</p>
+    <button class="cta" onclick="closeModal()">Ik ga het bekijken</button>`);
+}
+function optionButtons(options, disabledFn){
+  return Object.entries(options).map(([k, v]) => {
+    const why = disabledFn ? disabledFn(k, v) : '';
+    return `<button class="option" data-k="${k}" ${why ? 'disabled' : ''}>
+      <b>${v.name}${v.price ? ' – ' + eur0(v.price) : ''}</b>
+      <span class="small">${v.text}</span>${why ? `<br><span class="small" style="color:var(--bad)">${why}</span>` : ''}</button>`;
+  }).join('');
+}
+function bindOptions(containerId, confirmId, onPick){
+  let sel = null;
+  document.querySelectorAll(`#${containerId} .option`).forEach(b => b.onclick = () => {
+    document.querySelectorAll(`#${containerId} .option`).forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel'); sel = b.dataset.k; $(confirmId).disabled = false;
+  });
+  $(confirmId).onclick = () => onPick(sel);
+}
+function investModal(){
+  const walk = state.history.slice(-3).reduce((s, h) => s + h.walkaways, 0);
+  showModal(`<div class="tag">🛠️ Investeringsmoment</div><h2>Investeer je in een nieuwe frituur?</h2>
+    <p>Je kunt nu <b>${BASE_CAPACITY} porties per dag</b> bakken. Je hebt <b>${eur(state.money)}</b> in kas.</p>
+    <div class="msg info">🔎 <b>Uit je logboek:</b> de afgelopen 3 dagen liepen er in totaal <b>${walk} klanten</b> weg omdat je kraam vol zat.</div>
+    <div class="options" id="invOpts">${optionButtons(INVESTMENTS, (k, v) => state.money < v.price ? 'Te weinig geld in kas.' : '')}</div>
+    <button class="cta" id="invConfirm" disabled>Bevestig mijn keuze</button>`);
+  bindOptions('invOpts', 'invConfirm', k => {
+    const inv = INVESTMENTS[k];
+    state.investment = k; state.money -= inv.price;
+    let extra = '';
+    if(k !== 'none'){
+      state.concepts.includes('afschrijving') || state.concepts.push('afschrijving');
+      extra = `<p>Je betaalt <b>${eur0(inv.price)}</b> in één keer uit je kas.</p>${conceptHtml('afschrijving')}
+        <div class="formula">€ ${inv.price} ÷ ${inv.life} dagen = ${eur(depreciationOf(k))} afschrijving per dag</div>
+        <div class="msg warn">💡 Je kunt nu meer klanten helpen. Is je oude prijs dan nog de beste prijs?</div>`;
+    } else extra = '<p>Je houdt alles zoals het is. Op je eindrapport zie je wat de andere keuzes hadden opgeleverd.</p>';
+    save();
+    showModal(`<div class="tag">🛠️ Jouw keuze</div><h2>${inv.name}</h2>${extra}<button class="cta" onclick="closeModal()">Verder</button>`);
+  });
+}
+function envModal(){
+  showModal(`<div class="tag">🗑️ Afval op het schoolplein</div><h2>De conciërge is boos</h2>
+    <p>Na elke pauze liggen er lege plastic bakjes en vorkjes van jouw kraam op het plein en in de bosjes. De conciërge moet het elke dag opruimen.</p>
+    <p>De school vraagt je er iets aan te doen, en de <b>gemeente</b> laat weten dat ze kramen met veel zwerfafval een afvalheffing kan opleggen. Wat doe jij?</p>
+    <div class="options" id="envOpts">${optionButtons(ENV_OPTIONS)}</div>
+    <button class="cta" id="envConfirm" disabled>Bevestig mijn keuze</button>`);
+  bindOptions('envOpts', 'envConfirm', k => {
+    state.env = k; save();
+    const msg = {
+      none: 'Je doet niets. Het afval blijft liggen en ongeveer <b>4 leerlingen per dag</b> kopen hun patat ergens anders. De school draait op voor het opruimen.',
+      paper: 'Je stapt over op papieren bakjes. Je <b>inkoopprijs</b> stijgt met € 0,05 per portie: <b>variabele</b> kosten. Je onderneemt maatschappelijk verantwoord.',
+      bins: 'Je zet afvalbakken neer en ruimt elke dag op: € 3 per dag aan <b>vaste</b> bedrijfskosten. Je onderneemt maatschappelijk verantwoord.'
+    }[k];
+    showModal(`<div class="tag">🗑️ Jouw keuze</div><h2>${ENV_OPTIONS[k].name}</h2><p>${msg}</p><button class="cta" onclick="closeModal()">Verder</button>`);
+  });
+}
+function cartelModal(){
+  showModal(`<div class="tag">🤝 Een geheim voorstel</div><h2>SnackPoint wil een afspraak maken</h2>
+    <p>De eigenaar van SnackPoint fluistert: <i>"Die prijsoorlog kost ons allebei geld. Zullen we vandaag <b>allebei ${eur(CARTEL_PRICE)}</b> vragen? Dan kunnen de leerlingen nergens goedkoper terecht en verdienen we allebei meer. Niemand hoeft het te weten…"</i></p>
+    <div class="options" id="cartOpts">
+      <button class="option" data-k="join"><b>🤝 Afgesproken!</b><span class="small">Vandaag vragen jullie allebei ${eur(CARTEL_PRICE)}. Je prijs ligt vast.</span></button>
+      <button class="option" data-k="refuse"><b>✋ Nee, dat doe ik niet</b><span class="small">Je bepaalt zelf je prijs, net als altijd.</span></button>
+    </div>
+    <button class="cta" id="cartConfirm" disabled>Bevestig mijn keuze</button>`);
+  bindOptions('cartOpts', 'cartConfirm', k => {
+    state.cartel = k;
+    if(k === 'join'){ state.price = CARTEL_PRICE; }
+    save();
+    showModal(`<div class="tag">🤝 Jouw keuze</div><h2>${k === 'join' ? 'Je doet mee aan de afspraak' : 'Je weigert'}</h2>
+      <p>${k === 'join' ? `Je prijs staat vandaag vast op <b>${eur(CARTEL_PRICE)}</b>. Benieuwd hoe de dag verloopt…` : 'SnackPoint kijkt teleurgesteld, maar jij blijft eerlijk concurreren. Je kiest zelf je prijs.'}</p>
+      <button class="cta" onclick="closeModal()">Verder</button>`);
+  });
+}
+
+function playDay(){
+  if(clockRunning) return;
+  const closed = state.day === DAY.RAIN;
+  if(!closed && state.price === null) return;
+  if(needPrediction() && !state.prediction) return;
+  const p = closed ? 0 : state.price;
+  const noise = Math.round((Math.random() * 4) - 2);
+  const extra = [];
+  if(closed && state.courseFee) extra.push(['Cursusgeld (ondernemerscursus)', state.courseFee]);
+  const cartelJoined = state.day === DAY.CARTEL && state.cartel === 'join';
+  if(cartelJoined) extra.push(['Boete toezichthouder ACM (kartel)', CARTEL_FINE]);
+  const r = simulateDay(p, noise, extra);
+  if(cartelJoined){
+    // wat had je zonder kartel (en zonder boete) verdiend bij de beste eerlijke prijs?
+    const keep = state.cartel; state.cartel = 'refuse';
+    r.fairBest = Math.max(...PRICES.map(pp => simulateDay(pp, noise, []).net));
+    state.cartel = keep;
+  }
+  let share = 100, compSold = 0;
+  if(state.competitor && !closed){ compSold = 30 + r.lostToComp; share = Math.round(r.sold / Math.max(1, r.sold + compSold) * 100); }
+  let predResult = null;
+  const prev = lastOpenDay();
+  if(prev && state.prediction){
+    const diff = r.want - prev.want;
+    predResult = { guess: state.prediction, actual: Math.abs(diff) <= 3 ? 'evenveel' : diff > 0 ? 'meer' : 'minder', diff, prevPrice: prev.price, prevDay: prev.day };
+  }
+  state.money += r.cash;
+  const entry = { ...r, share, compSold, predResult };
+  state.history.push(entry);
+  save();
+  runDayClock(entry, () => reportModal(entry));
+}
+function lastOpenDay(){ return [...state.history].reverse().find(h => !h.closed); }
+function needPrediction(){
+  return state.day > 1 && state.day !== DAY.RAIN && !state.finished && !(state.day === DAY.CARTEL && state.cartel === 'join') && !!lastOpenDay();
+}
+
+function reportModal(h){
+  const d = h.day, known = k => state.concepts.includes(k);
+  let parts = [];
+  if(h.closed){
+    parts.push(`<div class="msg info">🌧️ Vandaag geen klanten, dus geen omzet en geen inkoopwaarde. Je <b>vaste kosten</b> moest je wel betalen. Zo ontstaat een verlies.</div>`);
+  }
+  if(h.predResult){
+    const pr = h.predResult, ok = pr.guess === pr.actual;
+    const label = { meer:'meer', minder:'minder', evenveel:'ongeveer evenveel' };
+    let why = h.price > pr.prevPrice ? `Je prijs ging omhoog (${eur(pr.prevPrice)} → ${eur(h.price)}). Bij een hogere prijs willen minder klanten kopen.`
+      : h.price < pr.prevPrice ? `Je prijs ging omlaag (${eur(pr.prevPrice)} → ${eur(h.price)}). Bij een lagere prijs willen meer klanten kopen.`
+      : 'Je prijs bleef gelijk, dus de vraag bleef ongeveer hetzelfde.';
+    if(d === DAY.COMPETITOR) why += ' Maar vandaag opende ook SnackPoint, en die trekt klanten weg!';
+    if(d === DAY.ENV && state.env === 'none') why += ' Bovendien bleven er een paar leerlingen weg vanwege het afval.';
+    if(d === DAY.RAIN + 1 && state.placeBonus) why += ` Je nieuwe plek op het plein trok ${state.placeBonus} extra klanten.`;
+    parts.push(`<div class="msg ${ok ? 'good' : 'warn'}">${ok ? '✅ Goed voorspeld!' : '🤔 Niet helemaal.'} Je dacht: <b>${label[pr.guess]}</b> klanten. Het waren er <b>${label[pr.actual]}</b> (${h.want} vandaag, ${h.want - pr.diff} op dag ${pr.prevDay}). ${why}</div>`);
+  }
+  if(h.walkaways > 0) parts.push(`<div class="msg bad">🚶 <b>${h.walkaways} klanten liepen weg!</b> Er wilden ${h.want} mensen patat, maar je <b>productiecapaciteit</b> is ${h.cap} porties per dag.</div>`);
+  if(state.env === 'none' && d >= DAY.ENV && !h.closed) parts.push(`<div class="msg warn">🗑️ Door het zwerfafval kochten ongeveer ${h.envLost} leerlingen hun patat ergens anders.</div>`);
+  if(state.competitor && !h.closed) parts.push(`<div class="msg warn">🌭 SnackPoint verkocht vandaag ongeveer ${h.compSold} porties. Jouw <b>marktaandeel</b>: <b>${h.share}%</b>${state.sauce ? ` (je saus hield klanten bij jou)` : ''}.</div>`);
+  if(d === DAY.CARTEL && state.cartel === 'join'){
+    const gain = h.net + CARTEL_FINE - h.fairBest;
+    parts.push(`<div class="msg bad">⚖️ <b>Betrapt!</b> Een leerling vertelde het aan de toezichthouder <b>ACM</b>. Prijsafspraken zijn verboden: dit is een <b>kartel</b>. Je krijgt een boete van <b>${eur(CARTEL_FINE)}</b>.<br>Door de afspraak verdiende je ${gain >= 0 ? `ongeveer ${eur(gain)} meer` : 'niet eens meer'} dan bij eerlijke concurrentie. Na de boete hield je dus minder over. En de leerlingen? Die betaalden te veel.</div>`);
+  }
+  if(d === DAY.CARTEL && state.cartel === 'refuse') parts.push(`<div class="msg good">✋ Je weigerde het kartel. Goed zo: prijsafspraken zijn verboden en de klant zou de dupe zijn.</div>`);
+
+  // rekenschema
+  let calc = '';
+  if(!h.closed) calc += `<div class="calc-row"><span>Omzet = ${h.sold} × ${eur(h.pEx)} <span class="small muted">(prijs excl. btw)</span></span><b>${eur(h.revenue)}</b></div>`;
+  if(known('brutowinst') || h.closed){
+    if(!h.closed) calc += `<div class="calc-row"><span>− Inkoopwaarde = ${h.sold} × ${eur(h.purchase)}</span><b>${eur(h.purchaseValue)}</b></div>`;
+    calc += `<div class="calc-row total"><span>= Brutowinst${known('toegevoegdewaarde') && !h.closed ? ' <span class="small muted">(hier ook de toegevoegde waarde)</span>' : ''}</span><b>${eur(h.gross)}</b></div>`;
+    calc += h.costs.map(c => `<div class="calc-row"><span>− ${c[0]}</span><b>${eur(c[1])}</b></div>`).join('');
+    calc += `<div class="calc-row total"><span>= Nettoresultaat</span><b style="color:var(--${h.net >= 0 ? 'good' : 'bad'})">${eur(h.net)}</b></div>`;
+  } else {
+    calc += `<div class="calc-row"><span>− Inkoop (${h.sold} × ${eur(h.purchase)})${known('variabelekosten') ? ' <span class="small muted">variabel</span>' : ''}</span><b>${eur(h.purchaseValue)}</b></div>`;
+    calc += h.costs.map(c => `<div class="calc-row"><span>− ${c[0]}${known('vastekosten') ? ' <span class="small muted">vast</span>' : ''}</span><b>${eur(c[1])}</b></div>`).join('');
+    calc += `<div class="calc-row total"><span>= Wat je overhoudt</span><b style="color:var(--${h.net >= 0 ? 'good' : 'bad'})">${eur(h.net)}</b></div>`;
+  }
+  if(!h.closed) calc += `<div class="small muted" style="margin-top:6px">In de kassa zat ${eur(h.revenue + h.btwTotal)}. Daarvan is ${eur(h.btwTotal)} btw: die draag je af aan de Belastingdienst.</div>`;
+  const kp = (known('kostprijs') && h.sold) ? `<div class="msg info">🧮 <b>Kostprijs per portie</b> vandaag: (${eur(h.purchaseValue)} + ${eur(h.totalCosts)}) ÷ ${h.sold} = <b>${eur(h.costPrice)}</b>. Je verkocht voor ${eur(h.pEx)} (excl. btw).</div>` : '';
+  const title = h.closed ? `Dag ${d}: kraam dicht, verlies ${eur(-h.net)}` : known('brutowinst') ? `Dag ${d}: nettoresultaat ${eur(h.net)}` : `Dag ${d}: je hield ${eur(h.net)} over`;
+
+  showModal(`<div class="tag">📊 Dagrapport</div><h2>${title}</h2>
+    ${h.closed ? '' : `<div class="report-grid">
+      <div class="kpi"><div class="k">Klanten die patat wilden (vraag)</div><div class="v">${h.want}</div></div>
+      <div class="kpi"><div class="k">Porties verkocht (afzet)</div><div class="v">${h.sold}</div></div></div>`}
+    <div class="calc">${calc}</div>${kp}${parts.join('')}
+    <button class="cta" id="nextBtn">${d >= DAYS ? 'Afsluiten 🏁' : 'Volgende dag ➡️'}</button>`);
+  const nb = $('nextBtn'), label = nb.textContent;
+  let left = REPORT_READ_SECONDS;
+  nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je dagrapport… ${left}`;
+  const iv = setInterval(() => {
+    left--;
+    if(left > 0){ nb.textContent = `📖 Lees je dagrapport… ${left}`; return; }
+    clearInterval(iv); nb.disabled = false; nb.classList.remove('wait'); nb.textContent = label;
+  }, 1000);
+  nb.onclick = () => {
+    modalQueue = [];
+    $('overlay').classList.add('hidden');
+    if(d >= DAYS){ mergerModal(); }
+    else { state.day++; beginDay(); }
+  };
+}
+
+function mergerModal(){
+  teach(['fusie'], 'n');
+  queueModal(() => {
+    showModal(`<div class="tag">🤝 Na sluitingstijd</div><h2>SnackPoint stelt een fusie voor</h2>
+      <p>De eigenaar van SnackPoint komt langs: <i>"We zitten elkaar alleen maar in de weg. Zullen we samen één bedrijf worden?"</i></p>
+      <p>Als jullie fuseren, is er nog maar <b>één aanbieder</b> op het schoolplein.</p>
+      <div class="options" id="mergOpts">
+        <button class="option" data-k="yes"><b>🤝 Ja, we fuseren</b><span class="small">Samen sterker, en geen concurrent meer.</span></button>
+        <button class="option" data-k="no"><b>🏪 Nee, ik blijf zelfstandig</b><span class="small">Ik wil mijn eigen baas blijven.</span></button>
+      </div>
+      <button class="cta" id="mergConfirm" disabled>Bevestig mijn keuze</button>`);
+    bindOptions('mergOpts', 'mergConfirm', k => {
+      state.merger = k;
+      state.finished = true;
+      save();
+      showModal(`<div class="tag">🤝 Jouw keuze</div><h2>${k === 'yes' ? 'Jullie fuseren' : 'Je blijft zelfstandig'}</h2>
+        <p>${k === 'yes'
+          ? 'Na de fusie is er nog maar één patatkraam op het plein: een <b>monopolie</b>. Fijn voor jullie, maar de leerlingen kunnen nergens anders meer heen. Daarom kijkt de toezichthouder ACM bij grote fusies of dat niet slecht is voor de klant.'
+          : 'Er blijven twee aanbieders op het plein: een <b>oligopolie</b>. De leerlingen kunnen blijven kiezen, en jullie blijven elkaar scherp houden met prijs en kwaliteit.'}</p>
+        <p class="small muted">Deze keuze heeft geen gevolgen voor deel 2. Daar begin je weer met je eigen kraam.</p>
+        <button class="cta" id="toEnd">Naar je eindrapport 🏁</button>`);
+      $('toEnd').onclick = () => { modalQueue = []; endReport(); };
+    });
+  });
+}
+
+// ---------- DAGKLOK ----------
+let clockRunning = false;
+function buildClockHours(){
+  const c = $('clockHours');
+  if(c.children.length) return;
+  [['24',113,15],['3',180,40,1],['6',207,109],['9',180,180,1],['12',113,203],['15',50,180,1],['18',19,109],['21',50,40,1]].forEach(([t, x, y, red]) => {
+    const el = document.createElement('div'); el.className = 'clock-hour'; el.textContent = t;
+    el.style.left = x + 'px'; el.style.top = y + 'px'; if(red) el.style.color = '#d22'; c.appendChild(el);
+  });
+}
+function customerShare(t){
+  const pts = [[0,0],[0.125,0],[0.375,0.25],[0.625,0.75],[0.875,1],[1,1]];
+  for(let i = 1; i < pts.length; i++) if(t <= pts[i][0]){ const [t0, v0] = pts[i - 1], [t1, v1] = pts[i]; return v0 + (v1 - v0) * (t - t0) / (t1 - t0); }
+  return 1;
+}
+function runDayClock(h, done){
+  if(clockRunning) return;
+  clockRunning = true; buildClockHours();
+  const ov = $('clockOverlay'), face = $('clockFace');
+  ov.classList.add('show'); ov.classList.toggle('rain', h.closed); ov.setAttribute('aria-hidden', 'false');
+  $('liveServed').textContent = '0'; $('liveWalk').textContent = '0'; $('liveRev').textContent = eur(0);
+  $('liveQueue').innerHTML = h.closed ? '<span>🌧️</span><span>🌧️</span><span>🌧️</span>' : ''; $('liveFull').textContent = h.closed ? 'Kraam dicht vanwege de regen.' : '';
+  let shownServed = 0, shownWalk = 0;
+  const start = performance.now();
+  const phases = h.closed ? [
+    [0.125,'rgba(70,90,120,.55)','phase-night','',''],
+    [0.375,'rgba(70,90,120,.55)','phase-night','🌧️ 08:00 het regent','Niemand komt naar buiten.'],
+    [0.625,'rgba(60,80,110,.55)','phase-night','🌧️ 12:30 grote pauze','Iedereen blijft binnen in de aula.'],
+    [0.875,'rgba(60,80,110,.55)','phase-night','🌧️ 15:00 school uit','Iedereen rent naar de fietsenstalling.'],
+    [1.01,'rgba(28,47,82,.62)','phase-night','🌙 dag voorbij','De huur moet je wel betalen…']
+  ] : [
+    [0.125,'rgba(186,146,70,.5)','phase-morning','',''],
+    [0.375,'rgba(186,146,70,.5)','phase-morning','☕ 08:00 de kraam gaat open','De eerste leerlingen komen voor schooltijd langs.'],
+    [0.625,'rgba(120,94,36,.45)','phase-lunch','🍟 12:30 grote pauze','Het drukste moment van de dag!'],
+    [0.875,'rgba(160,92,34,.5)','phase-evening','🎒 15:00 school uit','Nog een laatste groep klanten op weg naar huis.'],
+    [1.01,'rgba(28,47,82,.62)','phase-night','🌙 dag voorbij','De kassa wordt opgemaakt…']
+  ];
+  function frame(now){
+    const t = Math.min(1, (now - start) / CLOCK_DURATION);
+    $('clockHand').style.transform = `translate(-50%,-90px) rotate(${t * 1440}deg)`;
+    $('clockHandShort').style.transform = `translate(-50%,-62px) rotate(${t * 360}deg)`;
+    const ph = phases.find(p => t < p[0]);
+    ov.style.background = ph[1]; face.className = 'clock-face ' + ph[2];
+    $('clockText').textContent = ph[3]; $('clockSub').textContent = ph[4];
+    if(!h.closed){
+      const arrived = Math.round(h.want * customerShare(t)), served = Math.min(arrived, h.sold), walk = arrived - served, q = $('liveQueue');
+      while(shownServed < served){ shownServed++; q.insertAdjacentHTML('afterbegin', `<span>${CUSTOMER_ICONS[shownServed % CUSTOMER_ICONS.length]}</span>`); }
+      while(shownWalk < walk){ shownWalk++; q.insertAdjacentHTML('afterbegin', '<span title="weggelopen">🚶</span>'); }
+      while(q.children.length > 24) q.lastElementChild.remove();
+      $('liveServed').textContent = served; $('liveWalk').textContent = walk; $('liveRev').textContent = eur(served * h.price);
+      if(walk > 0) $('liveFull').textContent = `⚠️ Je kraam zit vol! Je productiecapaciteit is ${h.cap} porties per dag.`;
+    }
+    if(t < 1) requestAnimationFrame(frame);
+    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; done(); }, 600);
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------- EINDRAPPORT ----------
+function bestCase(invKey){
+  // Totaal nettoresultaat als je elke dag de beste prijs had gekozen, met jouw quiz- en afvalkeuzes, zonder kartel.
+  const keep = JSON.parse(JSON.stringify(state));
+  let t = 0;
+  const qc = id => (keep.quiz[id] || { correct:0 }).correct;
+  for(let d = 1; d <= DAYS; d++){
+    state.day = d;
+    state.investment = d >= DAY.INVEST ? invKey : null;
+    state.env = d >= DAY.ENV ? keep.env : null;
+    state.competitor = d >= DAY.COMPETITOR;
+    state.purchaseAdj = d >= DAY.WHOLESALE ? keep.purchaseAdj : 0;
+    state.placeBonus = d > DAY.RAIN ? keep.placeBonus : 0;
+    state.sauce = d >= DAY.KVK ? keep.sauce : 0;
+    state.cartel = 'refuse';
+    const extra = d === DAY.RAIN && keep.courseFee ? [['c', keep.courseFee]] : [];
+    t += d === DAY.RAIN ? simulateDay(0, 0, extra).net : Math.max(...PRICES.map(p => simulateDay(p, 0, extra).net));
+  }
+  state = keep;
+  return t;
+}
+function starsFor(v){ return v >= GOALS[2] ? 3 : v >= GOALS[1] ? 2 : v >= GOALS[0] ? 1 : 0; }
+function endReport(){
+  const net = totalNet(), stars = starsFor(net);
+  const open = state.history.filter(h => !h.closed);
+  const best = open.reduce((a, b) => b.net > a.net ? b : a, open[0]);
+  const totalWalk = state.history.reduce((s, h) => s + h.walkaways, 0);
+  const totalBtw = state.history.reduce((s, h) => s + h.btwTotal, 0);
+  const inv = state.investment || 'none';
+  const cmp = ['modern','used','none'].map(k => `<tr><td>${INVESTMENTS[k].name}${k === inv ? ' <span class="pill">jouw keuze</span>' : ''}</td><td>${eur0(bestCase(k))}</td></tr>`).join('');
+  let kasNote = '';
+  if(inv !== 'none'){
+    const days = state.history.filter(h => h.day >= DAY.INVEST).length, dep = depreciationOf(inv), done = dep * days, price = INVESTMENTS[inv].price;
+    kasNote = `<p class="small">💡 <b>Waarom is je kas niet € 200 + je nettoresultaat?</b> De frituur betaalde je in één keer (${eur0(price)}) uit je kas. Als kosten telde je alleen de afschrijving: ${eur0(done)}. De frituur is nu nog ${eur0(price - done)} waard.</p>`;
+  }
+  const q = id => state.quiz[id] ? `${state.quiz[id].correct}/4` : '–';
+  showModal(`<div class="tag">🏁 Eindrapport deel 1${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div>
+    <h2>Ben jij ondernemend?</h2>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="report-grid">
+      <div class="kpi"><div class="k">Totaal nettoresultaat</div><div class="v">${eur(net)}</div></div>
+      <div class="kpi"><div class="k">In kas</div><div class="v">${eur(state.money)}</div></div>
+      <div class="kpi"><div class="k">Beste dag</div><div class="v">${best ? `Dag ${best.day}: ${eur(best.net)}` : '–'}</div></div>
+      <div class="kpi"><div class="k">Quizvragen goed</div><div class="v">${state.quizCorrect} van ${state.quizTotal}</div></div>
+    </div>
+    ${kasNote}
+    <table><tbody>
+      <tr><td>🚚 Groothandel / 🌧️ Cursus / 🏢 Workshop</td><td>${q('wholesale')} · ${q('course')} · ${q('kvk')}</td></tr>
+      <tr><td>🗑️ Afval</td><td>${ENV_OPTIONS[state.env] ? ENV_OPTIONS[state.env].name : '–'}</td></tr>
+      <tr><td>🤝 Kartel</td><td>${state.cartel === 'join' ? 'Meegedaan (boete)' : 'Geweigerd'}</td></tr>
+      <tr><td>🤝 Fusie</td><td>${state.merger === 'yes' ? 'Gefuseerd' : 'Zelfstandig gebleven'}</td></tr>
+      <tr><td>🚶 Weggelopen klanten</td><td>${totalWalk}</td></tr>
+      <tr><td>🧾 Btw afgedragen</td><td>${eur(totalBtw)}</td></tr>
+    </tbody></table>
+    <h3>Wat had de investering kunnen opleveren?</h3>
+    <div class="small muted">Totaal nettoresultaat als je elke dag de best mogelijke prijs had gekozen (met jouw quizresultaten, zonder kartel):</div>
+    <table><tbody>${cmp}</tbody></table>
+    <p class="small muted" style="margin-top:10px">Je resultaten zijn opgeslagen. In <b>deel 2</b> ga je verder met deze kraam, zodra je docent dat openzet.</p>
+    <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
+}
+
+// ---------- WEERGAVE ----------
+function render(){
+  if(!state) return;
+  const day = Math.min(state.day, DAYS), known = k => state.concepts.includes(k), s = setup();
+  const closed = state.day === DAY.RAIN && !state.finished;
+  $('topSub').textContent = 'Deel 1 – Ben jij ondernemend? (hoofdstuk 3)';
+  $('sDay').textContent = `${day} / ${DAYS}`;
+  $('sDayBar').style.width = (state.history.length / DAYS * 100) + '%';
+  $('sMoney').textContent = eur(state.money);
+  const net = totalNet();
+  $('sProfit').textContent = eur(net); $('sProfit').style.color = net < 0 ? 'var(--bad)' : '';
+  const st = starsFor(net);
+  $('sGoal').innerHTML = st >= 3 ? '⭐⭐⭐ behaald!' : `${'⭐'.repeat(st + 1)} ${eur0(GOALS[st])}`;
+  $('pDay').textContent = day;
+  $('dayNews').innerHTML = state.finished ? '🏁 Deel 1 is afgerond. Bekijk je eindrapport of ga terug naar het menu.' : (DAY_NEWS[state.day] || 'Kies je prijs. Kijk in je logboek wat er de vorige dagen gebeurde.');
+  $('costLine').innerHTML = `Inkoopprijs: <b>${eur(s.purchase)}</b> per portie (aardappelen, olie, bakje). Bedrijfskosten: <b>${eur(s.costs.reduce((a, c) => a + c[1], 0))}</b> per dag (${s.costs.map(c => c[0].split(' (')[0].toLowerCase()).join(', ')}).`;
+
+  const cartelLocked = state.day === DAY.CARTEL && state.cartel === 'join';
+  $('priceArea').classList.toggle('hidden', closed);
+  $('prices').innerHTML = PRICES.map(p => `<button class="price-btn ${state.price === p ? 'sel' : ''}" data-p="${p}" ${state.finished || cartelLocked ? 'disabled' : ''}>${eur(p)}</button>`).join('');
+  document.querySelectorAll('.price-btn').forEach(b => b.onclick = () => { state.price = +b.dataset.p; render(); });
+  const p = state.price;
+  $('cVar').textContent = eur(s.purchase);
+  $('cMargin').textContent = p === null ? '–' : `${eur(exBtw(p) - s.purchase)} (${Math.round((exBtw(p) - s.purchase) / s.purchase * 100)}%)`;
+  $('cPriceEx').textContent = p === null ? '–' : eur(exBtw(p));
+  $('cBtw').textContent = p === null ? '–' : eur(p - exBtw(p));
+  $('cPrice').textContent = p === null ? '–' : eur(p);
+  const last = lastOpenDay();
+  $('kpRow').classList.toggle('hidden', !(known('kostprijs') && last && last.sold));
+  if(last && last.sold){ $('kpLabel').innerHTML = `🧮 Kostprijs per portie op dag ${last.day} (bij ${last.sold} porties)`; $('cKP').textContent = eur(last.costPrice); }
+
+  const needPred = needPrediction();
+  $('predBox').classList.toggle('hidden', !needPred);
+  if(needPred) $('predQ').innerHTML = `Op dag ${last.day} vroeg je <b>${eur(last.price)}</b> en wilden <b>${last.want}</b> klanten patat kopen. Verwacht je vandaag <b>meer, minder of ongeveer evenveel</b> klanten?`;
+  document.querySelectorAll('#pred button').forEach(b => { b.classList.toggle('sel', state.prediction === b.dataset.p); b.onclick = () => { state.prediction = b.dataset.p; render(); }; });
+
+  const ready = !state.finished && (closed || (p !== null && (!needPred || state.prediction)));
+  $('playBtn').disabled = !ready && !state.finished;
+  $('playBtn').textContent = state.finished ? 'Bekijk eindrapport 🏁' : closed ? `Sluit dag ${state.day} af 🌧️` : `Open de kraam – dag ${state.day} 🍟`;
+  $('playHint').textContent = state.finished || closed ? '' : cartelLocked ? `Door de afspraak met SnackPoint ligt je prijs vast op ${eur(CARTEL_PRICE)}.` : p === null ? 'Kies eerst een prijs.' : (needPred && !state.prediction) ? 'Maak eerst je voorspelling.' : '';
+
+  // productie
+  $('investPanel').classList.toggle('hidden', !state.investment);
+  if(state.investment){
+    const inv = INVESTMENTS[state.investment], dep = depreciationOf(state.investment);
+    $('investInfo').innerHTML = `<p class="small" style="margin:0 0 6px"><b>${inv.name}</b></p><table><tbody>
+      <tr><td>Productiecapaciteit</td><td>${s.capacity} porties per dag</td></tr>
+      <tr><td>Aantal werkenden</td><td>1 (jij)</td></tr>
+      <tr><td>Arbeidsproductiviteit</td><td><b>${s.capacity}</b> porties per persoon per dag</td></tr>
+      ${dep ? `<tr><td>Afschrijving</td><td>${eur(dep)} per dag (${eur0(inv.price)} ÷ ${inv.life} dagen)</td></tr>` : ''}
+      </tbody></table>${state.investment !== 'none' ? `<div class="small muted" style="margin-top:6px">Vóór de investering: ${BASE_CAPACITY} porties per persoon per dag.</div>` : ''}`;
+  }
+  // kennisbonus
+  const b = [];
+  if(state.quiz.wholesale) b.push(`🚚 Groothandel (${state.quiz.wholesale.correct}/4): inkoopprijs ${state.purchaseAdj <= 0 ? '−' : '+'} ${eur(Math.abs(state.purchaseAdj))} per portie`);
+  if(state.quiz.course) b.push(`🌧️ Cursus (${state.quiz.course.correct}/4): ${state.placeBonus} klanten per dag extra`);
+  if(state.quiz.kvk) b.push(`🏢 Workshop (${state.quiz.kvk.correct}/4): ${state.sauce ? `eigen saus, ${pct(state.sauce)} minder overstappers` : 'geen saus'}`);
+  $('bonusInfo').innerHTML = b.length ? b.join('<br>') : 'Nog niets. Op dag 3, 8 en 10 kun je met je kennis voordelen verdienen voor je kraam.';
+  // afval
+  $('envPanel').classList.toggle('hidden', !state.env);
+  if(state.env){
+    const e = ENV_OPTIONS[state.env];
+    $('envInfo').innerHTML = `<p class="small" style="margin:0"><b>${e.name}</b><br>${state.env === 'none' ? 'Gevolg: ongeveer 4 klanten per dag minder. De school draait op voor het opruimen.' : state.env === 'paper' ? 'Gevolg: inkoopprijs + € 0,05 per portie (variabele kosten).' : 'Gevolg: + € 3 bedrijfskosten per dag (vaste kosten).'}</p>`;
+  }
+  // concurrent
+  $('competitorPanel').classList.toggle('hidden', !state.competitor);
+  if(state.competitor){
+    const lastC = [...state.history].reverse().find(h => h.day >= DAY.COMPETITOR && !h.closed);
+    const cp = cartelLocked ? CARTEL_PRICE : COMPETITOR_PRICE;
+    $('compInfo').innerHTML = `<p class="small" style="margin:0">SnackPoint vraagt <b>${eur(cp)}</b>${cartelLocked ? ' (afspraak)' : ''}.${p !== null && !cartelLocked ? (p > cp ? ` Jij bent <b>${eur(p - cp)} duurder</b>: extra klanten stappen over.` : p < cp ? ' Jij bent goedkoper.' : ' Jullie vragen dezelfde prijs.') : ''}</p>
+      ${lastC ? `<p class="small" style="margin:6px 0 0">Dag ${lastC.day}: jouw marktaandeel was <b>${lastC.share}%</b>.</p>` : ''}`;
+  }
+  // logboek
+  $('log').querySelector('tbody').innerHTML = state.history.length
+    ? [...state.history].reverse().map(h => h.closed
+      ? `<tr><td>${h.day}</td><td colspan="5" class="muted">🌧️ dicht (regen)</td><td class="neg">${eur(h.net)}</td></tr>`
+      : `<tr><td>${h.day}</td><td>${eur(h.price)}</td><td>${h.want}</td><td>${h.sold}${h.walkaways ? ` <span class="small" style="color:var(--bad)">(−${h.walkaways})</span>` : ''}</td><td>${eur(h.revenue)}</td><td>${eur(h.gross)}</td><td class="${h.net >= 0 ? 'pos' : 'neg'}">${eur(h.net)}</td></tr>`).join('')
+    : '<tr><td colspan="7" class="muted" style="text-align:center">Nog geen dagen gespeeld.</td></tr>';
+  // begrippen
+  $('terms').innerHTML = state.concepts.length
+    ? state.concepts.map(k => `<span class="term ${CONCEPTS[k].t === 'v' ? 'vk' : ''}" data-k="${k}">${CONCEPTS[k].title}</span>`).join('')
+    : '<span class="small muted">Nog geen begrippen.</span>';
+  document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
+  renderChart();
+}
+function renderChart(){
+  const W = 420, H = 210, pad = { l:44, r:10, t:12, b:26 };
+  const hist = state.history, vals = hist.map(h => h.net);
+  const max = Math.max(75, ...vals), min = Math.min(0, ...vals);
+  const y = v => pad.t + (max - v) / (max - min) * (H - pad.t - pad.b), bw = (W - pad.l - pad.r) / DAYS;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Nettoresultaat per dag">`;
+  for(let v = Math.ceil(min / 25) * 25; v <= max; v += 25) svg += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? '#a89b86' : '#eee4d5'}"/><text x="${pad.l - 6}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#6a6359">€${v}</text>`;
+  for(let d = 1; d <= DAYS; d++){
+    const x = pad.l + (d - 1) * bw, h = hist.find(e => e.day === d);
+    if(h){ const top = Math.min(y(h.net), y(0)), height = Math.max(1, Math.abs(y(h.net) - y(0)));
+      svg += `<rect x="${x + 3}" y="${top}" width="${bw - 6}" height="${height}" rx="3" fill="${h.net >= 0 ? '#d97706' : '#b91c1c'}"><title>Dag ${d}: ${eur(h.net)}</title></rect>`; }
+    const cur = d === state.day && !state.finished;
+    svg += `<text x="${x + bw / 2}" y="${H - 8}" font-size="10" text-anchor="middle" fill="${cur ? '#d97706' : '#6a6359'}" font-weight="${cur ? 700 : 400}">${d}</text>`;
+  }
+  [[DAY.WHOLESALE,'🚚'],[DAY.INVEST,'🛠️'],[DAY.ENV,'🗑️'],[DAY.RAIN,'🌧️'],[DAY.COMPETITOR,'🌭'],[DAY.CARTEL,'🤝']].forEach(([d, icon]) => {
+    const x = pad.l + (d - 1) * bw; svg += `<text x="${x + bw / 2}" y="${pad.t + 10}" font-size="11" text-anchor="middle">${icon}</text>`;
+  });
+  $('chart').innerHTML = svg + '</svg><div class="small muted" style="margin-top:4px">🚚 groothandel · 🛠️ investering · 🗑️ afval · 🌧️ regendag · 🌭 SnackPoint · 🤝 kartel</div>';
+}
+
+// ---------- INLOGGEN, MENU, DOCENT ----------
+function msg(el, cls, text){ $(el).innerHTML = text ? `<div class="msg ${cls}">${text}</div>` : ''; }
+async function doLogin(){
+  const name = $('inName').value.trim(), klas = $('inClass').value.trim(), pin = $('inPin').value.trim();
+  if(!name || !klas) return msg('loginMsg', 'bad', 'Vul je naam en je klas in.');
+  if(!/^[0-9]{4}$/.test(pin)) return msg('loginMsg', 'bad', 'Je pincode bestaat uit precies 4 cijfers.');
+  if(!sb){ msg('loginMsg', 'bad', 'Er is geen verbinding met de database.'); $('trialBtn').classList.remove('hidden'); return; }
+  msg('loginMsg', 'info', 'Bezig met inloggen…');
+  try{
+    const { data, error } = await sb.rpc('register_or_login_student', { p_name: name, p_class: klas, p_pin: pin });
+    if(error) throw error;
+    const st = Array.isArray(data) ? data[0] : data;
+    session.student = { id: st.id, name: st.name, class: st.class }; session.pin = pin; session.trial = false;
+    msg('loginMsg');
+    openMenu();
+  }catch(e){
+    const m = String(e && (e.message || e.details) || e);
+    if(m.includes('wrong_pin')) msg('loginMsg', 'bad', 'Deze pincode klopt niet bij deze naam en klas. Pincode vergeten? Vraag je docent om hem opnieuw in te stellen.');
+    else { msg('loginMsg', 'bad', 'Inloggen lukt nu niet. Controleer je internetverbinding en probeer het opnieuw.'); $('trialBtn').classList.remove('hidden'); }
+  }
+}
+async function openMenu(){
+  if(state){ clearTimeout(saveTimer); await saveNow(); }
+  state = null;
+  show('menuScreen');
+  $('topSub').textContent = 'Hoofdstuk 3 en 4 – ondernemen en werken';
+  $('menuHello').textContent = session.trial ? 'Proefmodus' : `Hoi ${session.student.name}!`;
+  $('menuSub').textContent = session.trial ? 'Je voortgang wordt alleen in deze browser bewaard, niet bij je docent.' : `Klas ${session.student.class}`;
+  $('menuGrid').innerHTML = '<div class="small muted">Laden…</div>';
+  let d1 = null, unlocked = false;
+  try{
+    d1 = await loadState(GAME_KEY);
+    unlocked = session.trial ? true : !!(await sb.rpc('game_is_unlocked', { p_class: session.student.class, p_game: DEEL2_KEY })).data;
+  }catch(e){ console.error(e); }
+  const d1Status = !d1 ? 'Nog niet begonnen' : d1.finished ? `✅ Afgerond · nettoresultaat ${eur(d1.history.reduce((s, h) => s + h.net, 0))}` : `Bezig: dag ${d1.day} van ${DAYS}`;
+  const d2Status = !unlocked ? '🔒 Je docent zet dit deel open.' : !(d1 && d1.finished) ? '🔒 Rond eerst deel 1 af.' : '🛠️ Deel 2 wordt nog gebouwd. Binnenkort speelbaar!';
+  $('menuGrid').innerHTML = `
+    <div class="menu-card"><h3>🍟 Deel 1</h3><div><b>Ben jij ondernemend?</b><br><span class="small">Hoofdstuk 3: kosten, opbrengsten, markt en concurrentie</span></div>
+      <div class="status">${d1Status}</div>
+      <button class="cta" id="playD1" style="margin-top:0">${!d1 ? 'Start deel 1 🚀' : d1.finished ? 'Bekijk je eindrapport' : 'Verder spelen ▶️'}</button></div>
+    <div class="menu-card locked"><h3>👷 Deel 2</h3><div><b>Werk aan de winkel!</b><br><span class="small">Hoofdstuk 4: personeel, arbeidsmarkt en werkloosheid</span></div>
+      <div class="status">${d2Status}</div>
+      <button class="cta" disabled style="margin-top:0">Start deel 2</button></div>`;
+  $('playD1').onclick = () => startDeel1(d1);
+}
+function startDeel1(saved){
+  state = saved ? Object.assign(freshState(), saved) : freshState();
+  modalQueue = [];
+  show('gameScreen');
+  render();
+  if(state.finished){ endReport(); return; }
+  if(!saved){ queueModal(introModal); return; }
+  // na herladen: was het dagrapport al gespeeld maar nog niet weggeklikt?
+  const last = state.history[state.history.length - 1];
+  if(last && last.day === state.day){
+    if(state.day >= DAYS){ mergerModal(); return; }
+    state.day++; beginDay(); return;
+  }
+  // openstaande keuzes van vandaag opnieuw tonen
+  beginDay();
+}
+function introModal(){
+  showModal(`<div class="tag">Snack Empire · Game 2 · Deel 1</div><h2>🍟 Ben jij ondernemend?</h2>
+    <p>Je hebt <b>€ 200</b> gespaard en begint een patatkraam op het schoolplein. Je bent nu een <b>producent</b>.</p>
+    <p>Elke dag kies je je <b>consumentenprijs</b>. Je ontdekt hoe kosten, omzet en winst samenhangen. Onderweg kun je met je kennis voordelen verdienen bij de <b>groothandel</b>, een <b>cursus</b> en de <b>Kamer van Koophandel</b>. En dan is er nog de concurrent…</p>
+    <div class="msg warn"><b>🎯 Doel:</b> een zo hoog mogelijk <b>nettoresultaat</b> in 12 dagen.<br>⭐ ${eur0(GOALS[0])} &nbsp; ⭐⭐ ${eur0(GOALS[1])} &nbsp; ⭐⭐⭐ ${eur0(GOALS[2])}</div>
+    <button class="cta" id="startBtn">Start mijn snackkraam 🚀</button>`);
+  $('startBtn').onclick = () => { closeModal(); beginDay(); };
+}
+
+// docent
+let teacherKey = null;
+function teacherModal(){
+  showModal(`<div class="tag">👩‍🏫 Docent</div><h2>Docentenpaneel</h2>
+    <p class="small">Vul de docentensleutel in die je ook in het klassenoverzicht gebruikt.</p>
+    <input type="password" id="tKey" placeholder="Docentensleutel" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit">
+    <button class="cta" id="tGo">Openen</button><div id="tMsg"></div>
+    <button class="ghost" style="width:100%;margin-top:8px" onclick="closeModal()">Sluiten</button>`);
+  $('tGo').onclick = async () => {
+    const key = $('tKey').value;
+    if(!sb){ msg('tMsg', 'bad', 'Geen verbinding met de database.'); return; }
+    const { data, error } = await sb.rpc('verify_teacher_key', { p_teacher_key: key });
+    if(error || !data){ msg('tMsg', 'bad', 'Deze sleutel klopt niet.'); return; }
+    teacherKey = key; teacherPanel();
+  };
+}
+async function teacherPanel(){
+  showModal('<div class="tag">👩‍🏫 Docent</div><h2>Laden…</h2>');
+  try{
+    const [cls, unl, ov] = await Promise.all([
+      sb.rpc('game_list_classes', { p_teacher_key: teacherKey }),
+      sb.rpc('game_list_unlocks', { p_teacher_key: teacherKey }),
+      sb.rpc('game_teacher_overview', { p_teacher_key: teacherKey, p_game_prefix: 'game2' })
+    ]);
+    if(cls.error || unl.error || ov.error) throw (cls.error || unl.error || ov.error);
+    const open = new Set((unl.data || []).filter(u => u.game === DEEL2_KEY).map(u => u.class));
+    const rows = (ov.data || []);
+    showModal(`<div class="tag">👩‍🏫 Docent</div><h2>Game 2 – docentenpaneel</h2>
+      <h3>Deel 2 openzetten per klas</h3>
+      <table class="teacher"><tbody>${(cls.data || []).map(c => `<tr><td>${escapeHtml(c.class)}</td><td class="small muted">${c.students} leerlingen</td>
+        <td><button class="toggle ${open.has(c.class) ? 'on' : ''}" data-c="${escapeHtml(c.class)}">${open.has(c.class) ? '🔓 Deel 2 open' : '🔒 Deel 2 dicht'}</button></td></tr>`).join('')}</tbody></table>
+      <h3>Voortgang</h3>
+      ${rows.length ? `<div style="overflow-x:auto"><table class="teacher"><thead><tr><th>Klas</th><th>Naam</th><th>Deel</th><th>Dag</th><th>Nettoresultaat</th><th>Quiz</th></tr></thead><tbody>
+        ${rows.map(r => `<tr><td>${escapeHtml(r.class)}</td><td>${escapeHtml(r.name)}</td><td>${r.game === GAME_KEY ? '1' : '2'}</td><td>${r.finished ? '✅' : (r.day || '–')}</td><td>${r.net_result != null ? eur(+r.net_result) : '–'}</td><td>${r.quiz_correct}/${r.quiz_total}</td></tr>`).join('')}
+      </tbody></table></div>` : '<p class="small muted">Nog geen leerlingen begonnen aan game 2.</p>'}
+      <button class="ghost" style="width:100%;margin-top:12px" id="tClose">Sluiten</button>`);
+    document.querySelectorAll('.toggle').forEach(b => b.onclick = async () => {
+      b.disabled = true;
+      const { error } = await sb.rpc('game_set_unlock', { p_teacher_key: teacherKey, p_class: b.dataset.c, p_game: DEEL2_KEY, p_unlocked: !b.classList.contains('on') });
+      if(error) console.error(error);
+      teacherPanel();
+    });
+    $('tClose').onclick = () => { teacherKey = null; modalQueue = []; $('overlay').classList.add('hidden'); };
+  }catch(e){
+    console.error(e);
+    showModal(`<div class="tag">👩‍🏫 Docent</div><h2>Er ging iets mis</h2><p>Het docentenpaneel kon niet laden.</p><button class="cta" onclick="closeModal()">Sluiten</button>`);
+  }
+}
+
+// ---------- START ----------
+$('loginBtn').onclick = doLogin;
+['inName','inClass','inPin'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); }));
+$('trialBtn').onclick = () => { session.trial = true; session.student = null; openMenu(); };
+$('teacherBtn').onclick = () => queueModal(teacherModal);
+$('logoutBtn').onclick = () => { session.student = null; session.pin = null; session.trial = false; $('inPin').value = ''; show('loginScreen'); };
+$('toMenuBtn').onclick = () => openMenu();
+$('playBtn').onclick = () => { if(state.finished){ endReport(); return; } playDay(); };
+if(!sb || /[?&]proef\b/.test(location.search)) $('trialBtn').classList.remove('hidden');
+show('loginScreen');
+
+</script>
+</body>
+</html>
