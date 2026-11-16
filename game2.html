@@ -303,7 +303,8 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ---------- INSTELLINGEN ----------
 const GAME_KEY = 'game2_deel1';
 const DEEL2_KEY = 'game2_deel2';
-const DAYS = 12;
+// Deze waarden wisselen per deel (zie setPart)
+let part = 1, FIRST = 1, DAYS = 12, SAVE_KEY = GAME_KEY;
 const START_MONEY = 200;
 const RENT = 20;                 // huisvestingskosten per dag (vast)
 const BASE_PURCHASE = 1.20;      // inkoopprijs per portie (variabel)
@@ -315,11 +316,14 @@ const COMPETITOR_PRICE = 2.50;
 const CARTEL_PRICE = 3.00;
 const CARTEL_FINE = 50;
 const COURSE_FEE_PER_WRONG = 5;
-const GOALS = [450, 560, 650];   // totaal nettoresultaat voor 1, 2, 3 sterren
+const GOALS_P1 = [450, 560, 650]; // totaal nettoresultaat deel 1 voor 1, 2, 3 sterren
+const GOALS_P2 = [600, 760, 900];       // totaal nettoresultaat deel 2
+let GOALS = GOALS_P1;
+function setPart(n){ part = n; FIRST = n === 1 ? 1 : 13; DAYS = n === 1 ? 12 : 24; SAVE_KEY = n === 1 ? GAME_KEY : DEEL2_KEY; GOALS = n === 1 ? GOALS_P1 : GOALS_P2; }
 const CLOCK_DURATION = 7000;
 const REPORT_READ_SECONDS = 4;
 const CUSTOMER_ICONS = ['👨‍🎓','👩‍🎓','🧑‍🎓','👦','👧','🧑','👩','👨'];
-const LOCAL_KEY = 'snackEmpire_game2_proef_v3';
+const LOCAL_KEY = 'snackEmpire_game2_proef_v4_';
 
 const INVESTMENTS = {
   modern: { name:'🔥 Moderne frituur', price:200, capacity:75, purchaseDelta:-0.10, life:40,
@@ -442,6 +446,145 @@ const QUIZZES = {
     ]}
 };
 
+// =====================================================================
+// DEEL 2: "Werk aan de winkel!" (hoofdstuk 4) – dag 13 t/m 24
+// =====================================================================
+const D2 = { POPULAR:13, KVKREG:14, VACANCY:15, RAIN2:16, INTERVIEW:17, CONTRACT:18, DIVISION:19, SECTORS:20, INSPECTION:21, KIOSK:22, COLD:23, LAST:24 };
+const POPULARITY = 50;          // extra vraag in deel 2: je kraam is populair geworden
+const COLD_DROP = 35;           // dag 23: koud en stil
+const ADMIN_BASE = 5;           // verzekering + administratie per dag na inschrijving KvK
+const INSPECTION_FINE = 15;     // boete per fout bij de Arbeidsinspectie
+const AWGB_LOST = 3;            // klanten per dag minder na een klacht over discriminatie
+const KIOSK = { price:150, life:30, factor:1.3 };
+
+const CANDIDATES = [
+  { id:'daan', name:'Daan', age:19, icon:'🏖️', wage:14, mult:1.4, always:true,
+    story:'Werkte de hele zomer bij een strandtent in Scheveningen. In de winter is die dicht, dus nu heeft hij geen werk.',
+    motive:'"Ik wil gewoon geld verdienen voor mijn rijbewijs."', diploma:'Geen diploma, wel ervaring achter de toonbank.',
+    type:'seizoen', typeText:'Seizoenwerkloosheid: zijn werk kan alleen in een deel van het jaar.' },
+  { id:'lotte', name:'Lotte', age:16, icon:'🎒', wage:8, mult:1.25, always:true, pauzes:true,
+    story:'Zit in 4 havo op jouw school. Ze zoekt een bijbaantje naast school.',
+    motive:'"Ik wil ervaring opdoen en het is gezellig."', diploma:'Nog geen diploma.',
+    type:'geen', typeText:'Lotte is niet werkloos: ze gaat naar school en zoekt een bijbaan. Let op: door de Arbeidstijdenwet mag ze alleen in de pauzes en na schooltijd werken.' },
+  { id:'samira', name:'Samira', age:24, icon:'👩‍🍳', wage:20, mult:1.5,
+    story:'Is net uit Utrecht naar jouw stad verhuisd en zoekt een nieuwe baan. Over een paar weken heeft ze vast iets.',
+    motive:'"Ik vind koken en klanten helpen echt leuk."', diploma:'Horecadiploma (mbo): geschoold werk, dus ze werkt sneller.',
+    type:'frictie', typeText:'Frictiewerkloosheid: kortdurend, omdat er tijd nodig is om een nieuwe baan te vinden.' },
+  { id:'peter', name:'Peter', age:52, icon:'👨‍💼', wage:18, mult:1.4,
+    story:'Werkte 25 jaar op een bankkantoor. Zijn werk wordt nu door computers gedaan. Hij staat ingeschreven bij het UWV.',
+    motive:'"Ik mis mijn collega\'s. Ik wil weer ergens bij horen."', diploma:'Mbo-diploma administratie.',
+    type:'structureel', typeText:'Structurele werkloosheid: zijn soort werk is verdwenen door automatisering (een probleem aan de aanbodkant). En hij is geregistreerd werkloos: ingeschreven bij het UWV.' },
+  { id:'ahmed', name:'Ahmed', age:35, icon:'👷', wage:18, mult:1.4,
+    story:'Werkte bij een fabriek die minder ging verkopen toen het slecht ging met de economie. Hij werd ontslagen.',
+    motive:'"Ik moet voor mijn gezin zorgen."', diploma:'Vmbo-diploma, veel werkervaring.',
+    type:'conjunctureel', typeText:'Conjuncturele werkloosheid: door minder bestedingen is er minder vraag naar producten, dus minder werk.' }
+];
+const UNEMP_TYPES = { seizoen:'Seizoenwerkloosheid', frictie:'Frictiewerkloosheid', structureel:'Structurele werkloosheid', conjunctureel:'Conjuncturele werkloosheid', geen:'Niet werkloos' };
+const HIRE_REASONS = [
+  { k:'ervaring', t:'Vanwege ervaring of diploma', ok:true },
+  { k:'goedkoop', t:'Omdat het loon laag is', ok:true },
+  { k:'motivatie', t:'Omdat de motivatie goed past', ok:true },
+  { k:'leeftijd', t:'Omdat ik liever iemand van een bepaalde leeftijd heb', ok:false },
+  { k:'gender', t:'Omdat ik liever een man (of vrouw) heb', ok:false },
+  { k:'afkomst', t:'Omdat ik liever iemand met een Nederlandse achtergrond heb', ok:false }
+];
+
+Object.assign(CONCEPTS, {
+  zelfstandige:{ t:'n', title:'Zelfstandige', text:'Een <b>zelfstandige</b> is iemand die met een eigen bedrijf zijn inkomen verdient. Dat ben jij!' },
+  zzp:{ t:'n', title:'Zzp\'er', text:'Een <b>zzp\'er</b> is een zelfstandige zonder personeel. Zolang je alleen in je kraam staat, ben jij een zzp\'er.' },
+  eenmanszaak:{ t:'n', title:'Eenmanszaak', text:'Een <b>eenmanszaak</b> is een onderneming met één eigenaar. Jouw snackkraam is een eenmanszaak.' },
+  vof:{ t:'n', title:'Vof', text:'Een <b>vof</b> (vennootschap onder firma) is een onderneming met meerdere eigenaren die samen de leiding hebben.' },
+  bv:{ t:'n', title:'Bv', text:'Een <b>bv</b> (besloten vennootschap) is een onderneming met één of meer eigenaren die aandeelhouder zijn. De aandelen worden niet vrij verhandeld.' },
+  nv:{ t:'n', title:'Nv', text:'Een <b>nv</b> (naamloze vennootschap) is een onderneming met meerdere eigenaren die aandeelhouder zijn. De aandelen worden verhandeld op de effectenbeurs.' },
+  stichting:{ t:'n', title:'Stichting', text:'Een <b>stichting</b> is een instelling die is opgericht om een maatschappelijk of ideëel doel te realiseren en die niet op winst gericht is.' },
+  dividend:{ t:'n', title:'Dividend', text:'<b>Dividend</b> is de winstuitkering van een bv of nv aan de aandeelhouders.' },
+  vacature:{ t:'v', title:'Vacature', text:'Een <b>vacature</b> is een baan waarvoor iemand wordt gezocht.' },
+  werkgever:{ t:'v', title:'Werkgever en werknemer', text:'De <b>werkgever</b> is iemand die personeel in loondienst heeft. De <b>werknemer</b> doet in dienst van een baas betaald werk.' },
+  arbeidsmarkt:{ t:'n', title:'Arbeidsmarkt', text:'De <b>arbeidsmarkt</b> is het geheel van vraag naar arbeid en aanbod van arbeid. Het <b>aanbod van arbeid</b> komt van werkenden en werkzoekenden (de beroepsbevolking). De <b>vraag naar arbeid</b> komt van werkgevers. Jouw vacature is vraag naar arbeid!' },
+  krappe:{ t:'n', title:'Krappe arbeidsmarkt', text:'Op een <b>krappe arbeidsmarkt</b> is de vraag naar arbeid groter dan het aanbod. Werkgevers krijgen dan weinig reacties op hun vacatures.' },
+  beroepsbevolking:{ t:'v', title:'Beroepsbevolking', text:'De <b>beroepsbevolking</b> is iedereen van vijftien jaar tot de pensioenleeftijd die werkt of werkloos is.' },
+  werkloos:{ t:'v', title:'Werkloos', text:'<b>Werkloos</b> ben je als je graag wilt werken, maar er geen werk is.' },
+  uwv:{ t:'v', title:'UWV', text:'Het <b>UWV</b> is een overheidsinstelling die je helpt bij het zoeken naar een nieuwe baan en die beoordeelt of je recht hebt op een werkloosheidsuitkering.' },
+  arbeidsparticipatie:{ t:'n', title:'Arbeidsparticipatie', text:'<b>Arbeidsparticipatie</b> (arbeidsdeelname) is het percentage van de bevolking dat werkt of wil werken.' },
+  werkgelegenheid:{ t:'n', title:'Werkgelegenheid', text:'<b>Werkgelegenheid</b> zijn alle banen die er zijn. Neem jij iemand aan, dan stijgt de werkgelegenheid met één baan.' },
+  werkloosheid:{ t:'n', title:'Werkloosheid', text:'Er is <b>werkloosheid</b> als het aanbod van arbeid groter is dan de vraag. Je bent <b>geregistreerd werkloos</b> als je als werkloze ingeschreven bent bij het UWV. Je bent <b>verborgen werkloos</b> als er geen werk voor je is en je niet bent ingeschreven bij het UWV.' },
+  scholing:{ t:'v', title:'Scholing en geschoold werk', text:'<b>Scholing</b> is een opleiding of cursus waarin je leert voor een beroep. <b>Geschoold werk</b> is werk waarvoor je een beroepsopleiding nodig hebt.' },
+  arbeidsmotieven:{ t:'n', title:'Arbeidsmotieven', text:'<b>Arbeidsmotieven</b> zijn redenen om te willen werken: geld verdienen, ervaring opdoen, collega\'s en gezelligheid, plezier in het werk of erbij horen.' },
+  awgb:{ t:'n', title:'Algemene wet gelijke behandeling', text:'De <b>Algemene wet gelijke behandeling</b> verbiedt om onderscheid te maken op basis van leeftijd, gender, afkomst, religie en seksuele geaardheid. Ook bij het kiezen van een nieuwe medewerker!' },
+  soortenwerkloosheid:{ t:'n', title:'Soorten werkloosheid', text:'<b>Seizoenwerkloosheid</b>: werk kan alleen in een deel van het jaar.<br><b>Frictiewerkloosheid</b>: kortdurend, omdat het tijd kost om een nieuwe baan te vinden.<br><b>Structurele werkloosheid</b>: door problemen aan de aanbodkant van de economie, bijvoorbeeld werk dat verdwijnt door automatisering.<br><b>Conjuncturele werkloosheid</b>: door minder vraag naar goederen en diensten, omdat de bestedingen afnemen.<br><b>Regionale werkloosheid</b>: in bepaalde gebieden hoger dan gemiddeld in het land.' },
+  arbeidsovereenkomst:{ t:'v', title:'Arbeidsovereenkomst', text:'Een <b>arbeidsovereenkomst</b> is de afspraak dat een werknemer in loondienst komt werken bij een werkgever. Een <b>tijdelijke baan</b> is werk voor een bepaalde tijd. Een <b>deeltijdbaan</b> is minder dan 36 uur per week, een <b>voltijdbaan</b> 36 tot 40 uur.' },
+  nettoloon:{ t:'v', title:'Nettoloon', text:'Van het brutoloon gaan nog loonbelasting en sociale premies af. Wat overblijft, ontvangt de werknemer op zijn rekening.', formula:'Nettoloon = brutoloon − (loonbelasting + sociale premies)' },
+  vastebaan:{ t:'n', title:'Vaste baan', text:'Een <b>vaste baan</b> is een arbeidsovereenkomst voor onbepaalde tijd, dus zonder einddatum. Je betaalt het loon ook op rustige dagen.' },
+  flexibelebaan:{ t:'n', title:'Flexibele baan', text:'Bij een <b>flexibele baan</b> heeft de werknemer alleen werk wanneer het bedrijf hem nodig heeft. Jij roept hem op als het druk is.' },
+  cao:{ t:'n', title:'Cao', text:'Een <b>cao</b> (collectieve arbeidsovereenkomst) bevat afspraken per bedrijfstak over de arbeidsvoorwaarden, zoals loon en vakantiedagen.' },
+  minimumloon:{ t:'n', title:'Minimumloon', text:'Het <b>minimumloon</b> is het loon dat je vanaf 21 jaar minstens moet verdienen in een voltijdbaan. Voor jongeren onder de 21 is het lager.' },
+  loon:{ t:'n', title:'Loon', text:'<b>Loon</b> is de prijs voor arbeid.' },
+  arbeidstijdenwet:{ t:'v', title:'Arbeidstijdenwet', text:'De <b>Arbeidstijdenwet</b> bevat regels voor werk- en rusttijden. Scholieren mogen bijvoorbeeld niet onder schooltijd werken.' },
+  arbeidsverdeling:{ t:'n', title:'Arbeidsverdeling', text:'Bij <b>arbeidsverdeling</b> doen personen of bedrijven werk waarin zij gespecialiseerd zijn. De een bakt, de ander rekent af: samen maak je meer dan ieder apart.' },
+  productiesectoren:{ t:'n', title:'Productiesectoren', text:'<b>Productiesectoren</b> delen productie en arbeid in: de <b>primaire</b> sector haalt grondstoffen uit de natuur (de aardappelboer), de <b>secundaire</b> sector bewerkt ze in fabrieken (de frietfabriek), de <b>tertiaire</b> sector levert commerciële diensten (jouw snackkraam) en de <b>quartaire</b> sector levert niet-commerciële diensten (jouw school).' },
+  arbowet:{ t:'v', title:'Arbowet', text:'De <b>Arbowet</b> bevat regels voor veilige en gezonde arbeidsomstandigheden.' },
+  technologie:{ t:'v', title:'Technologische ontwikkelingen', text:'<b>Technologische ontwikkelingen</b> zijn nieuwe kennis van de techniek en nieuwe uitvindingen. Ze kunnen werk makkelijker maken, maar ook banen laten verdwijnen.' }
+});
+Object.assign(SCHEDULE, {
+  13:{ v:[], n:['zelfstandige','zzp','eenmanszaak'] },
+  14:{ v:[], n:['vof','bv','nv','stichting','dividend'] },
+  15:{ v:['vacature','werkgever'], n:['arbeidsmarkt','krappe'] },
+  16:{ v:['beroepsbevolking','werkloos','uwv'], n:['arbeidsparticipatie','werkgelegenheid','werkloosheid'] },
+  17:{ v:['scholing'], n:['arbeidsmotieven','soortenwerkloosheid','awgb'] },
+  18:{ v:['arbeidsovereenkomst','nettoloon'], n:['loon','minimumloon','cao','vastebaan','flexibelebaan'] },
+  19:{ v:['arbeidstijdenwet'], n:['arbeidsverdeling'] },
+  20:{ v:[], n:['productiesectoren'] },
+  21:{ v:['arbowet'], n:[] },
+  22:{ v:['technologie'], n:[] },
+  23:{ v:[], n:[] }, 24:{ v:[], n:[] }
+});
+Object.assign(DAY_NEWS, {
+  13:'Welkom terug! Je kraam is populair geworden: er komen veel meer klanten dan je in je eentje kunt helpen.',
+  14:'Vanochtend schreef je je bedrijf in bij de Kamer van Koophandel.',
+  15:'Je hebt een vacature opgehangen. Wie reageert er?',
+  16:'🌧️ Weer een regendag: de kraam blijft dicht. Tijd voor de werkgeverscursus.',
+  17:'Vandaag voer je sollicitatiegesprekken.',
+  18:'Vandaag begint je nieuwe medewerker. Eerst het contract!',
+  19:'Jullie verdelen het werk: de een bakt, de ander rekent af.',
+  20:'Waar komt jouw patat eigenlijk vandaan?',
+  21:'🦺 Onverwacht bezoek: de Arbeidsinspectie!',
+  22:'Een leverancier komt langs met een bestelzuil…',
+  23:'🥶 Koud en guur weer: veel minder leerlingen gaan naar buiten.',
+  24:'Laatste dag van deel 2! Haal er nog alles uit.'
+});
+Object.assign(QUIZZES, {
+  kvkreg: {
+    title:'🏢 Inschrijving Kamer van Koophandel', intro:'Bij je inschrijving krijg je advies over je verzekering en administratie. Die kosten <b>€ 5 per dag</b> (bedrijfskosten). Elk goed antwoord: <b>€ 1 per dag minder</b>. Elk fout antwoord: <b>€ 1 per dag meer</b>.',
+    fixed:[], pool:[
+      { k:'herkennen', q:'Jij staat alleen in je kraam en hebt geen personeel. Wat ben je dan?', o:['Een zzp\'er','Een werknemer','Een aandeelhouder','Een werkgever'], a:0, e:'Een zelfstandige zonder personeel: een zzp\'er. Jouw kraam is een eenmanszaak.' },
+      { k:'redeneren', q:'Jij en een vriend willen samen de kraam runnen en allebei de leiding hebben. Aandeelhouders willen jullie niet. Welke vorm past?', o:['Eenmanszaak','Vof','Bv','Nv'], a:1, e:'Meerdere eigenaren die samen de leiding hebben, zonder aandelen: een vof.' },
+      { k:'herkennen', q:'De voedselbank wil geen winst maken, maar mensen helpen. Welke vorm past daarbij?', o:['Stichting','Bv','Nv','Vof'], a:0, e:'Een stichting is opgericht voor een maatschappelijk of ideëel doel en is niet op winst gericht.' },
+      { k:'herkennen', q:'Een grote frietfabrikant keert een deel van de winst uit aan iedereen die aandelen heeft. Hoe heet die uitkering?', o:['Loon','Dividend','Btw','Omzet'], a:1, e:'De winstuitkering van een bv of nv aan de aandeelhouders heet dividend.' },
+      { k:'herkennen', q:'De aandelen van een bedrijf worden verhandeld op de effectenbeurs. Welke ondernemingsvorm is dat?', o:['Bv','Nv','Vof','Stichting'], a:1, e:'Bij een nv worden de aandelen op de effectenbeurs verhandeld. Bij een bv niet vrij.' },
+      { k:'redeneren', q:'Een familiebedrijf wil aandelen hebben, maar wil niet dat vreemden die zomaar kunnen kopen. Welke vorm past?', o:['Nv','Bv','Eenmanszaak','Stichting'], a:1, e:'Bij een bv worden de aandelen niet vrij verhandeld. Zo houdt de familie de controle.' }
+    ]},
+  course2: {
+    title:'🌧️ Regendag: de werkgeverscursus', intro:'Je kraam is dicht, dus je volgt een cursus over de arbeidsmarkt. Elk goed antwoord boven de eerste levert via het UWV <b>een extra sollicitant</b> op (maximaal 5).',
+    fixed:[], pool:[
+      { k:'herkennen', q:'In jouw stad zijn veel vacatures, maar in een dorp in Oost-Groningen is weinig werk. Welke werkloosheid is daar hoger?', o:['Seizoenwerkloosheid','Regionale werkloosheid','Frictiewerkloosheid','Conjuncturele werkloosheid'], a:1, e:'Werkloosheid die in bepaalde gebieden hoger is dan gemiddeld in het land: regionale werkloosheid.' },
+      { k:'rekenen', q:'Een stad heeft 50.000 inwoners. 35.000 van hen werken of willen werken. Wat is de arbeidsparticipatie?', o:['35%','50%','70%','143%'], a:2, e:'35.000 ÷ 50.000 × 100% = 70%.' },
+      { k:'redeneren', q:'Je kreeg maar 2 reacties op je vacature. Wat zegt dat over de arbeidsmarkt?', o:['Die is krap: de vraag naar arbeid is groter dan het aanbod','Er is veel werkloosheid','Het aanbod van arbeid is groter dan de vraag','Er zijn te weinig werkgevers'], a:0, e:'Weinig reacties: werkgevers zoeken meer mensen dan er beschikbaar zijn. Een krappe arbeidsmarkt.' },
+      { k:'herkennen', q:'Fleur (30) wil graag werken, maar vindt niets. Ze staat niet ingeschreven bij het UWV. Hoe noem je dat?', o:['Geregistreerd werkloos','Verborgen werkloos','Seizoenwerkloos','Niet werkloos'], a:1, e:'Er is geen werk voor haar en ze is niet ingeschreven bij het UWV: verborgen werkloos.' },
+      { k:'herkennen', q:'Jij neemt iemand aan. Wat gebeurt er met de werkgelegenheid?', o:['Die stijgt met één baan','Die daalt','Die blijft gelijk','Die wordt een vacature'], a:0, e:'Werkgelegenheid zijn alle banen die er zijn. Een nieuwe baan erbij: de werkgelegenheid stijgt.' },
+      { k:'herkennen', q:'Wie hoort bij de beroepsbevolking?', o:['Een gepensioneerde van 70','Een werkloze van 40 die werk zoekt','Een kind van 12','Iemand van 30 die niet wil werken'], a:1, e:'De beroepsbevolking: iedereen van 15 jaar tot de pensioenleeftijd die werkt of werkloos is (dus werk zoekt).' }
+    ]},
+  inspection: {
+    title:'🦺 Bezoek van de Arbeidsinspectie', intro:'De inspecteur controleert of je de regels voor werkgevers kent. Elk fout antwoord kost je een <b>boete van € 15</b> (bedrijfskosten van vandaag).',
+    fixed:[], pool:[
+      { k:'herkennen', q:'Je medewerker van 16 staat om 10:00 uur, onder schooltijd, in de kraam. Welke wet overtreed je?', o:['Arbowet','Arbeidstijdenwet','Algemene wet gelijke behandeling','Cao'], a:1, e:'Werk- en rusttijden (en dus niet onder schooltijd werken) staan in de Arbeidstijdenwet.' },
+      { k:'herkennen', q:'De frituur staat op een wiebelende tafel, zonder brandblusser in de buurt. Welke wet gaat hierover?', o:['Arbowet','Arbeidstijdenwet','Minimumloon','Cao'], a:0, e:'Veilige en gezonde arbeidsomstandigheden: de Arbowet.' },
+      { k:'rekenen', q:'Je medewerker verdient € 400 bruto per maand. Er gaat € 40 loonbelasting en € 30 sociale premies af. Wat is het nettoloon?', o:['€ 330','€ 360','€ 370','€ 470'], a:0, e:'Nettoloon = € 400 − (€ 40 + € 30) = € 330.' },
+      { k:'redeneren', q:'Samira is 24 en werkt voltijd. Mag je haar minder betalen dan het minimumloon?', o:['Ja, als ze akkoord gaat','Nee, vanaf 21 jaar moet ze minstens het minimumloon krijgen','Ja, in de horeca mag dat','Alleen in de proeftijd'], a:1, e:'Het minimumloon is wat je vanaf 21 jaar minstens moet verdienen in een voltijdbaan.' },
+      { k:'herkennen', q:'Waar staan de afspraken over loon en vakantiedagen voor alle snackbars samen?', o:['In de cao','In de Arbowet','In het minimumloon','In de vacature'], a:0, e:'Een cao bevat afspraken per bedrijfstak over de arbeidsvoorwaarden.' },
+      { k:'redeneren', q:'Een collega-ondernemer neemt alleen mannen aan "omdat die sterker zijn". Mag dat?', o:['Ja, hij is de baas','Nee, de Algemene wet gelijke behandeling verbiedt onderscheid op gender','Ja, als het in de cao staat','Alleen bij zwaar werk'], a:1, e:'De Algemene wet gelijke behandeling verbiedt onderscheid op leeftijd, gender, afkomst, religie en seksuele geaardheid.' }
+    ]}
+});
+
 // ---------- OPSLAG ----------
 let sb = null;
 try { if(window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e){ sb = null; }
@@ -452,7 +595,10 @@ let saveTimer = null;
 function freshState(){
   return { day:1, money:START_MONEY, price:null, prediction:null, history:[], concepts:[],
     investment:null, env:null, competitor:false, purchaseAdj:0, placeBonus:0, sauce:0, cartel:null, merger:null,
-    quiz:{}, quizCorrect:0, quizTotal:0, pending:[], finished:false, started:true };
+    quiz:{}, quizCorrect:0, quizTotal:0, pending:[], finished:false, started:true,
+    // deel 2
+    worker:null, contract:null, call:true, kiosk:false, adminCost:0, awgb:false, candidatesShown:2,
+    staffExtra:0, todayExtra:[], idAnswers:{}, deel1Net:0, hired:false, lostWorker:null };
 }
 function setSaveBadge(text, err){
   const b = $('saveBadge');
@@ -462,11 +608,11 @@ function setSaveBadge(text, err){
 }
 async function saveNow(){
   if(!state) return;
-  if(session.trial){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); }catch(e){} return; }
+  if(session.trial){ try{ localStorage.setItem(LOCAL_KEY + SAVE_KEY, JSON.stringify(state)); }catch(e){} return; }
   if(!sb || !session.student) return;
   try{
     const { error } = await sb.rpc('game_save', {
-      p_student_id: session.student.id, p_pin: session.pin, p_game: GAME_KEY, p_state: state,
+      p_student_id: session.student.id, p_pin: session.pin, p_game: SAVE_KEY, p_state: state,
       p_net_result: Math.round(totalNet() * 100) / 100, p_quiz_correct: state.quizCorrect, p_quiz_total: state.quizTotal,
       p_finished: !!state.finished });
     if(error) throw error;
@@ -479,8 +625,7 @@ async function saveNow(){
 function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
 async function loadState(game){
   if(session.trial){
-    if(game !== GAME_KEY) return null;
-    try{ return JSON.parse(localStorage.getItem(LOCAL_KEY)); }catch(e){ return null; }
+    try{ return JSON.parse(localStorage.getItem(LOCAL_KEY + game)); }catch(e){ return null; }
   }
   const { data, error } = await sb.rpc('game_load', { p_student_id: session.student.id, p_pin: session.pin, p_game: game });
   if(error) throw error;
@@ -502,21 +647,39 @@ function show(screen){
 }
 
 // ---------- PRODUCTIE EN VRAAG ----------
-function setup(day = state.day){
+function isClosedDay(d = state.day){ return d === DAY.RAIN || d === D2.RAIN2; }
+function workerWorks(opts = {}){
+  if(part !== 2 || !state.worker || !state.contract || state.kiosk || opts.noWorker) return false;
+  return state.contract === 'vast' || state.call;
+}
+function wagePaidToday(opts = {}){
+  if(part !== 2 || !state.worker || !state.contract || state.kiosk || opts.noWorker) return 0;
+  return (state.contract === 'vast' || state.call) ? state.worker.wage : 0;
+}
+function setup(opts = {}){
   const inv = INVESTMENTS[state.investment] || INVESTMENTS.none;
   const env = ENV_OPTIONS[state.env];
   const costs = [['Huisvestingskosten (huur kraam)', RENT]];
   const dep = depreciationOf(state.investment);
   if(dep) costs.push(['Afschrijving frituur', dep]);
   if(env && env.extraCost) costs.push(['Afvalbakken en opruimen', env.extraCost]);
+  let factor = 1, workers = 1, depTotal = dep;
+  if(part === 2){
+    if(state.adminCost) costs.push(['Verzekering en administratie', state.adminCost]);
+    const wage = wagePaidToday(opts);
+    if(wage) costs.push([`Loonkosten ${state.worker.name}`, wage]);
+    if(workerWorks(opts)){ factor = state.worker.mult; workers = 2; }
+    if(state.kiosk){ factor = KIOSK.factor; costs.push(['Afschrijving bestelzuil', KIOSK.price / KIOSK.life]); depTotal += KIOSK.price / KIOSK.life; }
+  }
   return {
-    capacity: inv.capacity, workers: 1,
+    capacity: Math.round(inv.capacity * factor), fryerCap: inv.capacity, workers,
     purchase: Math.round((BASE_PURCHASE + inv.purchaseDelta + state.purchaseAdj + (env ? env.extraPurchase : 0)) * 100) / 100,
-    costs, depreciation: dep, envLost: env ? env.lost : 0
+    costs, depreciation: depTotal, envLost: env ? env.lost : 0
   };
 }
 function demandAt(p, s, opts){
   let d = 90 - 20 * (p - 2) - 14 * Math.pow(p - 2, 2) + state.placeBonus - s.envLost;
+  if(part === 2){ d += POPULARITY; if(state.day === D2.COLD) d -= COLD_DROP; if(state.awgb) d -= AWGB_LOST; }
   let lostToComp = 0;
   if(opts.competitor){
     const compPrice = opts.cartel ? CARTEL_PRICE : COMPETITOR_PRICE;
@@ -525,9 +688,9 @@ function demandAt(p, s, opts){
   }
   return { demand: Math.max(0, d), lostToComp };
 }
-function simulateDay(p, noise, extraCosts){
-  const s = setup();
-  const closed = state.day === DAY.RAIN;
+function simulateDay(p, noise, extraCosts, sOpts = {}){
+  const s = setup(sOpts);
+  const closed = isClosedDay();
   const opts = { competitor: state.competitor, cartel: state.day === DAY.CARTEL && state.cartel === 'join' };
   const { demand, lostToComp } = closed ? { demand:0, lostToComp:0 } : demandAt(p, s, opts);
   const want = Math.max(0, Math.round(demand + (closed ? 0 : noise)));
@@ -537,7 +700,7 @@ function simulateDay(p, noise, extraCosts){
   const totalCosts = costs.reduce((a, c) => a + c[1], 0);
   const revenue = sold * pEx, btwTotal = sold * (p - pEx), purchaseValue = sold * s.purchase;
   const gross = revenue - purchaseValue, net = gross - totalCosts;
-  return { day: state.day, price: p, pEx, want, sold, walkaways: want - sold, cap: s.capacity, workers: s.workers,
+  return { day: state.day, price: p, pEx, want, sold, walkaways: want - sold, cap: s.capacity, fryerCap: s.fryerCap, workers: s.workers,
     purchase: s.purchase, revenue, btwTotal, purchaseValue, gross, costs, totalCosts, net, closed,
     costPrice: sold ? (purchaseValue + totalCosts) / sold : null, cash: net + s.depreciation,
     lostToComp: Math.round(lostToComp), envLost: s.envLost };
@@ -647,7 +810,7 @@ function runQuiz(id, onDone){
 
 // ---------- DAGVERLOOP ----------
 function beginDay(){
-  state.price = null; state.prediction = null;
+  state.price = null; state.prediction = null; state.todayExtra = []; state.call = true;
   const d = state.day;
   if(d === DAY.CARTEL && state.cartel === 'join') state.price = CARTEL_PRICE;
   state.pending = [];
@@ -677,6 +840,7 @@ function beginDay(){
       : 'Het lukt nog niet om een eigen saus te bedenken. Je patat blijft een homogeen product: klanten kiezen vooral op prijs.';
   }));
   if(d === DAY.INVEST && !state.investment) queueModal(investModal);
+  if(part === 2) beginDay2(d);
   save();
   render();
 }
@@ -778,7 +942,7 @@ function cartelModal(){
 
 function playDay(){
   if(clockRunning) return;
-  const closed = state.day === DAY.RAIN;
+  const closed = isClosedDay();
   if(!closed && state.price === null) return;
   if(needPrediction() && !state.prediction) return;
   const p = closed ? 0 : state.price;
@@ -787,7 +951,14 @@ function playDay(){
   if(closed && state.courseFee) extra.push(['Cursusgeld (ondernemerscursus)', state.courseFee]);
   const cartelJoined = state.day === DAY.CARTEL && state.cartel === 'join';
   if(cartelJoined) extra.push(['Boete toezichthouder ACM (kartel)', CARTEL_FINE]);
+  (state.todayExtra || []).forEach(c => extra.push(c));
   const r = simulateDay(p, noise, extra);
+  r.staffExtra = 0; r.workerWorked = workerWorks(); r.workerCalled = !!(state.worker && !state.kiosk && state.contract === 'flex' && state.call);
+  if(r.workerWorked && !closed){
+    const without = simulateDay(p, noise, extra, { noWorker:true });
+    r.staffExtra = r.net - without.net; r.capAlone = without.cap;
+    state.staffExtra += r.staffExtra;
+  } else if(r.workerWorked && closed){ r.staffExtra = -state.worker.wage; state.staffExtra += r.staffExtra; }
   if(cartelJoined){
     // wat had je zonder kartel (en zonder boete) verdiend bij de beste eerlijke prijs?
     const keep = state.cartel; state.cartel = 'refuse';
@@ -810,7 +981,7 @@ function playDay(){
 }
 function lastOpenDay(){ return [...state.history].reverse().find(h => !h.closed); }
 function needPrediction(){
-  return state.day > 1 && state.day !== DAY.RAIN && !state.finished && !(state.day === DAY.CARTEL && state.cartel === 'join') && !!lastOpenDay();
+  return state.day > FIRST && !isClosedDay() && !state.finished && !(state.day === DAY.CARTEL && state.cartel === 'join') && !!lastOpenDay();
 }
 
 function reportModal(h){
@@ -828,6 +999,9 @@ function reportModal(h){
     if(d === DAY.COMPETITOR) why += ' Maar vandaag opende ook SnackPoint, en die trekt klanten weg!';
     if(d === DAY.ENV && state.env === 'none') why += ' Bovendien bleven er een paar leerlingen weg vanwege het afval.';
     if(d === DAY.RAIN + 1 && state.placeBonus) why += ` Je nieuwe plek op het plein trok ${state.placeBonus} extra klanten.`;
+    if(d === D2.COLD) why += ' Maar door het koude weer bleven veel leerlingen binnen.';
+    if(d === D2.COLD + 1) why += ' En het weer was weer normaal na de koude dag.';
+    if(d === D2.INTERVIEW && state.awgb) why += ' Ook kostte de klacht over je sollicitatie je klanten.';
     parts.push(`<div class="msg ${ok ? 'good' : 'warn'}">${ok ? '✅ Goed voorspeld!' : '🤔 Niet helemaal.'} Je dacht: <b>${label[pr.guess]}</b> klanten. Het waren er <b>${label[pr.actual]}</b> (${h.want} vandaag, ${h.want - pr.diff} op dag ${pr.prevDay}). ${why}</div>`);
   }
   if(h.walkaways > 0) parts.push(`<div class="msg bad">🚶 <b>${h.walkaways} klanten liepen weg!</b> Er wilden ${h.want} mensen patat, maar je <b>productiecapaciteit</b> is ${h.cap} porties per dag.</div>`);
@@ -837,6 +1011,14 @@ function reportModal(h){
     const gain = h.net + CARTEL_FINE - h.fairBest;
     parts.push(`<div class="msg bad">⚖️ <b>Betrapt!</b> Een leerling vertelde het aan de toezichthouder <b>ACM</b>. Prijsafspraken zijn verboden: dit is een <b>kartel</b>. Je krijgt een boete van <b>${eur(CARTEL_FINE)}</b>.<br>Door de afspraak verdiende je ${gain >= 0 ? `ongeveer ${eur(gain)} meer` : 'niet eens meer'} dan bij eerlijke concurrentie. Na de boete hield je dus minder over. En de leerlingen? Die betaalden te veel.</div>`);
   }
+  if(part === 2 && !h.closed){
+    if(h.workerWorked) parts.push(`<div class="msg info">👷 Met ${state.worker.name} erbij was je productiecapaciteit <b>${h.cap}</b> porties (alleen: ${h.capAlone}). Arbeidsproductiviteit: <b>${Math.round(h.cap / 2)}</b> porties per persoon. ${state.worker.name} leverde vandaag na aftrek van het loon <b>${eur(h.staffExtra)}</b> extra nettoresultaat op.</div>`);
+    else if(state.worker && !state.kiosk && state.contract === 'flex') parts.push(`<div class="msg info">📞 Je riep ${state.worker.name} vandaag niet op: geen loonkosten, maar ook geen extra capaciteit.</div>`);
+    if(state.kiosk) parts.push(`<div class="msg info">🤖 De bestelzuil verhoogde je productiecapaciteit naar <b>${h.cap}</b> porties, zonder loon.</div>`);
+    if(d === D2.COLD) parts.push(`<div class="msg warn">🥶 Door het koude weer kwamen er veel minder klanten.${state.worker && !state.kiosk ? (state.contract === 'vast' ? ` Met een vaste baan betaal je ${state.worker.name} toch het hele loon.` : ' Met een flexibele baan hoef je alleen te betalen als je oproept.') : ''}</div>`);
+    if(state.awgb && d === D2.INTERVIEW) parts.push(`<div class="msg bad">⚖️ Door de klacht over je sollicitatie kwamen er ${AWGB_LOST} klanten minder.</div>`);
+  }
+  if(h.closed && part === 2 && h.workerWorked) parts.push(`<div class="msg warn">📌 ${state.worker.name} heeft een vaste baan: ook op een dichte dag betaal je loon.</div>`);
   if(d === DAY.CARTEL && state.cartel === 'refuse') parts.push(`<div class="msg good">✋ Je weigerde het kartel. Goed zo: prijsafspraken zijn verboden en de klant zou de dupe zijn.</div>`);
 
   // rekenschema
@@ -873,7 +1055,7 @@ function reportModal(h){
   nb.onclick = () => {
     modalQueue = [];
     $('overlay').classList.add('hidden');
-    if(d >= DAYS){ mergerModal(); }
+    if(d >= DAYS){ if(part === 1) mergerModal(); else { state.finished = true; save(); endReport2(); } }
     else { state.day++; beginDay(); }
   };
 }
@@ -902,6 +1084,192 @@ function mergerModal(){
       $('toEnd').onclick = () => { modalQueue = []; endReport(); };
     });
   });
+}
+
+// ---------- DEEL 2: VERLOOP ----------
+function beginDay2(d){
+  if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => simpleModal('🏢 Kamer van Koophandel', 'Je schrijft je bedrijf in', '<p>Elk bedrijf in Nederland moet ingeschreven staan bij de Kamer van Koophandel. Bij de inschrijving kies je een <b>ondernemingsvorm</b> en krijg je advies over je verzekering en administratie.</p>', 'Naar de inschrijving'));
+  if(d === D2.VACANCY) queueModal(vacancyModal);
+  if(d === D2.RAIN2 && !state.quiz.course2) queueModal(() => simpleModal('🌧️ Regendag', 'Je kraam blijft weer dicht', `<p>Het regent pijpenstelen. Je verkoopt niets, maar je vaste kosten (${eur(setup().costs.reduce((a, c) => a + c[1], 0))}) betaal je wel.</p><p>Je gebruikt de dag voor een <b>werkgeverscursus</b> over de arbeidsmarkt. Wie het goed doet, krijgt via het UWV extra sollicitanten.</p>`, 'Naar de cursus'));
+  if(d === D2.INSPECTION && !state.quiz.inspection) queueModal(() => simpleModal('🦺 Arbeidsinspectie', 'Onverwacht bezoek!', '<p>Een inspecteur van de Nederlandse Arbeidsinspectie komt langs. Als werkgever moet je de regels kennen over veilig werken, werktijden en loon.</p>', 'Laat maar komen'));
+  teachDay(d);
+  if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => runQuiz('kvkreg', c => {
+    state.adminCost = Math.max(0, ADMIN_BASE - c + (4 - c));
+    return `Je kosten voor verzekering en administratie worden <b>${eur(state.adminCost)} per dag</b> (bedrijfskosten). ${c >= 3 ? 'Goed advies scheelt geld!' : 'Met meer kennis had je goedkoper uit kunnen zijn.'}`;
+  }));
+  if(d === D2.RAIN2 && !state.quiz.course2) queueModal(() => runQuiz('course2', c => {
+    state.candidatesShown = Math.min(CANDIDATES.length, 2 + Math.max(0, c - 1));
+    return `Het UWV stuurt je extra sollicitanten. Morgen kun je kiezen uit <b>${state.candidatesShown} kandidaten</b>${state.candidatesShown === 2 ? ' (alleen de 2 die op je vacature reageerden)' : ''}.`;
+  }));
+  if(d === D2.INTERVIEW && !state.hired) queueModal(interviewModal);
+  if(d === D2.CONTRACT && state.worker && !state.contract) queueModal(contractModal);
+  if(d === D2.DIVISION && state.worker) queueModal(() => simpleModal('👥 Samenwerken', 'Arbeidsverdeling in je kraam', `<p>Jij staat bij de frituur, ${state.worker.name} rekent af en schept op. Doordat ieder zich op één taak richt, maken jullie samen meer porties dan jij alleen: je productiecapaciteit gaat van <b>${setup({ noWorker:true }).capacity}</b> naar <b>${Math.round(setup({ noWorker:true }).capacity * state.worker.mult)}</b> porties per dag.</p>${state.worker.pauzes ? '<div class="msg warn">🎒 Let op: Lotte is 16. Door de <b>Arbeidstijdenwet</b> mag ze niet onder schooltijd werken, alleen in de pauzes en na school. Daarom helpt ze iets minder dan een volwassen medewerker.</div>' : ''}`, 'Verder'));
+  if(d === D2.INSPECTION && !state.quiz.inspection) queueModal(() => runQuiz('inspection', c => {
+    const fine = INSPECTION_FINE * (4 - c);
+    if(fine) state.todayExtra = [['Boete Arbeidsinspectie', fine]];
+    return fine ? `De inspecteur geeft je een boete van <b>${eur(fine)}</b>. Die zie je terug bij je bedrijfskosten van vandaag.` : 'Je kent alle regels: geen boete! 🎉';
+  }));
+  if(d === D2.KIOSK && !state.kioskDecided) queueModal(kioskModal);
+}
+function simpleModal(tag, title, html, btn){
+  showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">${btn}</button>`);
+}
+function vacancyModal(){
+  showModal(`<div class="tag">📋 Vacature</div><h2>Gezocht: medewerker snackkraam</h2>
+    <div class="calc" style="font-size:14px"><b>Snackkraam op het schoolplein zoekt hulp!</b><br>Werktijden: in de pauzes en na school. Taken: afrekenen, opscheppen, schoonmaken. Loon volgens de cao.</div>
+    <p>Je hangt de vacature op bij de supermarkt en zet hem online. Na een dag heb je maar <b>2 reacties</b>.</p>
+    <p class="small">Jouw vacature is <b>vraag naar arbeid</b>. De mensen die reageren zijn het <b>aanbod van arbeid</b>. Weinig reacties betekent: de arbeidsmarkt is <b>krap</b>.</p>
+    <button class="cta" onclick="closeModal()">Verder</button>`);
+}
+function interviewModal(){
+  const list = CANDIDATES.filter((c, i) => i < state.candidatesShown);
+  let step = 0;
+  const answers = {};
+  function card(c){
+    return `<div class="calc" style="margin:10px 0"><b>${c.icon} ${c.name} (${c.age} jaar)</b><br>
+      <span class="small">${c.story}</span><br><span class="small"><b>Waarom wil ${c.name} werken?</b> ${c.motive}</span><br>
+      <span class="small"><b>Opleiding:</b> ${c.diploma}</span><br>
+      <span class="small"><b>Loon volgens cao:</b> ${eur(c.wage)} per dag${c.age >= 21 ? ' (minimaal het minimumloon)' : ' (jeugdloon)'}</span></div>`;
+  }
+  function ask(){
+    const c = list[step];
+    showModal(`<div class="tag">👥 Sollicitatiegesprek ${step + 1} van ${list.length}</div><h2>Kennismaken met ${c.name}</h2>${card(c)}
+      <h3 style="margin-top:6px">Wat is de situatie van ${c.name}?</h3>
+      <div class="options" id="typeOpts">${shuffled(Object.keys(UNEMP_TYPES)).map(k => `<button class="option" data-k="${k}">${UNEMP_TYPES[k]}</button>`).join('')}</div>
+      <div id="typeFb"></div>`);
+    document.querySelectorAll('#typeOpts .option').forEach(b => b.onclick = () => {
+      const ok = b.dataset.k === c.type;
+      answers[c.id] = ok;
+      state.quizCorrect += ok ? 1 : 0; state.quizTotal += 1;
+      document.querySelectorAll('#typeOpts .option').forEach(x => { x.disabled = true; if(x.dataset.k === c.type) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+      $('typeFb').innerHTML = `<div class="msg ${ok ? 'good' : 'bad'}">${ok ? '✅ Goed!' : '❌ Helaas.'} ${c.typeText}</div><button class="cta" id="typeNext">${step < list.length - 1 ? 'Volgende kandidaat ➡️' : 'Kies je medewerker'}</button>`;
+      $('typeNext').onclick = () => { step++; step < list.length ? ask() : choose(); };
+    });
+  }
+  function choose(){
+    state.idAnswers = answers;
+    showModal(`<div class="tag">👥 Keuze</div><h2>Wie neem je aan?</h2>
+      <p class="small">Met een medewerker erbij kun je meer porties maken, maar je betaalt wel loon. Je kunt ook niemand aannemen.</p>
+      <div class="options" id="candOpts">${list.map(c => `<button class="option" data-k="${c.id}"><b>${c.icon} ${c.name} (${c.age})</b><span class="small">${eur(c.wage)} per dag · ${c.diploma}</span></button>`).join('')}
+        <button class="option" data-k="none"><b>🙅 Niemand</b><span class="small">Je blijft alleen in je kraam (zzp'er).</span></button></div>
+      <div id="reasonBox"></div>`);
+    document.querySelectorAll('#candOpts .option').forEach(b => b.onclick = () => {
+      document.querySelectorAll('#candOpts .option').forEach(x => x.classList.remove('sel')); b.classList.add('sel');
+      const k = b.dataset.k;
+      if(k === 'none'){
+        $('reasonBox').innerHTML = '<button class="cta" id="hireGo">Bevestig: ik neem niemand aan</button>';
+        $('hireGo').onclick = () => { state.hired = true; state.worker = null; save(); simpleModalQueue('🙅 Jouw keuze', 'Je blijft alleen', '<p>Je blijft een zzp\'er. Je betaalt geen loon, maar je kunt ook niet meer klanten helpen dan je in je eentje kunt maken.</p>'); };
+        return;
+      }
+      $('reasonBox').innerHTML = `<h3>Waarom kies je ${CANDIDATES.find(c => c.id === k).name}?</h3><div class="options" id="reasonOpts">${shuffled(HIRE_REASONS).map(r => `<button class="option" data-r="${r.k}">${r.t}</button>`).join('')}</div>`;
+      document.querySelectorAll('#reasonOpts .option').forEach(rb => rb.onclick = () => hire(k, HIRE_REASONS.find(r => r.k === rb.dataset.r)));
+    });
+  }
+  function hire(id, reason){
+    const c = CANDIDATES.find(x => x.id === id);
+    state.hired = true;
+    state.worker = { id:c.id, name:c.name, age:c.age, wage:c.wage, mult:c.mult, pauzes:!!c.pauzes, icon:c.icon };
+    if(!reason.ok) state.awgb = true;
+    save();
+    simpleModalQueue('👥 Jouw keuze', `Je neemt ${c.name} aan!`, reason.ok
+      ? `<p>Goede reden. ${c.name} begint morgen. Eerst moeten jullie nog een contract afspreken.</p><p class="small">Je biedt nu werk aan iemand die werk zocht: de <b>werkgelegenheid</b> stijgt met één baan, en je bent nu <b>werkgever</b>.</p>`
+      : `<div class="msg bad">⚖️ <b>Dat mag niet!</b> Je koos op basis van ${reason.k === 'leeftijd' ? 'leeftijd' : reason.k === 'gender' ? 'gender' : 'afkomst'}. De <b>Algemene wet gelijke behandeling</b> verbiedt dat. Een afgewezen sollicitant dient een klacht in en het verhaal gaat rond op school: <b>${AWGB_LOST} klanten per dag minder</b>.</div><p>${c.name} begint wel morgen.</p>`);
+  }
+  ask();
+}
+function simpleModalQueue(tag, title, html){
+  showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">Verder</button>`);
+}
+function contractModal(){
+  const w = state.worker;
+  const bruto = w.wage * 20, lb = Math.round(bruto * 0.08), sp = Math.round(bruto * 0.07);
+  showModal(`<div class="tag">📝 Arbeidsovereenkomst</div><h2>Het contract van ${w.name}</h2>
+    <p>Volgens de <b>cao</b> voor snackbars verdient ${w.name} <b>${eur(w.wage)} per werkdag</b>${w.age >= 21 ? ', niet minder dan het minimumloon' : ' (jeugdloon: onder de 21 is het minimumloon lager)'}. Het is een <b>tijdelijke baan</b> (tot de zomer) en een <b>deeltijdbaan</b>.</p>
+    <div class="calc" style="font-size:14px"><b>🧾 Loonstrook ${w.name} (voorbeeld, 20 werkdagen)</b>
+      <div class="calc-row"><span>Brutoloon</span><b>${eur(bruto)}</b></div>
+      <div class="calc-row"><span>− Loonbelasting</span><b>${eur(lb)}</b></div>
+      <div class="calc-row"><span>− Sociale premies</span><b>${eur(sp)}</b></div>
+      <div class="calc-row total"><span>= Nettoloon</span><b>${eur(bruto - lb - sp)}</b></div></div>
+    <h3>Wat voor baan wordt het?</h3>
+    <div class="options" id="conOpts">
+      <button class="option" data-k="vast"><b>📌 Vaste baan</b><span class="small">${w.name} werkt elke dag en jij betaalt elke dag loon, ook als het rustig is. Zekerheid voor jullie allebei.</span></button>
+      <button class="option" data-k="flex"><b>📞 Flexibele baan</b><span class="small">Je roept ${w.name} alleen op als je hulp nodig hebt. Op die dagen betaal je loon, op andere dagen niet.</span></button>
+    </div>
+    <button class="cta" id="conGo" disabled>Teken het contract ✍️</button>`);
+  bindOptions('conOpts', 'conGo', k => {
+    state.contract = k; state.call = true; save();
+    simpleModalQueue('✍️ Getekend', k === 'vast' ? 'Een vaste baan' : 'Een flexibele baan', k === 'vast'
+      ? `<p>${w.name} werkt vanaf vandaag elke dag mee. Het loon van ${eur(w.wage)} is voor jou een vaste kostenpost.</p>`
+      : `<p>Vanaf nu kies je elke dag of je ${w.name} oproept. Dat zie je bij "Jouw productie". Opgeroepen? Dan kost het ${eur(w.wage)} loon.</p>`);
+  });
+}
+function kioskModal(){
+  const w = state.worker;
+  const hasWorker = w && !state.kiosk;
+  showModal(`<div class="tag">🤖 Technologische ontwikkeling</div><h2>Een bestelzuil?</h2>
+    <p>Een leverancier biedt je een <b>bestelzuil</b> aan: klanten bestellen en betalen zelf op een scherm. Kosten: <b>${eur0(KIOSK.price)}</b>, gaat ${KIOSK.life} dagen mee (afschrijving ${eur(KIOSK.price / KIOSK.life)} per dag).</p>
+    <p>Met de zuil hoef je niet meer zelf af te rekenen: je productiecapaciteit wordt <b>${Math.round(setup({ noWorker:true }).fryerCap * KIOSK.factor)}</b> porties per dag.${hasWorker ? ` Maar dan heb je ${w.name} niet meer nodig…` : ''}</p>
+    <div class="options" id="kioskOpts">
+      <button class="option" data-k="kiosk" ${state.money < KIOSK.price ? 'disabled' : ''}><b>🤖 Koop de bestelzuil</b><span class="small">${hasWorker ? `${w.name} raakt de baan kwijt.` : 'Geen loon, wel afschrijving.'}${state.money < KIOSK.price ? ' (Te weinig geld in kas.)' : ''}</span></button>
+      <button class="option" data-k="keep"><b>${hasWorker ? `🤝 Ik houd ${w.name}` : '🙅 Nee, niet nodig'}</b><span class="small">${hasWorker ? 'Mensen in plaats van een machine.' : 'Je blijft werken zoals nu.'}</span></button>
+    </div>
+    <button class="cta" id="kioskGo" disabled>Bevestig mijn keuze</button>`);
+  bindOptions('kioskOpts', 'kioskGo', k => {
+    state.kioskDecided = true;
+    let html;
+    if(k === 'kiosk'){
+      state.kiosk = true; state.money -= KIOSK.price;
+      if(hasWorker){ state.lostWorker = w.name; }
+      html = hasWorker
+        ? `<p>De zuil staat er. ${w.name} verliest de baan: een voorbeeld van <b>structurele werkloosheid</b>, want het werk is verdwenen door een technologische ontwikkeling. Jouw productie is nu <b>kapitaalintensiever</b> geworden.</p>`
+        : '<p>De zuil staat er. Je productiecapaciteit is gestegen zonder extra loon.</p>';
+    } else {
+      html = hasWorker ? `<p>${w.name} blijft. Je kiest voor mensen in plaats van een machine.</p>` : '<p>Je laat alles zoals het is.</p>';
+    }
+    save();
+    simpleModalQueue('🤖 Jouw keuze', k === 'kiosk' ? 'Je koopt de bestelzuil' : 'Geen bestelzuil', html);
+  });
+}
+function introModal2(d1){
+  const net1 = d1.history.reduce((s, h) => s + h.net, 0);
+  showModal(`<div class="tag">Snack Empire · Game 2 · Deel 2</div><h2>👷 Werk aan de winkel!</h2>
+    <p>Welkom terug! Je kraam uit deel 1 draait nog: ${INVESTMENTS[d1.investment || 'none'].name.replace(/^\S+ /, '').toLowerCase()}, ${eur(d1.money)} in kas${d1.sauce ? ', je eigen saus' : ''}. In deel 1 was je nettoresultaat ${eur(net1)}.</p>
+    <p>Je kraam is <b>populair</b> geworden: er komen veel meer klanten. In je eentje red je het niet meer. Tijd voor <b>personeel</b>!</p>
+    <div class="msg warn"><b>🎯 Doel:</b> een zo hoog mogelijk <b>nettoresultaat</b> in dag 13 t/m 24.<br>⭐ ${eur0(GOALS_P2[0])} &nbsp; ⭐⭐ ${eur0(GOALS_P2[1])} &nbsp; ⭐⭐⭐ ${eur0(GOALS_P2[2])}</div>
+    <button class="cta" id="startBtn2">Aan de slag 💪</button>`);
+  $('startBtn2').onclick = () => { closeModal(); beginDay(); };
+}
+function endReport2(){
+  const net = totalNet(), stars = starsFor(net);
+  const open = state.history.filter(h => !h.closed);
+  const best = open.reduce((a, b) => b.net > a.net ? b : a, open[0]);
+  const q = id => state.quiz[id] ? `${state.quiz[id].correct}/4` : '–';
+  const ids = Object.values(state.idAnswers || {});
+  const w = state.worker;
+  const fryer = INVESTMENTS[state.investment || 'none'].capacity;
+  showModal(`<div class="tag">🏁 Eindrapport deel 2${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div>
+    <h2>Werk aan de winkel!</h2>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="report-grid">
+      <div class="kpi"><div class="k">Nettoresultaat deel 2</div><div class="v">${eur(net)}</div></div>
+      <div class="kpi"><div class="k">Deel 1 + deel 2 samen</div><div class="v">${eur(net + (state.deel1Net || 0))}</div></div>
+      <div class="kpi"><div class="k">In kas</div><div class="v">${eur(state.money)}</div></div>
+      <div class="kpi"><div class="k">Beste dag</div><div class="v">${best ? `Dag ${best.day}: ${eur(best.net)}` : '–'}</div></div>
+    </div>
+    <table><tbody>
+      <tr><td>🏢 KvK / 🌧️ Cursus / 🦺 Inspectie</td><td>${q('kvkreg')} · ${q('course2')} · ${q('inspection')}</td></tr>
+      <tr><td>👥 Werkloosheid herkend</td><td>${ids.filter(Boolean).length} van ${ids.length}</td></tr>
+      <tr><td>👷 Medewerker</td><td>${w ? `${w.icon} ${w.name}, ${state.contract === 'flex' ? 'flexibele' : 'vaste'} baan${state.lostWorker ? ' (vervangen door de bestelzuil)' : ''}` : 'Niemand (zzp\'er gebleven)'}</td></tr>
+      ${w ? `<tr><td>💶 Extra nettoresultaat door ${w.name} (na loon)</td><td>${eur(state.staffExtra)}</td></tr>` : ''}
+      <tr><td>⚖️ Gelijke behandeling</td><td>${state.awgb ? 'Klacht gekregen' : 'Netjes gekozen'}</td></tr>
+      <tr><td>🤖 Bestelzuil</td><td>${state.kiosk ? 'Gekocht' : 'Niet gekocht'}</td></tr>
+      <tr><td>📈 Arbeidsproductiviteit</td><td>Alleen: ${fryer} porties per persoon${w ? ` · met ${w.name}: ${Math.round(fryer * w.mult / 2)} porties per persoon (${Math.round(fryer * w.mult)} samen)` : ''}</td></tr>
+      <tr><td>🎓 Quiz- en herkenvragen goed</td><td>${state.quizCorrect} van ${state.quizTotal}</td></tr>
+    </tbody></table>
+    ${w ? `<p class="small">💡 Let op de arbeidsproductiviteit: samen maken jullie méér porties, maar per persoon minder dan jij alleen. Een extra medewerker loont alleen als de extra omzet hoger is dan het loon.</p>` : ''}
+    <p class="small muted">Je resultaten zijn opgeslagen. Goed gedaan: je hebt hoofdstuk 3 én 4 doorlopen!</p>
+    <button class="cta" id="endMenu2">Terug naar het menu</button>`);
+  $('endMenu2').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
 // ---------- DAGKLOK ----------
@@ -1028,18 +1396,18 @@ function endReport(){
 function render(){
   if(!state) return;
   const day = Math.min(state.day, DAYS), known = k => state.concepts.includes(k), s = setup();
-  const closed = state.day === DAY.RAIN && !state.finished;
-  $('topSub').textContent = 'Deel 1 – Ben jij ondernemend? (hoofdstuk 3)';
+  const closed = isClosedDay() && !state.finished;
+  $('topSub').textContent = part === 1 ? 'Deel 1 – Ben jij ondernemend? (hoofdstuk 3)' : 'Deel 2 – Werk aan de winkel! (hoofdstuk 4)';
   $('sDay').textContent = `${day} / ${DAYS}`;
-  $('sDayBar').style.width = (state.history.length / DAYS * 100) + '%';
+  $('sDayBar').style.width = (state.history.length / (DAYS - FIRST + 1) * 100) + '%';
   $('sMoney').textContent = eur(state.money);
   const net = totalNet();
   $('sProfit').textContent = eur(net); $('sProfit').style.color = net < 0 ? 'var(--bad)' : '';
   const st = starsFor(net);
   $('sGoal').innerHTML = st >= 3 ? '⭐⭐⭐ behaald!' : `${'⭐'.repeat(st + 1)} ${eur0(GOALS[st])}`;
   $('pDay').textContent = day;
-  $('dayNews').innerHTML = state.finished ? '🏁 Deel 1 is afgerond. Bekijk je eindrapport of ga terug naar het menu.' : (DAY_NEWS[state.day] || 'Kies je prijs. Kijk in je logboek wat er de vorige dagen gebeurde.');
-  $('costLine').innerHTML = `Inkoopprijs: <b>${eur(s.purchase)}</b> per portie (aardappelen, olie, bakje). Bedrijfskosten: <b>${eur(s.costs.reduce((a, c) => a + c[1], 0))}</b> per dag (${s.costs.map(c => c[0].split(' (')[0].toLowerCase()).join(', ')}).`;
+  $('dayNews').innerHTML = state.finished ? '🏁 Dit deel is afgerond. Bekijk je eindrapport of ga terug naar het menu.' : (DAY_NEWS[state.day] || 'Kies je prijs. Kijk in je logboek wat er de vorige dagen gebeurde.');
+  $('costLine').innerHTML = `Inkoopprijs: <b>${eur(s.purchase)}</b> per portie (aardappelen, olie, bakje). Bedrijfskosten: <b>${eur(s.costs.reduce((a, c) => a + c[1], 0))}</b> per dag (${s.costs.map(c => { const t = c[0].split(' (')[0]; return /Loonkosten/.test(t) ? t.replace('Loonkosten', 'loonkosten') : t.toLowerCase(); }).join(', ')}).`;
 
   const cartelLocked = state.day === DAY.CARTEL && state.cartel === 'join';
   $('priceArea').classList.toggle('hidden', closed);
@@ -1067,7 +1435,8 @@ function render(){
 
   // productie
   $('investPanel').classList.toggle('hidden', !state.investment);
-  if(state.investment){
+  if(part === 2) renderStaff(s);
+  else if(state.investment){
     const inv = INVESTMENTS[state.investment], dep = depreciationOf(state.investment);
     $('investInfo').innerHTML = `<p class="small" style="margin:0 0 6px"><b>${inv.name}</b></p><table><tbody>
       <tr><td>Productiecapaciteit</td><td>${s.capacity} porties per dag</td></tr>
@@ -1081,7 +1450,18 @@ function render(){
   if(state.quiz.wholesale) b.push(`🚚 Groothandel (${state.quiz.wholesale.correct}/4): inkoopprijs ${state.purchaseAdj <= 0 ? '−' : '+'} ${eur(Math.abs(state.purchaseAdj))} per portie`);
   if(state.quiz.course) b.push(`🌧️ Cursus (${state.quiz.course.correct}/4): ${state.placeBonus} klanten per dag extra`);
   if(state.quiz.kvk) b.push(`🏢 Workshop (${state.quiz.kvk.correct}/4): ${state.sauce ? `eigen saus, ${pct(state.sauce)} minder overstappers` : 'geen saus'}`);
-  $('bonusInfo').innerHTML = b.length ? b.join('<br>') : 'Nog niets. Op dag 3, 8 en 10 kun je met je kennis voordelen verdienen voor je kraam.';
+  if(part === 2){
+    b.length = 0;
+    if(state.quiz.kvkreg) b.push(`🏢 KvK (${state.quiz.kvkreg.correct}/4): verzekering en administratie ${eur(state.adminCost)} per dag`);
+    if(state.quiz.course2) b.push(`🌧️ Cursus (${state.quiz.course2.correct}/4): ${state.candidatesShown} sollicitanten`);
+    if(state.quiz.inspection) b.push(`🦺 Inspectie (${state.quiz.inspection.correct}/4): ${state.quiz.inspection.correct === 4 ? 'geen boete' : `boete ${eur(INSPECTION_FINE * (4 - state.quiz.inspection.correct))}`}`);
+    const effect = [];
+    if(state.placeBonus) effect.push(`+${state.placeBonus} klanten (plek)`);
+    if(state.sauce) effect.push('eigen saus');
+    if(state.purchaseAdj) effect.push(`inkoop ${state.purchaseAdj < 0 ? '−' : '+'} ${eur(Math.abs(state.purchaseAdj))}`);
+    if(effect.length) b.push(`Uit deel 1: ${effect.join(', ')}`);
+  }
+  $('bonusInfo').innerHTML = b.length ? b.join('<br>') : part === 1 ? 'Nog niets. Op dag 3, 8 en 10 kun je met je kennis voordelen verdienen voor je kraam.' : 'Nog niets. Op dag 14, 16 en 21 telt je kennis mee.';
   // afval
   $('envPanel').classList.toggle('hidden', !state.env);
   if(state.env){
@@ -1113,20 +1493,45 @@ function renderChart(){
   const W = 420, H = 210, pad = { l:44, r:10, t:12, b:26 };
   const hist = state.history, vals = hist.map(h => h.net);
   const max = Math.max(75, ...vals), min = Math.min(0, ...vals);
-  const y = v => pad.t + (max - v) / (max - min) * (H - pad.t - pad.b), bw = (W - pad.l - pad.r) / DAYS;
+  const N = DAYS - FIRST + 1;
+  const y = v => pad.t + (max - v) / (max - min) * (H - pad.t - pad.b), bw = (W - pad.l - pad.r) / N;
   let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Nettoresultaat per dag">`;
   for(let v = Math.ceil(min / 25) * 25; v <= max; v += 25) svg += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? '#a89b86' : '#eee4d5'}"/><text x="${pad.l - 6}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#6a6359">€${v}</text>`;
-  for(let d = 1; d <= DAYS; d++){
-    const x = pad.l + (d - 1) * bw, h = hist.find(e => e.day === d);
+  for(let d = FIRST; d <= DAYS; d++){
+    const x = pad.l + (d - FIRST) * bw, h = hist.find(e => e.day === d);
     if(h){ const top = Math.min(y(h.net), y(0)), height = Math.max(1, Math.abs(y(h.net) - y(0)));
       svg += `<rect x="${x + 3}" y="${top}" width="${bw - 6}" height="${height}" rx="3" fill="${h.net >= 0 ? '#d97706' : '#b91c1c'}"><title>Dag ${d}: ${eur(h.net)}</title></rect>`; }
     const cur = d === state.day && !state.finished;
     svg += `<text x="${x + bw / 2}" y="${H - 8}" font-size="10" text-anchor="middle" fill="${cur ? '#d97706' : '#6a6359'}" font-weight="${cur ? 700 : 400}">${d}</text>`;
   }
-  [[DAY.WHOLESALE,'🚚'],[DAY.INVEST,'🛠️'],[DAY.ENV,'🗑️'],[DAY.RAIN,'🌧️'],[DAY.COMPETITOR,'🌭'],[DAY.CARTEL,'🤝']].forEach(([d, icon]) => {
-    const x = pad.l + (d - 1) * bw; svg += `<text x="${x + bw / 2}" y="${pad.t + 10}" font-size="11" text-anchor="middle">${icon}</text>`;
+  const icons = part === 1
+    ? [[DAY.WHOLESALE,'🚚'],[DAY.INVEST,'🛠️'],[DAY.ENV,'🗑️'],[DAY.RAIN,'🌧️'],[DAY.COMPETITOR,'🌭'],[DAY.CARTEL,'🤝']]
+    : [[D2.KVKREG,'🏢'],[D2.RAIN2,'🌧️'],[D2.INTERVIEW,'👥'],[D2.INSPECTION,'🦺'],[D2.KIOSK,'🤖'],[D2.COLD,'🥶']];
+  icons.forEach(([d, icon]) => {
+    const x = pad.l + (d - FIRST) * bw; svg += `<text x="${x + bw / 2}" y="${pad.t + 10}" font-size="11" text-anchor="middle">${icon}</text>`;
   });
-  $('chart').innerHTML = svg + '</svg><div class="small muted" style="margin-top:4px">🚚 groothandel · 🛠️ investering · 🗑️ afval · 🌧️ regendag · 🌭 SnackPoint · 🤝 kartel</div>';
+  $('chart').innerHTML = svg + '</svg><div class="small muted" style="margin-top:4px">' + (part === 1
+    ? '🚚 groothandel · 🛠️ investering · 🗑️ afval · 🌧️ regendag · 🌭 SnackPoint · 🤝 kartel'
+    : '🏢 KvK · 🌧️ regendag · 👥 sollicitaties · 🦺 inspectie · 🤖 bestelzuil · 🥶 koude dag') + '</div>';
+}
+function renderStaff(s){
+  $('investPanel').classList.remove('hidden');
+  const inv = INVESTMENTS[state.investment || 'none'], dep = depreciationOf(state.investment);
+  const w = state.worker && !state.kiosk ? state.worker : null;
+  const flexToggle = w && state.contract === 'flex' && !state.finished
+    ? `<label class="msg info" style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="callToggle" ${state.call ? 'checked' : ''}> 📞 Roep ${w.name} vandaag op (loon ${eur(w.wage)})</label>` : '';
+  $('investInfo').innerHTML = `<p class="small" style="margin:0 0 6px"><b>${inv.name}</b>${w ? ` + ${w.icon} <b>${w.name}</b> (${state.contract === 'flex' ? 'flexibele baan' : state.contract === 'vast' ? 'vaste baan' : 'begint binnenkort'})` : ''}${state.kiosk ? ' + 🤖 <b>bestelzuil</b>' : ''}</p>
+    ${flexToggle}
+    <table><tbody>
+      <tr><td>Productiecapaciteit vandaag</td><td>${s.capacity} porties per dag</td></tr>
+      <tr><td>Aantal werkenden</td><td>${s.workers === 2 ? `2 (jij en ${w.name})` : '1 (jij)'}</td></tr>
+      <tr><td>Arbeidsproductiviteit</td><td><b>${Math.round(s.capacity / s.workers)}</b> porties per persoon per dag</td></tr>
+      ${dep ? `<tr><td>Afschrijving frituur</td><td>${eur(dep)} per dag</td></tr>` : ''}
+      ${w && state.contract ? `<tr><td>Loonkosten ${w.name}</td><td>${eur(w.wage)} per ${state.contract === 'flex' ? 'opgeroepen ' : ''}dag</td></tr>` : ''}
+      ${w && state.staffExtra ? `<tr><td>Extra nettoresultaat door ${w.name}</td><td>${eur(state.staffExtra)} tot nu toe</td></tr>` : ''}
+    </tbody></table>${!state.worker && !state.hired ? '<div class="small muted" style="margin-top:6px">Je staat er alleen voor: je bent een zzp\'er.</div>' : ''}`;
+  const ct = $('callToggle');
+  if(ct) ct.onchange = () => { state.call = ct.checked; render(); };
 }
 
 // ---------- INLOGGEN, MENU, DOCENT ----------
@@ -1158,37 +1563,54 @@ async function openMenu(){
   $('menuHello').textContent = session.trial ? 'Proefmodus' : `Hoi ${session.student.name}!`;
   $('menuSub').textContent = session.trial ? 'Je voortgang wordt alleen in deze browser bewaard, niet bij je docent.' : `Klas ${session.student.class}`;
   $('menuGrid').innerHTML = '<div class="small muted">Laden…</div>';
-  let d1 = null, unlocked = false;
+  let d1 = null, d2 = null, unlocked = false;
   try{
     d1 = await loadState(GAME_KEY);
+    d2 = await loadState(DEEL2_KEY);
     unlocked = session.trial ? true : !!(await sb.rpc('game_is_unlocked', { p_class: session.student.class, p_game: DEEL2_KEY })).data;
   }catch(e){ console.error(e); }
-  const d1Status = !d1 ? 'Nog niet begonnen' : d1.finished ? `✅ Afgerond · nettoresultaat ${eur(d1.history.reduce((s, h) => s + h.net, 0))}` : `Bezig: dag ${d1.day} van ${DAYS}`;
-  const d2Status = !unlocked ? '🔒 Je docent zet dit deel open.' : !(d1 && d1.finished) ? '🔒 Rond eerst deel 1 af.' : '🛠️ Deel 2 wordt nog gebouwd. Binnenkort speelbaar!';
+  const sum = st => st.history.reduce((s, h) => s + h.net, 0);
+  const d1Status = !d1 ? 'Nog niet begonnen' : d1.finished ? `✅ Afgerond · nettoresultaat ${eur(sum(d1))}` : `Bezig: dag ${d1.day} van 12`;
+  const d2Open = unlocked && d1 && d1.finished;
+  const d2Status = !unlocked ? '🔒 Je docent zet dit deel open.' : !(d1 && d1.finished) ? '🔒 Rond eerst deel 1 af.'
+    : !d2 ? 'Klaar om te beginnen!' : d2.finished ? `✅ Afgerond · nettoresultaat ${eur(sum(d2))}` : `Bezig: dag ${d2.day} van 24`;
   $('menuGrid').innerHTML = `
     <div class="menu-card"><h3>🍟 Deel 1</h3><div><b>Ben jij ondernemend?</b><br><span class="small">Hoofdstuk 3: kosten, opbrengsten, markt en concurrentie</span></div>
       <div class="status">${d1Status}</div>
       <button class="cta" id="playD1" style="margin-top:0">${!d1 ? 'Start deel 1 🚀' : d1.finished ? 'Bekijk je eindrapport' : 'Verder spelen ▶️'}</button></div>
-    <div class="menu-card locked"><h3>👷 Deel 2</h3><div><b>Werk aan de winkel!</b><br><span class="small">Hoofdstuk 4: personeel, arbeidsmarkt en werkloosheid</span></div>
+    <div class="menu-card ${d2Open ? '' : 'locked'}"><h3>👷 Deel 2</h3><div><b>Werk aan de winkel!</b><br><span class="small">Hoofdstuk 4: personeel, arbeidsmarkt en werkloosheid</span></div>
       <div class="status">${d2Status}</div>
-      <button class="cta" disabled style="margin-top:0">Start deel 2</button></div>`;
+      <button class="cta" id="playD2" ${d2Open ? '' : 'disabled'} style="margin-top:0">${!d2 ? 'Start deel 2 💪' : d2.finished ? 'Bekijk je eindrapport' : 'Verder spelen ▶️'}</button></div>`;
   $('playD1').onclick = () => startDeel1(d1);
+  if(d2Open) $('playD2').onclick = () => startDeel2(d2, d1);
 }
-function startDeel1(saved){
-  state = saved ? Object.assign(freshState(), saved) : freshState();
+function resumeOrBegin(saved, introFn){
   modalQueue = [];
   show('gameScreen');
   render();
-  if(state.finished){ endReport(); return; }
-  if(!saved){ queueModal(introModal); return; }
+  if(state.finished){ part === 1 ? endReport() : endReport2(); return; }
+  if(!saved){ queueModal(introFn); return; }
   // na herladen: was het dagrapport al gespeeld maar nog niet weggeklikt?
   const last = state.history[state.history.length - 1];
   if(last && last.day === state.day){
-    if(state.day >= DAYS){ mergerModal(); return; }
+    if(state.day >= DAYS){ if(part === 1) mergerModal(); else { state.finished = true; save(); endReport2(); } return; }
     state.day++; beginDay(); return;
   }
-  // openstaande keuzes van vandaag opnieuw tonen
   beginDay();
+}
+function startDeel1(saved){
+  setPart(1);
+  state = saved ? Object.assign(freshState(), saved) : freshState();
+  resumeOrBegin(saved, introModal);
+}
+function startDeel2(saved, d1){
+  setPart(2);
+  if(saved){ state = Object.assign(freshState(), saved); resumeOrBegin(saved, null); return; }
+  // nieuw: begin met de kraam uit deel 1
+  state = freshState();
+  ['investment','env','purchaseAdj','placeBonus','sauce','money','concepts'].forEach(k => { if(d1[k] !== undefined) state[k] = JSON.parse(JSON.stringify(d1[k])); });
+  state.day = FIRST; state.competitor = true; state.deel1Net = d1.history.reduce((s, h) => s + h.net, 0);
+  resumeOrBegin(null, () => introModal2(d1));
 }
 function introModal(){
   showModal(`<div class="tag">Snack Empire · Game 2 · Deel 1</div><h2>🍟 Ben jij ondernemend?</h2>
@@ -1232,7 +1654,7 @@ async function teacherPanel(){
         <td><button class="toggle ${open.has(c.class) ? 'on' : ''}" data-c="${escapeHtml(c.class)}">${open.has(c.class) ? '🔓 Deel 2 open' : '🔒 Deel 2 dicht'}</button></td></tr>`).join('')}</tbody></table>
       <h3>Voortgang</h3>
       ${rows.length ? `<div style="overflow-x:auto"><table class="teacher"><thead><tr><th>Klas</th><th>Naam</th><th>Deel</th><th>Dag</th><th>Nettoresultaat</th><th>Quiz</th></tr></thead><tbody>
-        ${rows.map(r => `<tr><td>${escapeHtml(r.class)}</td><td>${escapeHtml(r.name)}</td><td>${r.game === GAME_KEY ? '1' : '2'}</td><td>${r.finished ? '✅' : (r.day || '–')}</td><td>${r.net_result != null ? eur(+r.net_result) : '–'}</td><td>${r.quiz_correct}/${r.quiz_total}</td></tr>`).join('')}
+        ${rows.map(r => `<tr><td>${escapeHtml(r.class)}</td><td>${escapeHtml(r.name)}</td><td>${r.game === GAME_KEY ? '1' : r.game === DEEL2_KEY ? '2' : escapeHtml(r.game)}</td><td>${r.finished ? '✅' : (r.day || '–')}</td><td>${r.net_result != null ? eur(+r.net_result) : '–'}</td><td>${r.quiz_correct}/${r.quiz_total}</td></tr>`).join('')}
       </tbody></table></div>` : '<p class="small muted">Nog geen leerlingen begonnen aan game 2.</p>'}
       <button class="ghost" style="width:100%;margin-top:12px" id="tClose">Sluiten</button>`);
     document.querySelectorAll('.toggle').forEach(b => b.onclick = async () => {
@@ -1255,7 +1677,7 @@ $('trialBtn').onclick = () => { session.trial = true; session.student = null; op
 $('teacherBtn').onclick = () => queueModal(teacherModal);
 $('logoutBtn').onclick = () => { session.student = null; session.pin = null; session.trial = false; $('inPin').value = ''; show('loginScreen'); };
 $('toMenuBtn').onclick = () => openMenu();
-$('playBtn').onclick = () => { if(state.finished){ endReport(); return; } playDay(); };
+$('playBtn').onclick = () => { if(state.finished){ part === 1 ? endReport() : endReport2(); return; } playDay(); };
 if(!sb || /[?&]proef\b/.test(location.search)) $('trialBtn').classList.remove('hidden');
 show('loginScreen');
 
