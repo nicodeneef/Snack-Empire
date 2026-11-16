@@ -1660,9 +1660,12 @@ async function teacherPanel(){
       <p class="small muted" style="margin-top:0">Speel als docent, zonder inloggen. Er wordt niets opgeslagen bij je leerlingen.</p>
       <div class="options">
         <button class="option" id="tTest1"><b>🍟 Test deel 1</b><span class="small">Begin bij dag 1.</span></button>
-        <button class="option" id="tTest2"><b>👷 Test deel 2</b><span class="small">Begin direct bij dag 13 met een voorbeeldkraam:
-          <select id="tTestInv" onclick="event.stopPropagation()" style="margin-top:4px;padding:4px 6px;border-radius:8px;border:1px solid var(--line);font-family:inherit">
-            <option value="modern">moderne frituur</option><option value="used">tweedehands frituur</option><option value="none">geen nieuwe frituur</option></select></span></button>
+        <div class="option" style="cursor:default"><b>👷 Test deel 2</b><span class="small">Begin direct bij dag 13 met een voorbeeldkraam.</span>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <select id="tTestInv" style="flex:1;min-width:180px;padding:8px;border-radius:10px;border:1px solid var(--line);font-family:inherit">
+              <option value="modern">met moderne frituur</option><option value="used">met tweedehands frituur</option><option value="none">zonder nieuwe frituur</option></select>
+            <button class="ghost" id="tTest2">Start deel 2 ▶️</button>
+          </div></div>
       </div>
       <button class="ghost" style="width:100%;margin-top:12px" id="tClose">Sluiten</button>`);
     $('tTest1').onclick = () => teacherTest(1);
