@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snack Empire – Game 3</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+
+  :root{
+    --bg:#ebe6dd; --panel:#fffaf2; --panel-2:#f7f2e8; --line:#d8cdbb;
+    --text:#241f1a; --muted:#6a6359; --accent:#d97706; --accent-2:#f59e0b;
+    --good:#166534; --good-bg:#e8f5ec; --bad:#b91c1c; --bad-bg:#fdecec; --blue:#2563eb; --blue-bg:#eaf1fe;
+    --shadow:0 10px 24px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Verdana,sans-serif;background:linear-gradient(180deg,#efe7db 0%,var(--bg) 100%);color:var(--text);font-size:15px;line-height:1.45}
+  button{font-family:inherit;font-size:inherit;cursor:pointer}
+  .topbar{background:linear-gradient(135deg,#2e2217 0%,#5b3413 100%);color:#fff;padding:14px 18px;text-align:center;
+    box-shadow:0 8px 22px rgba(0,0,0,.22),0 0 12px rgba(217,119,6,.45);border-bottom:3px solid var(--accent);border-radius:0 0 16px 16px;margin:0 12px 14px;position:sticky;top:0;z-index:5}
+  .topbar-title{font-size:24px;font-weight:800;letter-spacing:1px;text-shadow:0 0 6px rgba(255,180,80,.5)}
+  .topbar-sub{font-size:13px;opacity:.85;margin-top:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 14px 40px}
+  .statusbar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow)}
+  .stat .k{font-size:12px;color:var(--muted)}
+  .stat .v{font-size:20px;font-weight:800}
+  .progress{height:8px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:6px;border:1px solid var(--line)}
+  .progress>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0;transition:width .4s}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;align-items:start}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px}
+  .panel h2{margin:0 0 10px;font-size:18px}
+  .panel h3{margin:14px 0 8px;font-size:15px}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  .prices{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin:8px 0 4px}
+  .price-btn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 0;font-weight:700;transition:.15s}
+  .price-btn:hover{border-color:var(--accent-2)}
+  .price-btn.sel{background:#fff3dd;border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,119,6,.15)}
+  .calc{background:var(--panel-2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-top:10px}
+  .calc-row{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+  .calc-row.total{border-top:1px solid var(--line);margin-top:4px;padding-top:7px;font-weight:800}
+  .pred{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .pred button{flex:1;min-width:110px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px;font-weight:700}
+  .pred button.sel{border-color:var(--blue);background:var(--blue-bg)}
+  .cta{width:100%;margin-top:14px;border:0;border-radius:14px;padding:14px;font-size:17px;font-weight:800;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 14px rgba(217,119,6,.35)}
+  .cta:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .ghost{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px}
+  .msg{border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
+  .msg.info{background:var(--blue-bg);color:#1e3a8a}
+  .msg.good{background:var(--good-bg);color:var(--good)}
+  .msg.bad{background:var(--bad-bg);color:var(--bad)}
+  .msg.warn{background:#fff4e0;color:#92400e}
+  .pill{display:inline-block;background:#fff3dd;color:#92400e;border:1px solid #f3cf95;border-radius:99px;padding:2px 9px;font-size:12px;font-weight:700}
+  .goal{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:700;font-size:12px}
+  td.pos{color:var(--good);font-weight:700} td.neg{color:var(--bad);font-weight:700}
+  .chart svg{width:100%;height:auto;display:block}
+  .terms{display:flex;flex-wrap:wrap;gap:6px}
+  .term{background:#fff;border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:12px;cursor:pointer}
+  .term:hover{border-color:var(--accent)}
+  .hidden{display:none!important}
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(36,31,26,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal{background:var(--panel);border-radius:20px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3);border-top:6px solid var(--accent)}
+  .modal h2{margin:0 0 10px}
+  .modal .tag{font-size:12px;font-weight:800;letter-spacing:.5px;color:var(--accent);text-transform:uppercase}
+  .modal .formula{background:#fff3dd;border:1px solid #f3cf95;border-radius:12px;padding:10px 12px;font-weight:700;margin:10px 0;text-align:center}
+  .options{display:grid;gap:10px;margin-top:10px}
+  .option{border:2px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;text-align:left}
+  .option:hover:not(:disabled){border-color:var(--accent)}
+  .option.sel{border-color:var(--accent);background:#fff3dd}
+  .option.correct{border-color:var(--good);background:var(--good-bg)}
+  .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+  .option:disabled{cursor:default}
+  .option b{display:block;margin-bottom:3px}
+  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+  .kpi{background:var(--panel-2);border-radius:12px;padding:8px 10px}
+  .kpi .k{font-size:12px;color:var(--muted)} .kpi .v{font-size:18px;font-weight:800}
+  .stars{font-size:34px;letter-spacing:4px;text-align:center;margin:6px 0}
+  input[type=text]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px}
+  .payback{height:14px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;margin-top:6px}
+  .payback>div{height:100%;background:linear-gradient(90deg,#16a34a,#4ade80);width:0;transition:width .4s}
+
+  /* ===== dagklok ===== */
+  .clock-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:60;transition:background .5s ease;background:rgba(186,146,70,.5);padding:16px}
+  .clock-overlay.show{display:flex}
+  .clock-shell{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:520px}
+  .clock-face{width:240px;height:240px;border-radius:50%;position:relative;flex:none;
+    background:radial-gradient(circle at 35% 30%,#fffdf8 0%,#fffaf2 45%,#f1e4cf 100%);border:10px solid #e8dcc8;
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.10),0 20px 40px rgba(0,0,0,.28);transition:box-shadow .35s,transform .35s,border-color .35s}
+  .clock-face.phase-morning{border-color:#ecd8ae;transform:scale(1.01);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 26px rgba(245,158,11,.28),0 20px 40px rgba(0,0,0,.24)}
+  .clock-face.phase-lunch{border-color:#f0c572;transform:scale(1.04);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 38px rgba(245,158,11,.55),0 20px 44px rgba(0,0,0,.24)}
+  .clock-face.phase-evening{border-color:#e5b66e;transform:scale(1.02);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 32px rgba(217,119,6,.4),0 20px 44px rgba(0,0,0,.26)}
+  .clock-face.phase-night{border-color:#c8d4e6;transform:scale(1.015);box-shadow:inset 0 2px 8px rgba(0,0,0,.1),0 0 30px rgba(59,130,246,.28),0 20px 44px rgba(0,0,0,.3)}
+  .clock-center{position:absolute;left:50%;top:50%;width:16px;height:16px;background:#d97706;border-radius:50%;transform:translate(-50%,-50%);z-index:3;box-shadow:0 0 0 4px rgba(217,119,6,.18)}
+  .clock-hand-short{position:absolute;left:50%;top:50%;width:6px;height:72px;background:linear-gradient(180deg,#d97706,#b45309);border-radius:999px;transform-origin:50% 62px;transform:translate(-50%,-62px) rotate(0deg);z-index:2}
+  .clock-hand{position:absolute;left:50%;top:50%;width:8px;height:100px;background:linear-gradient(180deg,#f59e0b,#d97706);border-radius:999px;transform-origin:50% 90px;transform:translate(-50%,-90px) rotate(0deg);z-index:2}
+  .clock-hour{position:absolute;transform:translate(-50%,-50%);font-size:18px;font-weight:700;color:#5b5348}
+  .clock-text{color:#fff;font-weight:700;font-size:24px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.28);min-height:32px}
+  .clock-subtext{color:rgba(255,255,255,.88);font-size:14px;text-align:center;min-height:18px}
+  .live{width:100%;background:rgba(255,250,242,.95);border-radius:16px;padding:12px 14px;box-shadow:0 10px 24px rgba(0,0,0,.2)}
+  .live-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+  .live-stats .k{font-size:11px;color:var(--muted)} .live-stats .v{font-size:20px;font-weight:800}
+  .live-queue{height:30px;margin-top:8px;overflow:hidden;white-space:nowrap;font-size:20px;text-align:right;direction:rtl}
+  .live-queue span{display:inline-block;animation:pop .3s ease}
+  .live-full{font-size:12px;font-weight:700;color:var(--bad);text-align:center;min-height:16px}
+  @keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+  .cta.wait{background:#c9bba6;box-shadow:none}
+  @media (max-width:860px){
+    .grid{grid-template-columns:1fr}
+    .statusbar{grid-template-columns:repeat(2,1fr)}
+    .prices{grid-template-columns:repeat(4,1fr)}
+    .report-grid{grid-template-columns:1fr}
+  }
+
+  /* ===== game 2: extra ===== */
+  .screen{max-width:760px;margin:30px auto;padding:0 14px}
+  .center{text-align:center}
+  .login-card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px 26px;box-shadow:var(--shadow)}
+  .login-card label{display:block;font-weight:700;margin:12px 0 4px;font-size:14px}
+  .login-card input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px}
+  .linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;padding:4px;font-size:13px}
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .menu-card{background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow);text-align:left}
+  .menu-card h3{margin:0 0 4px;font-size:18px}
+  .menu-card .status{font-size:13px;color:var(--muted);margin:6px 0 10px}
+  .menu-card.locked{opacity:.65}
+  .voork .tag{color:var(--blue)}
+  .modal.voork{border-top-color:var(--blue)}
+  .vk-badge{display:inline-block;background:var(--blue-bg);color:#1e3a8a;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+  .new-badge{display:inline-block;background:#fff3dd;color:#92400e;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:800;letter-spacing:.3px;margin-bottom:4px}
+  .term.vk{border-style:dashed}
+  .savebadge{position:fixed;right:12px;bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:12px;box-shadow:var(--shadow);z-index:40}
+  .savebadge.err{color:var(--bad);border-color:#f5b5b5}
+  .quiz-progress{display:flex;gap:6px;margin:4px 0 10px}
+  .quiz-progress span{flex:1;height:6px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line)}
+  .quiz-progress span.ok{background:#16a34a;border-color:#16a34a}
+  .quiz-progress span.bad{background:#b91c1c;border-color:#b91c1c}
+  .quiz-progress span.cur{background:var(--accent-2);border-color:var(--accent)}
+  .teacher table td,.teacher table th{text-align:left}
+  .toggle{border:1px solid var(--line);border-radius:99px;padding:4px 12px;background:#fff;font-size:13px}
+  .toggle.on{background:var(--good-bg);border-color:#86efac;color:var(--good);font-weight:700}
+  .rain .clock-face{filter:saturate(.4)}
+  .badge-line{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+  .grid{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+  .grid > div{min-width:0}
+  .clock-text,.clock-subtext{background:rgba(20,14,8,.45);border-radius:12px;padding:4px 12px}
+  .clock-text:empty,.clock-subtext:empty{background:none;padding:0}
+
+  /* ===== kalender ===== */
+  .cal{background:var(--panel);border-radius:18px;padding:12px 14px;box-shadow:0 20px 40px rgba(0,0,0,.28);width:100%;max-width:340px;border:6px solid #ecd8ae}
+  .cal-head{font-weight:800;font-size:20px;text-align:center;margin-bottom:6px;text-transform:capitalize}
+  .cal-dow,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+  .cal-dow span{font-size:11px;color:var(--muted);font-weight:700}
+  .cal-day{height:34px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:center;background:var(--panel-2);color:var(--muted);transition:background .2s,color .2s,transform .2s}
+  .cal-day.school{background:#fff;border:1px solid var(--line);color:var(--text)}
+  .cal-day.done{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;transform:scale(1.04);border-color:transparent}
+  .cal-day.off{background:#e9e3d8;color:#b0a594}
+  .cal-day.empty{background:transparent}
+  .cal-legend{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+  .budget td:nth-child(2),.budget td:nth-child(4){text-align:right}
+  .bar{height:18px;border-radius:6px;display:flex;overflow:hidden;border:1px solid var(--line);margin:6px 0}
+  .bar > div{display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;white-space:nowrap}
+  .inp{width:130px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px}
+  .step-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+  .news{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-family:Georgia,serif;margin:8px 0}
+  .news h3{margin:0 0 4px;font-size:18px}
+  .speech{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;position:relative}
+  .speech b{color:var(--accent)}
+  @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width:520px){
+    .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
+    #log td{white-space:nowrap}
+    .topbar-title{font-size:19px;letter-spacing:.5px}
+    .wrap{padding:0 8px 30px}
+    .panel{padding:14px 12px}
+    .modal{padding:18px 16px}
+    .clock-text{font-size:19px;min-width:0}
+    .clock-subtext{min-width:0}
+    .stat .v{font-size:17px}
+    table{font-size:12px}
+    th,td{padding:5px 3px}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-title">🍟 SNACK EMPIRE · GAME 3</div>
+  <div class="topbar-sub" id="topSub">Hoofdstuk 5 en 6 – overheid en belasting</div>
+</div>
+
+<!-- ===== INLOGGEN ===== -->
+<div class="screen hidden" id="loginScreen">
+  <div class="login-card">
+    <h2 style="margin:0 0 6px">👋 Inloggen</h2>
+    <p class="small muted" style="margin:0">Gebruik dezelfde naam, klas en pincode als in Snack Empire. Ben je nieuw? Dan wordt je account aangemaakt.</p>
+    <label for="inName">Naam</label><input id="inName" type="text" maxlength="40" autocomplete="off" placeholder="Bijv. Sam de Vries">
+    <label for="inClass">Klas</label><input id="inClass" type="text" maxlength="20" autocomplete="off" placeholder="Bijv. 4TL-B">
+    <label for="inPin">Pincode (4 cijfers)</label><input id="inPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+    <button class="cta" id="loginBtn">Inloggen</button>
+    <div id="loginMsg"></div>
+    <div class="center" style="margin-top:10px">
+      <button class="linkbtn hidden" id="trialBtn">Spelen zonder inloggen (proefmodus, wordt niet opgeslagen)</button>
+      <button class="linkbtn" id="teacherBtn">👩‍🏫 Docent</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MENU ===== -->
+<div class="screen hidden" id="menuScreen">
+  <div class="login-card">
+    <h2 style="margin:0" id="menuHello">Hoi!</h2>
+    <p class="small muted" style="margin:4px 0 0" id="menuSub"></p>
+    <div class="menu-grid" id="menuGrid"></div>
+    <div class="center" style="margin-top:12px"><button class="linkbtn" id="logoutBtn">Uitloggen</button></div>
+  </div>
+</div>
+
+<!-- ===== SPEL ===== -->
+<div class="wrap hidden" id="gameScreen">
+  <div class="statusbar">
+    <div class="stat"><div class="k">Maand</div><div class="v" id="sDay">januari</div><div class="progress"><div id="sDayBar"></div></div></div>
+    <div class="stat"><div class="k">💰 In kas</div><div class="v" id="sMoney">€ 200,00</div></div>
+    <div class="stat"><div class="k">📈 Totaal nettoresultaat</div><div class="v" id="sProfit">€ 0,00</div></div>
+    <div class="stat"><div class="k">🎯 Doel: totaal nettoresultaat</div><div class="v goal" id="sGoal">⭐</div></div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <section class="panel" id="playPanel">
+        <h2>🏪 <span id="pDay">Januari</span> – je kraam op het schoolplein</h2>
+        <div id="dayNews" class="msg info"></div>
+
+        <div id="priceArea">
+          <h3>1. Kies je consumentenprijs voor een portie patat <span class="small muted">(inclusief btw)</span></h3>
+          <div class="prices" id="prices"></div>
+          <div class="small muted" id="costLine"></div>
+          <div class="calc" id="calcBox">
+            <div class="calc-row"><span>Inkoopprijs per portie</span><b id="cVar">–</b></div>
+            <div class="calc-row"><span>+ brutowinstopslag</span><b id="cMargin">–</b></div>
+            <div class="calc-row total"><span>= Verkoopprijs exclusief btw</span><b id="cPriceEx">–</b></div>
+            <div class="calc-row"><span>+ btw (9%)</span><b id="cBtw">–</b></div>
+            <div class="calc-row total"><span>= Consumentenprijs</span><b id="cPrice">–</b></div>
+            <div id="kpRow" class="calc-row hidden" style="margin-top:6px"><span id="kpLabel">Kostprijs gisteren</span><b id="cKP">–</b></div>
+          </div>
+        </div>
+
+        <div id="predBox" class="hidden">
+          <h3>2. Jouw voorspelling</h3>
+          <div class="small" id="predQ"></div>
+          <div class="pred" id="pred">
+            <button data-p="meer">⬆️ Meer</button>
+            <button data-p="evenveel">↔️ Ongeveer evenveel</button>
+            <button data-p="minder">⬇️ Minder</button>
+          </div>
+        </div>
+
+        <button class="cta" id="playBtn" disabled>Open de kraam 🍟</button>
+        <div id="playHint" class="small muted" style="text-align:center;margin-top:6px">Kies eerst een prijs.</div>
+      </section>
+
+      <section class="panel hidden" id="investPanel">
+        <h2>🛠️ Jouw productie</h2>
+        <div id="investInfo"></div>
+      </section>
+
+      <section class="panel">
+        <h2>📒 Logboek</h2>
+        <div class="small muted" style="margin-bottom:6px">Per maand. Prijs inclusief btw; omzet en resultaten exclusief btw.</div>
+        <div style="overflow-x:auto"><table id="log">
+          <thead><tr><th>Maand</th><th>Prijs</th><th>Vraag/dag</th><th>Afzet</th><th>Omzet</th><th>Brutowinst</th><th>Nettoresultaat</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </section>
+    </div>
+
+    <div>
+      <section class="panel chart">
+        <h2>📊 Nettoresultaat per maand</h2>
+        <div id="chart"></div>
+      </section>
+      <section class="panel">
+        <h2>📘 Begrippen</h2>
+        <div class="small muted" style="margin-bottom:8px">Klik op een begrip om de uitleg terug te lezen. Gestippeld = voorkennis.</div>
+        <div class="terms" id="terms"></div>
+      </section>
+      <section class="panel" id="bonusPanel">
+        <h2>🎓 Wat je kennis opleverde</h2>
+        <div id="bonusInfo" class="small"></div>
+      </section>
+      <section class="panel hidden" id="envPanel">
+        <h2>🗑️ Afval op het schoolplein</h2>
+        <div id="envInfo"></div>
+      </section>
+      <section class="panel hidden" id="competitorPanel">
+        <h2>🌭 Concurrent: SnackPoint</h2>
+        <div id="compInfo"></div>
+      </section>
+      <div class="center"><button class="linkbtn" id="toMenuBtn">⬅ Terug naar het menu (je voortgang is bewaard)</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="clock-overlay" id="clockOverlay" aria-hidden="true">
+  <div class="clock-shell">
+    <div class="cal">
+      <div class="cal-head" id="calHead">Januari</div>
+      <div class="cal-dow"><span>ma</span><span>di</span><span>wo</span><span>do</span><span>vr</span><span>za</span><span>zo</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div class="clock-text" id="clockText"></div>
+    <div class="clock-subtext" id="clockSub"></div>
+    <div class="live">
+      <div class="live-stats">
+        <div><div class="k">🍟 Porties verkocht</div><div class="v" id="liveServed">0</div></div>
+        <div><div class="k">🚶 Weggelopen</div><div class="v" id="liveWalk" style="color:var(--bad)">0</div></div>
+        <div><div class="k">💶 In de kassa</div><div class="v" id="liveRev">€ 0,00</div></div>
+      </div>
+      <div class="live-full" id="liveFull"></div>
+    </div>
+  </div>
+</div>
+<div class="overlay hidden" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="savebadge hidden" id="saveBadge"></div>
+
+<script>
+const SUPABASE_URL = "https://tbrxvnlbfrliwohugtjs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRicnh2bmxiZnJsaXdvaHVndGpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2NDkzODYsImV4cCI6MjEwMzIyNTM4Nn0.M-yT3EXe_30zNfOtM6UXFW0ExcZHScwPXUzqy6YEnhc";
+// =====================================================================
+// SNACK EMPIRE – GAME 3: overheid (H5) en belasting (H6)
+// Deel 1: een jaar met de kraam (januari t/m december)
+// Deel 2: het jaar erna, januari t/m augustus, met de aangifte
+// =====================================================================
+
+// ---------- INSTELLINGEN ----------
+const KEY1 = 'game3_deel1', KEY2 = 'game3_deel2';
+let part = 1, SAVE_KEY = KEY1;
+const MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+const SCHOOLDAYS = { 1:[20,15,21,17,16,21,10,5,21,17,20,14], 2:[20,15,21,17,16,21,10,5] };
+const ECON = { 1:[0,0,0,6,-10,-12,-12,-10,-8,-6,-2,0], 2:[2,2,3,3,4,4,4,4] };
+const ECON_LABEL = { 1:['normaal','normaal','normaal','groei 📈','recessie 📉','recessie 📉','recessie 📉','recessie 📉','recessie 📉','herstel','herstel','herstel'], 2:['groei 📈','groei 📈','groei 📈','groei 📈','groei 📈','groei 📈','groei 📈','groei 📈'] };
+const POPULAR = 28;               // je kraam is bekend en populair
+const PRICES = [2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50];
+const COMPETITOR_PRICE = 2.50;
+const KANTINE_LOSS = 8;           // cateraar in de geprivatiseerde kantine (vanaf maart)
+const BASE_PURCHASE = 1.10;
+const CAP_ALONE = 75, CAP_TEAM = 105;
+const RENT = 400, DEPRECIATION = 100, WAGE = 260, PERMIT = 50, INSURANCE = 30, SUBSIDY = 40, OZB = 150, MRB = 45;
+const START_MONEY = { 1:2000, 2:4000 };
+const GOALS = { 1:[8500, 9500, 10500], 2:[5000, 5700, 6300] };
+const CLOCK_DURATION = 7000, REPORT_READ_SECONDS = 4;
+const LOCAL_KEY = 'snackEmpire_game3_proef_v1_';
+const MINISTER = 'Vincent Pottermans';
+
+// ---------- BEGRIPPEN ----------
+const CONCEPTS = {
+  // voorkennis H5
+  overheid:{ t:'v', title:'Overheid', text:'De <b>overheid</b> bestaat uit de <b>gemeente</b> (regelt alles in je woonplaats), de <b>provincie</b> (bestuur van een deel van het land, verantwoordelijk voor een deel van de infrastructuur zoals wegen en watervoorzieningen) en de <b>rijksoverheid</b> of het rijk (regelt vanuit Den Haag zaken voor heel het land). Samen stellen ze regels vast om de samenleving goed te laten functioneren.' },
+  belasting:{ t:'v', title:'Belasting', text:'<b>Belasting</b> is een verplichte bijdrage die burgers en bedrijven aan de overheid betalen.' },
+  infrastructuur:{ t:'v', title:'Infrastructuur', text:'<b>Infrastructuur</b> zijn voorzieningen die nodig zijn voor vervoer en communicatie, zoals wegen, vliegvelden, havens, internet en het elektriciteitsnetwerk.' },
+  socialezekerheid:{ t:'v', title:'Sociale zekerheid', text:'Als mensen geen of te weinig inkomen hebben, kunnen ze van de overheid een uitkering krijgen: <b>sociale zekerheid</b>.' },
+  btw:{ t:'v', title:'Btw', text:'<b>Btw</b> is belasting over de toegevoegde waarde. De winkelier telt de btw op bij de verkoopprijs. Op de meeste producten 21%, op eten een verlaagd tarief van 9%.' },
+  accijns:{ t:'v', title:'Accijns', text:'<b>Accijns</b> is een extra verbruiksbelasting op alcohol, brandstof en tabak.' },
+  subsidie:{ t:'v', title:'Subsidie', text:'<b>Subsidie</b> is een financiële bijdrage van de overheid om burgers en bedrijven te stimuleren.' },
+  // 5.1
+  particuliere:{ t:'n', title:'Particuliere sector', text:'De <b>particuliere sector</b> zijn alle burgers en bedrijven. Jouw snackkraam hoort erbij.' },
+  collectieve:{ t:'n', title:'Collectieve sector', text:'De <b>collectieve sector</b> is de overheid en de instellingen voor de sociale zekerheid, zoals het UWV.' },
+  marktwerking:{ t:'n', title:'Marktwerking', text:'Bij <b>marktwerking</b> concurreren aanbieders van producten met elkaar op kwaliteit en prijs.' },
+  privatisering:{ t:'n', title:'Privatisering', text:'Bij <b>privatisering</b> verkoopt de overheid een dienst of activiteit aan de particuliere sector. Zoals de school die de kantine overdoet aan een bedrijf.' },
+  // 5.2
+  bbp:{ t:'n', title:'Bbp', text:'Het <b>bbp</b> (bruto binnenlands product) is de totale waarde van alle geproduceerde goederen en diensten in een land.' },
+  groei:{ t:'n', title:'Economische groei', text:'<b>Economische groei</b> is de toename van de totale productie in een land: het bbp stijgt. Mensen geven meer uit, ook aan patat.' },
+  cpb:{ t:'n', title:'CPB', text:'Het <b>CPB</b> (Centraal Planbureau) onderzoekt de mogelijke gevolgen van economische maatregelen van de overheid en voorspelt hoe de economie zich ontwikkelt.' },
+  recessie:{ t:'n', title:'Recessie', text:'Er is een <b>recessie</b> als de economische groei twee kwartalen lager is dan in de voorgaande periode en lager dan gemiddeld. Mensen gaan zuiniger aan doen.' },
+  crisis:{ t:'n', title:'Economische crisis', text:'Er is een <b>economische crisis</b> als het bbp krimpt of als een recessie langere tijd aanhoudt.' },
+  ser:{ t:'n', title:'SER', text:'De <b>SER</b> (Sociaal-Economische Raad) adviseert de regering over sociaaleconomische onderwerpen, zoals werkgelegenheid, lonen, uitkeringen en pensioenen. Werkgevers en werknemers praten er samen.' },
+  economieen:{ t:'n', title:'Plan-, vrijemarkt- en sociale markteconomie', text:'In een <b>planeconomie</b> bepaalt de overheid wat er geproduceerd wordt, hoeveel, door wie en tegen welke prijs. In een <b>vrijemarkteconomie</b> bepalen vraag en aanbod de prijzen en grijpt de overheid niet in. In een <b>sociale markteconomie</b> (zoals Nederland) bepalen vraag en aanbod de prijzen, maar kan de overheid ingrijpen om basisbehoeften betaalbaar te houden en iedereen een redelijk bestaan te garanderen.' },
+  // 5.3
+  socverz:{ t:'n', title:'Sociale verzekeringen', text:'<b>Sociale verzekeringen</b> zijn uitkeringen die je beschermen tegen verlies van inkomen. De <b>volksverzekeringen</b> zijn voor iedere inwoner (zoals de AOW). De <b>werknemersverzekeringen</b> zijn voor mensen die in loondienst werken of gewerkt hebben (zoals de WW).' },
+  socvoorz:{ t:'n', title:'Sociale voorzieningen', text:'<b>Sociale voorzieningen</b> zijn uitkeringen die de overheid betaalt met belastinggeld, zoals de bijstand.' },
+  sociaalminimum:{ t:'n', title:'Sociaal minimum', text:'Het <b>sociaal minimum</b> is een door de overheid vastgesteld bedrag dat je minimaal nodig hebt om van te leven.' },
+  solidariteit:{ t:'n', title:'Solidariteitsbeginsel', text:'Volgens het <b>solidariteitsbeginsel</b> staat iedereen met een inkomen een deel daarvan af voor mensen die zelf geen inkomen kunnen verdienen.' },
+  verzorgingsstaat:{ t:'n', title:'Verzorgingsstaat', text:'Een <b>verzorgingsstaat</b> is een land waarin de overheid zorgt voor goede sociale zekerheid, gezondheidszorg, huisvesting en onderwijs voor iedere burger.' },
+  // 5.4
+  ozb:{ t:'n', title:'Ozb', text:'De <b>ozb</b> (onroerendezaakbelasting) is een belasting die je als eigenaar van een gebouw of woning aan de gemeente moet betalen.' },
+  directe:{ t:'n', title:'Directe belastingen', text:'<b>Directe belastingen</b> betaal je rechtstreeks aan de overheid, zoals de inkomstenbelasting en de ozb.' },
+  indirecte:{ t:'n', title:'Indirecte belastingen', text:'<b>Indirecte belastingen</b> zijn verwerkt in de prijs van een product, zoals accijns en btw.' },
+  rijksbegroting:{ t:'n', title:'Rijksbegroting', text:'De <b>rijksbegroting</b> bevat de verwachte inkomsten en uitgaven van het rijk in het komende jaar. Er is een <b>begrotingsoverschot</b> als de verwachte inkomsten hoger zijn dan de uitgaven, en een <b>begrotingstekort</b> als ze lager zijn.' },
+  miljoenennota:{ t:'n', title:'Miljoenennota', text:'De <b>miljoenennota</b> is een toelichting op de rijksbegroting, waarin de regering haar gemaakte keuzes uitlegt. Hij wordt op Prinsjesdag (de derde dinsdag van september) gepresenteerd.' },
+  staatsschuld:{ t:'n', title:'Staatsschuld', text:'De <b>staatsschuld</b> is de schuld van de overheid die is ontstaan door te lenen in alle jaren met een begrotingstekort.' },
+  vergrijzing:{ t:'n', title:'Vergrijzing', text:'Bij <b>vergrijzing</b> neemt het aandeel ouderen in de totale bevolking toe en stijgt de gemiddelde leeftijd. Daardoor gaat de overheid meer uitgeven aan AOW en zorg.' },
+  // voorkennis H6
+  inkomens:{ t:'v', title:'Primaire en secundaire inkomens', text:'<b>Primaire inkomens</b> zijn bruto inkomens die je verdient door een productiefactor te leveren: inkomen uit arbeid (loon) en inkomen uit bezit (huur, rente, dividend). Ook de winst van je eigen bedrijf is een primair inkomen. <b>Secundaire inkomens</b> zijn alle netto inkomens plus de inkomens uit overdrachten: uitkeringen, toeslagen, zak- of kleedgeld.' },
+  loonvk:{ t:'v', title:'Loon en loonheffing', text:'Het <b>brutoloon</b> is het afgesproken loon waarop nog niets is ingehouden. De werkgever houdt <b>loonheffing</b> in: loonbelasting en premies volksverzekeringen. Ook gaan er premies werknemersverzekeringen af. Wat overblijft is het <b>nettoloon</b>.' },
+  verzekeringenvk:{ t:'v', title:'Volks- en werknemersverzekering', text:'Een <b>volksverzekering</b> is een uitkering waar iedere inwoner recht op heeft, zoals de AOW en de Anw. Een <b>werknemersverzekering</b> is een uitkering voor mensen die in loondienst werken of gewerkt hebben, zoals de WW en de WIA.' },
+  toeslagenvk:{ t:'v', title:'Toeslagen en sociale voorzieningen', text:'<b>Zorgtoeslag</b> is een bijdrage van de overheid in de premie van de zorgverzekering, voor mensen met lagere inkomens. <b>Huurtoeslag</b> is een bijdrage waarmee je een deel van de huur kunt betalen. Samen met de bijstand zijn dit <b>sociale voorzieningen</b>: uitkeringen die de overheid met belastinggeld betaalt.' },
+  // 6.1
+  ib:{ t:'n', title:'Inkomstenbelasting', text:'<b>Inkomstenbelasting</b> is belasting die iedereen over zijn privé-inkomen moet betalen. Als eigenaar van een eenmanszaak betaal jij inkomstenbelasting over de winst van je bedrijf.' },
+  aftrekposten:{ t:'n', title:'Aftrekposten', text:'<b>Aftrekposten</b> zijn bepaalde kosten die je op je inkomen in mindering mag brengen, zodat je minder belasting hoeft te betalen. Bijvoorbeeld de hypotheekrente.' },
+  bijtelling:{ t:'n', title:'Bijtelling', text:'Een <b>bijtelling</b> is een bedrag dat je bij je inkomen moet optellen als je een auto van de zaak ook privé gebruikt.' },
+  ewf:{ t:'n', title:'Eigenwoningforfait', text:'Het <b>eigenwoningforfait</b> is een bedrag dat je bij je inkomen moet optellen als je een eigen huis bezit.' },
+  belastbaar:{ t:'n', title:'Belastbaar inkomen', text:'Het <b>belastbaar inkomen</b> is het inkomen waarover de belasting berekend wordt.' },
+  // 6.2
+  schijven:{ t:'n', title:'Schijventarief', text:'Bij het <b>schijventarief</b> verdeel je het belastbaar inkomen over twee schijven, elk met een eigen tarief. Schijf 1 tot € 68.508: 37,1%. Schijf 2 vanaf € 68.508: 49,5%.', formula:'1 verdeel het inkomen over de schijven · 2 bereken per schijf de belasting · 3 tel op' },
+  progressief:{ t:'n', title:'Progressief belastingtarief', text:'Bij een <b>progressief belastingtarief</b> wordt het belastingpercentage hoger naarmate het inkomen toeneemt. Bij een <i>degressief</i> tarief wordt het lager, bij een <i>proportioneel</i> tarief betaalt iedereen hetzelfde percentage.' },
+  heffingskorting:{ t:'n', title:'Heffingskorting', text:'De <b>heffingskorting</b> is een korting op het bedrag dat je aan inkomstenbelasting moet betalen. Er is een algemene heffingskorting voor iedereen en een arbeidskorting voor werkenden.', formula:'Verschuldigde inkomstenbelasting = belasting box 1 + belasting box 3 − heffingskortingen' },
+  vermogen:{ t:'n', title:'Vermogen', text:'Je <b>vermogen</b> is het totaal van al je spaargeld en beleggingen na aftrek van je schulden.' },
+  box3:{ t:'n', title:'Belasting in box 3', text:'Over het eerste deel van je vermogen betaal je geen belasting: het <b>heffingsvrij vermogen</b> (€ 50.000). Over de rest gaat de overheid ervan uit dat je een bepaald percentage verdient: het <b>fictief rendement</b> (1,9%). Daarover betaal je 31%: de <b>vermogensrendementsheffing</b>.', formula:'1 vermogen − heffingsvrij vermogen · 2 × fictief rendement · 3 × 31%' },
+  // 6.3
+  actieven:{ t:'n', title:'Actieven en inactieven', text:'<b>Actieven</b> zijn mensen met betaald werk. <b>Inactieven</b> zijn mensen zonder betaald werk die een uitkering ontvangen, bijvoorbeeld omdat ze arbeidsongeschikt, werkloos of boven de pensioenleeftijd zijn.' },
+  nivellering:{ t:'n', title:'Nivellering en denivellering', text:'Bij <b>nivellering</b> worden de verschillen tussen de inkomens in verhouding kleiner. Bij <b>denivellering</b> worden ze in verhouding groter.' },
+  // 6.4
+  mrb:{ t:'n', title:'Motorrijtuigenbelasting', text:'<b>Motorrijtuigenbelasting</b> (wegenbelasting) betaal je voor het bezit van een auto, bus of motor. Hoeveel hangt af van het gewicht en de brandstof; je zoekt het op in een tabel.' },
+  ontduiking:{ t:'n', title:'Belastingontduiking', text:'<b>Belastingontduiking</b> is het opzettelijk verkeerd informeren van de overheid om minder belasting te hoeven betalen. Dat is strafbaar. Geld dat buiten de Belastingdienst om wordt verdiend, heet het zwarte circuit.' },
+  beginselen:{ t:'n', title:'Draagkracht- en profijtbeginsel', text:'Volgens het <b>draagkrachtbeginsel</b> moet degene die in staat is veel te betalen, in verhouding meer betalen (zoals bij de inkomstenbelasting). Volgens het <b>profijtbeginsel</b> betaal je voor het gebruik van goederen of diensten die de overheid levert (zoals tol voor een tunnel).' }
+};
+const SCHEDULE = {
+  1:{ 1:{v:['overheid'], n:['particuliere','collectieve']}, 2:{v:['belasting','infrastructuur'], n:['ozb','directe']}, 3:{v:[], n:['marktwerking','privatisering']},
+      4:{v:[], n:['bbp','groei','cpb']}, 5:{v:[], n:['recessie']}, 6:{v:[], n:['crisis','ser','economieen']}, 7:{v:['socialezekerheid'], n:['socverz','socvoorz','sociaalminimum']},
+      8:{v:[], n:[]}, 9:{v:['btw','accijns','subsidie'], n:['rijksbegroting','miljoenennota','staatsschuld','indirecte','vergrijzing']}, 10:{v:[], n:['solidariteit','verzorgingsstaat']}, 11:{v:[], n:[]}, 12:{v:[], n:[]} },
+  2:{ 1:{v:['inkomens'], n:['ib']}, 2:{v:['accijns'], n:['aftrekposten','bijtelling','ewf','mrb']}, 3:{v:[], n:['belastbaar','schijven','progressief','vermogen','box3','heffingskorting']},
+      4:{v:[], n:[]}, 5:{v:[], n:['ontduiking']}, 6:{v:['loonvk','verzekeringenvk','toeslagenvk'], n:[]}, 7:{v:[], n:['actieven','nivellering','beginselen']}, 8:{v:[], n:[]} }
+};
+const NEWS = {
+  1:{ 1:'Gelukkig nieuwjaar! Je kraam draait goed: een moderne frituur, een medewerker en SnackPoint aan de overkant.', 2:'Post van de gemeente… en de provincie legt een nieuwe fietsroute naar school aan.',
+      3:'De school gaat de kantine anders regelen. Eerst de ondernemersavond van de gemeente.', 4:'Het CPB meldt: de economie groeit! Mensen geven meer uit.',
+      5:'📉 De economie zit in een recessie. Leerlingen houden hun zakgeld liever vast.', 6:'De recessie houdt aan. Vanavond: een lezing van een econoom.',
+      7:'Zomervakantie in zicht, en het is nog steeds rustig. Wat doe je met je medewerker?', 8:'De school begint weer. Wie stopt daar bij het schoolplein?',
+      9:'Prinsjesdag! Maar eerst: jouw dag op het ministerie.', 10:'Het advies uit de miljoenennota gaat in. Merk je het al?', 11:'De economie trekt weer aan.', 12:'Laatste maand van het jaar. Hoe heb je het gedaan?' },
+  2:{ 1:'Een nieuw jaar. Tijd om je zaken op orde te brengen: in het voorjaar moet je aangifte doen.', 2:'Afspraak met je belastingadviseur, en post over je bestelbus.',
+      3:'Voor 1 mei moet je aangifte doen. Tijd voor het formulier!', 4:'Afspraak bij de bank over je spaargeld.',
+      5:'Een "slimme" tip van een collega-ondernemer…', 6:'Je medewerker heeft vragen over zijn loonstrook.', 7:`Minister ${'Vincent Pottermans'} komt weer langs!`, 8:'Laatste maand van deel 2.' }
+};
+
+// ---------- QUIZZEN ----------
+const QUIZZES = {
+  gemeente: { title:'🏛️ Ondernemersavond van de gemeente', intro:'De gemeente vertelt ondernemers over de plannen in de stad. Elk goed antwoord: <b>€ 5 per maand korting</b> op je marktvergunning. Elk fout antwoord: <b>€ 5 per maand duurder</b>.', fixed:[], pool:[
+    { k:'herkennen', q:'De school laat de kantine voortaan runnen door een cateringbedrijf. Hoe heet dat?', o:['Privatisering','Marktwerking','Subsidie','Collectieve sector'], a:0, e:'Een dienst of activiteit gaat van de overheid (hier de openbare school) naar de particuliere sector: privatisering.' },
+    { k:'herkennen', q:'Wie hoort bij de particuliere sector?', o:['De gemeente','Het UWV','Jouw snackkraam','De provincie'], a:2, e:'De particuliere sector: alle burgers en bedrijven. De gemeente, de provincie en het UWV horen bij de collectieve sector.' },
+    { k:'redeneren', q:'Door de cateraar in de kantine heb jij een extra concurrent. Wat is daar het gevolg van voor leerlingen?', o:['Minder keus','Meer keus en scherpere prijzen door marktwerking','Hogere btw','Niets'], a:1, e:'Aanbieders concurreren op kwaliteit en prijs: marktwerking. Goed voor de klant.' },
+    { k:'herkennen', q:'Wie regelt de aanleg van een provinciale weg?', o:['De gemeente','De provincie','Het rijk','De Belastingdienst'], a:1, e:'De provincie is verantwoordelijk voor een deel van de infrastructuur, zoals provinciale wegen.' },
+    { k:'herkennen', q:'Welke belasting betaal jij aan de gemeente voor je opslagruimte?', o:['Btw','Ozb','Accijns','Inkomstenbelasting'], a:1, e:'De onroerendezaakbelasting (ozb) betaal je als eigenaar aan de gemeente.' }
+  ]},
+  econoom: { title:'📈 Lezing van een econoom', intro:'Een econoom legt uit hoe de economie werkt en hoe je als ondernemer met een recessie omgaat. Per goed antwoord bedenk je een slimme actie (patat + drinken): <b>1 klant per dag extra</b> voor de rest van het jaar.', fixed:[], pool:[
+    { k:'herkennen', q:'De economische groei is twee kwartalen lager dan in de periode daarvoor, en lager dan gemiddeld. Hoe heet dat?', o:['Economische groei','Recessie','Inflatie','Begrotingstekort'], a:1, e:'Dat is een recessie. Houdt die lang aan of krimpt het bbp, dan spreek je van een economische crisis.' },
+    { k:'herkennen', q:'In welke economie bepaalt de overheid wat er geproduceerd wordt, hoeveel en tegen welke prijs?', o:['Planeconomie','Vrijemarkteconomie','Sociale markteconomie','Verzorgingsstaat'], a:0, e:'In een planeconomie beslist de overheid. In een vrijemarkteconomie bepalen vraag en aanbod alles.' },
+    { k:'redeneren', q:'Nederland is een sociale markteconomie. Wat betekent dat?', o:['De overheid bepaalt alle prijzen','Vraag en aanbod bepalen de prijzen, maar de overheid kan ingrijpen','De overheid grijpt nooit in','Er is geen concurrentie'], a:1, e:'Vraag en aanbod bepalen de prijzen, maar de overheid grijpt in om basisbehoeften betaalbaar te houden en iedereen een redelijk bestaan te geven.' },
+    { k:'herkennen', q:'Welke organisatie onderzoekt de mogelijke gevolgen van economische maatregelen van de overheid?', o:['De SER','Het CPB','Het UWV','De gemeente'], a:1, e:'Het Centraal Planbureau (CPB) rekent maatregelen door en voorspelt de economie.' },
+    { k:'herkennen', q:'Welke organisatie adviseert de regering over lonen, werkgelegenheid en uitkeringen?', o:['De SER','Het CPB','De Belastingdienst','De provincie'], a:0, e:'De Sociaal-Economische Raad (SER) adviseert de regering over sociaaleconomische onderwerpen.' },
+    { k:'redeneren', q:'Het bbp daalt. Wat merk jij daar waarschijnlijk van in je kraam?', o:['Meer klanten','Minder klanten, want mensen geven minder uit','Lagere huur','Niets'], a:1, e:'Als de totale productie daalt, dalen ook de inkomens en de bestedingen. Je verkoopt minder.' }
+  ]},
+  uwv: { title:'🏢 Voorlichting van het UWV', intro:'Het UWV vertelt werkgevers over de sociale zekerheid. Heb je een medewerker, dan sluit je ook een verzuimverzekering af. Elk goed antwoord: <b>€ 5 per maand lagere premie</b>. Elk fout antwoord: <b>€ 5 per maand hoger</b>.', fixed:[], pool:[
+    { k:'herkennen', q:'Oma krijgt AOW. Wat voor uitkering is dat?', o:['Een volksverzekering','Een werknemersverzekering','Een sociale voorziening','Een subsidie'], a:0, e:'De AOW is een volksverzekering: iedere inwoner heeft er recht op.' },
+    { k:'herkennen', q:'Je oud-medewerker wordt werkloos en krijgt WW. Wat voor uitkering is dat?', o:['Een volksverzekering','Een werknemersverzekering','Een sociale voorziening','Huurtoeslag'], a:1, e:'De WW is een werknemersverzekering, voor mensen die in loondienst werken of gewerkt hebben.' },
+    { k:'redeneren', q:'Waarom betaal jij mee aan uitkeringen, ook als je zelf nooit werkloos wordt?', o:['Solidariteitsbeginsel','Profijtbeginsel','Marktwerking','Privatisering'], a:0, e:'Iedereen met een inkomen staat een deel af voor mensen die zelf geen inkomen kunnen verdienen: het solidariteitsbeginsel.' },
+    { k:'herkennen', q:'Na de WW heeft iemand nog steeds geen werk en geen geld. Wat krijgt hij dan?', o:['AOW','Bijstand (sociale voorziening)','Dividend','Een subsidie'], a:1, e:'De bijstand is een sociale voorziening, betaald uit belastinggeld, tot het sociaal minimum.' },
+    { k:'herkennen', q:'Een land waarin de overheid zorgt voor sociale zekerheid, zorg, huisvesting en onderwijs voor iedereen, heet een…', o:['Planeconomie','Verzorgingsstaat','Vrijemarkteconomie','Monopolie'], a:1, e:'Dat is een verzorgingsstaat, zoals Nederland.' }
+  ]},
+  adviseur: { title:'🧾 De belastingadviseur', intro:'Je adviseur legt uit hoe je aangifte werkt. Zijn rekening is € 300. Elk goed antwoord: <b>€ 25 korting</b>. Elk fout antwoord: <b>€ 25 extra</b> (hij moet meer uitleggen).', fixed:[], pool:[
+    { k:'herkennen', q:'Je gebruikt de bus van de zaak ook in het weekend. Welk bedrag tel je dan bij je inkomen op?', o:['Een bijtelling','Een aftrekpost','Het eigenwoningforfait','De heffingskorting'], a:0, e:'Gebruik je een auto van de zaak ook privé, dan tel je een bijtelling op bij je inkomen.' },
+    { k:'herkennen', q:'Je hebt een eigen appartement. Welk bedrag tel je daarvoor bij je inkomen op?', o:['Het eigenwoningforfait','De bijtelling','De ozb','De huurtoeslag'], a:0, e:'Wie een eigen huis bezit, telt het eigenwoningforfait op bij het inkomen.' },
+    { k:'redeneren', q:'Je betaalt hypotheekrente. Wat doet die met je belastbaar inkomen?', o:['Het wordt hoger','Het wordt lager, want het is een aftrekpost','Er verandert niets','Het wordt dubbel geteld'], a:1, e:'Hypotheekrente is een aftrekpost: je trekt hem af van je inkomen, dus je belastbaar inkomen wordt lager.' },
+    { k:'herkennen', q:'Over welk inkomen betaal je als eigenaar van een eenmanszaak inkomstenbelasting?', o:['Over de omzet','Over de winst','Over de inkoopwaarde','Over de btw'], a:1, e:'Als ondernemer met een eenmanszaak betaal je inkomstenbelasting over de winst van je bedrijf.' },
+    { k:'rekenen', q:'Een liter diesel kost € 1,80. Daarvan is € 0,52 accijns. Welk deel van de prijs is accijns (afgerond)?', o:['Ongeveer 18%','Ongeveer 29%','Ongeveer 52%','Ongeveer 71%'], a:1, e:'€ 0,52 ÷ € 1,80 × 100% ≈ 29%.' }
+  ]},
+  bank: { title:'🏦 Bij de bank', intro:'Je bespreekt je spaargeld. Elk goed antwoord: <b>0,1% hogere rente</b> op je spaarrekening. Elk fout antwoord: 0,1% lager.', fixed:[], pool:[
+    { k:'herkennen', q:'Wat is je vermogen?', o:['Je inkomen per jaar','Al je spaargeld en beleggingen na aftrek van je schulden','Je winst','Je omzet'], a:1, e:'Vermogen = spaargeld + beleggingen − schulden.' },
+    { k:'redeneren', q:'Waarom heet het rendement in box 3 "fictief"?', o:['Omdat het niet bestaat','Omdat de overheid ervan uitgaat dat je dat percentage verdient, ook al verdien je in het echt meer of minder','Omdat de bank het verzint','Omdat het altijd 0% is'], a:1, e:'De overheid rekent met een vast percentage dat je verondersteld wordt te verdienen: het fictief rendement.' },
+    { k:'rekenen', q:'Je vermogen is € 70.000 en het heffingsvrij vermogen € 50.000. Over hoeveel bereken je het fictief rendement?', o:['€ 70.000','€ 50.000','€ 20.000','€ 120.000'], a:2, e:'Belastbaar vermogen = € 70.000 − € 50.000 = € 20.000.' },
+    { k:'herkennen', q:'Welke belasting betaal je in box 3?', o:['Loonbelasting','Vermogensrendementsheffing','Btw','Ozb'], a:1, e:'In box 3 betaal je vermogensrendementsheffing: belasting over het fictief rendement op je vermogen.' },
+    { k:'redeneren', q:'Iemand heeft € 40.000 spaargeld. Hoeveel box 3-belasting betaalt hij?', o:['Niets, want het blijft onder het heffingsvrij vermogen','31%','1,9%','€ 40.000'], a:0, e:'Onder het heffingsvrij vermogen van € 50.000 betaal je geen belasting in box 3.' }
+  ]}
+};
+
+// ---------- OPSLAG ----------
+let sb = null;
+try { if(window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e){ sb = null; }
+const session = { student:null, pin:null, trial:false, teacherTest:false };
+let state = null, saveTimer = null;
+function freshState(){
+  return { month:1, money:START_MONEY[part], price:null, prediction:null, history:[], concepts:[], quiz:{}, quizCorrect:0, quizTotal:0,
+    finished:false, started:true, todayExtra:[],
+    // deel 1
+    worker:true, workerDecided:false, permitAdj:0, insuranceAdj:0, actionBonus:0, advice:[], ministerDone:false, visitAnswer:null, deficitAfter:null,
+    // deel 2
+    busPrivate:null, adviserFee:0, aangifte:null, interestAdj:0, evasion:null, levelling:null, payslipDone:false, priveMoney:84000, kraamWinstVorigJaar:null };
+}
+function setSaveBadge(text, err){
+  const b = $('saveBadge'); if(!text){ b.classList.add('hidden'); return; }
+  b.textContent = text; b.classList.toggle('err', !!err); b.classList.remove('hidden');
+  if(!err) setTimeout(() => { if(b.textContent === text) b.classList.add('hidden'); }, 1600);
+}
+async function saveNow(){
+  if(!state) return;
+  if(session.trial){ try{ localStorage.setItem(LOCAL_KEY + SAVE_KEY, JSON.stringify(state)); }catch(e){} return; }
+  if(!sb || !session.student) return;
+  try{
+    const { error } = await sb.rpc('game_save', { p_student_id: session.student.id, p_pin: session.pin, p_game: SAVE_KEY, p_state: state,
+      p_net_result: Math.round(totalNet() * 100) / 100, p_quiz_correct: state.quizCorrect, p_quiz_total: state.quizTotal, p_finished: !!state.finished });
+    if(error) throw error;
+    setSaveBadge('✓ Opgeslagen');
+  }catch(e){ console.error('Opslaan mislukt', e); setSaveBadge('⚠️ Niet opgeslagen – controleer je internet', true); }
+}
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 300); }
+async function loadState(game){
+  if(session.trial){ try{ return JSON.parse(localStorage.getItem(LOCAL_KEY + game)); }catch(e){ return null; } }
+  const { data, error } = await sb.rpc('game_load', { p_student_id: session.student.id, p_pin: session.pin, p_game: game });
+  if(error) throw error;
+  return data && Object.keys(data).length ? data : null;
+}
+
+// ---------- HULPFUNCTIES ----------
+const $ = id => document.getElementById(id);
+const eur = v => (v < -0.004 ? '− ' : '') + '€ ' + Math.abs(v).toLocaleString('nl-NL', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const eur0 = v => (v < -0.004 ? '− ' : '') + '€ ' + Math.round(Math.abs(v)).toLocaleString('nl-NL');
+const pct = (v, d = 1) => (v * 100).toLocaleString('nl-NL', { maximumFractionDigits:d }) + '%';
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function shuffled(a){ const r = a.slice(); for(let i = r.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; }
+function totalNet(){ return state ? state.history.reduce((s, h) => s + h.net, 0) : 0; }
+function show(screen){ ['loginScreen','menuScreen','gameScreen'].forEach(id => $(id).classList.toggle('hidden', id !== screen)); window.scrollTo(0, 0); }
+const MN = m => MONTHS[(m - 1) % 12];
+const Mcap = m => MN(m).charAt(0).toUpperCase() + MN(m).slice(1);
+const lastMonth = () => part === 1 ? 12 : 8;
+const has = a => state.advice.includes(a);
+function parseEuro(v){ if(v == null) return NaN; const s = String(v).replace(/[€\s.]/g, '').replace(',', '.'); return s === '' ? NaN : Number(s); }
+
+// ---------- MODEL ----------
+function btwRate(){ return (part === 1 && state.month >= 10 && has('btw')) ? 0.11 : 0.09; }
+function setup(){
+  const m = state.month;
+  const worker = state.worker;
+  const costs = [['Huisvestingskosten (huur standplaats)', RENT], ['Afschrijving frituur', DEPRECIATION], ['Marktvergunning gemeente', Math.max(0, PERMIT + state.permitAdj)]];
+  if(worker) costs.push(['Loonkosten medewerker', WAGE]);
+  if(part === 1){
+    if(m === 2) costs.push(['Ozb opslagruimte', OZB]);
+    if(m >= 10 && worker) costs.push(['Verzuimverzekering', Math.max(0, INSURANCE + state.insuranceAdj)]);
+  } else {
+    if(m >= 2) costs.push(['Motorrijtuigenbelasting bus', MRB]);
+    if(m === 2 && state.adviserFee) costs.push(['Belastingadviseur', state.adviserFee]);
+  }
+  (state.todayExtra || []).forEach(c => costs.push(c));
+  const subsidy = (part === 1 && !(m >= 10 && has('subsidie'))) || part === 2 ? SUBSIDY : 0;
+  const purchase = BASE_PURCHASE + ((part === 1 && m >= 10 && has('accijns')) ? 0.05 : 0);
+  return { capacity: worker ? CAP_TEAM : CAP_ALONE, workers: worker ? 2 : 1, costs, subsidy, purchase, days: SCHOOLDAYS[part][m - 1] };
+}
+function econ(){
+  const m = state.month;
+  let e = ECON[part][m - 1];
+  if(part === 1 && has('infra') && m >= 10) e += [4, 6, 8][m - 10];
+  return e;
+}
+function demandPerDay(p){
+  let d = 90 - 20 * (p - 2) - 14 * Math.pow(p - 2, 2) + POPULAR + econ() + state.actionBonus;
+  d -= 10 + Math.max(0, p - COMPETITOR_PRICE) * 40;        // SnackPoint
+  if(part === 2 || state.month >= 3) d -= KANTINE_LOSS;      // cateraar in de kantine
+  if(part === 2 && state.reputationHit) d -= 6;               // krantenbericht over belastingfraude
+  return Math.max(0, d);
+}
+function simulateMonth(p, noise){
+  const s = setup();
+  const wantDay = Math.max(0, Math.round(demandPerDay(p) + noise));
+  const soldDay = Math.min(wantDay, s.capacity);
+  const sold = soldDay * s.days, want = wantDay * s.days;
+  const pEx = p / (1 + btwRate());
+  const revenue = sold * pEx, btwTotal = sold * (p - pEx), purchaseValue = sold * s.purchase;
+  const gross = revenue - purchaseValue;
+  const totalCosts = s.costs.reduce((a, c) => a + c[1], 0);
+  const net = gross - totalCosts + s.subsidy;
+  return { month: state.month, price: p, pEx, btw: btwRate(), wantDay, soldDay, want, sold, walkaways: want - sold, days: s.days, cap: s.capacity, workers: s.workers,
+    purchase: s.purchase, revenue, btwTotal, purchaseValue, gross, costs: s.costs, totalCosts, subsidy: s.subsidy, net, econ: econ(),
+    cash: net + DEPRECIATION };
+}
+
+// ---------- MODALS ----------
+let modalQueue = [];
+function queueModal(fn){ modalQueue.push(fn); if(modalQueue.length === 1) fn(); }
+function closeModal(){ modalQueue.shift(); if(modalQueue.length) modalQueue[0](); else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); } }
+function showModal(html, voork){ $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
+function simpleModal(tag, title, html, btn = 'Verder'){ showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">${btn}</button>`); }
+function conceptHtml(k){ const c = CONCEPTS[k]; return `<h2 style="margin-top:12px">${c.title}</h2><p>${c.text}</p>${c.formula ? `<div class="formula">${c.formula}</div>` : ''}`; }
+function conceptModal(k){ const c = CONCEPTS[k]; showModal(`<div class="tag">${c.t === 'v' ? '🔁 Weet je het nog?' : '📘 Begrip'}</div>${conceptHtml(k)}<button class="cta" onclick="closeModal()">Sluiten</button>`, c.t === 'v'); }
+function teach(keys, kind){
+  const fresh = keys.filter(k => !state.concepts.includes(k));
+  if(!fresh.length) return;
+  state.concepts.push(...fresh);
+  const voork = kind === 'v';
+  queueModal(() => showModal(`<div class="tag">${voork ? '🔁 Weet je het nog?' : '📘 ' + (fresh.length > 1 ? fresh.length + ' nieuwe begrippen' : 'Nieuw begrip')}</div>
+    ${voork ? '<p class="small muted" style="margin:4px 0 0">Dit ken je nog uit klas 2 of 3, of uit een eerder hoofdstuk.</p>' : ''}
+    ${fresh.map(conceptHtml).join('')}<button class="cta" onclick="closeModal()">${voork ? 'Ja, weet ik weer 👍' : 'Begrepen 👍'}</button>`, voork));
+}
+function teachMonth(m){ const s = SCHEDULE[part][m]; if(!s) return; teach(s.v, 'v'); teach(s.n, 'n'); }
+function optionList(id, opts){ return `<div class="options" id="${id}">${opts.map(o => `<button class="option" data-k="${o.k}" ${o.disabled ? 'disabled' : ''}><b>${o.title}</b>${o.text ? `<span class="small">${o.text}</span>` : ''}</button>`).join('')}</div>`; }
+function bindOptions(containerId, confirmId, onPick){
+  let sel = null;
+  document.querySelectorAll(`#${containerId} .option`).forEach(b => b.onclick = () => {
+    document.querySelectorAll(`#${containerId} .option`).forEach(x => x.classList.remove('sel'));
+    b.classList.add('sel'); sel = b.dataset.k; $(confirmId).disabled = false;
+  });
+  $(confirmId).onclick = () => onPick(sel);
+}
+// losse kennisvraag (telt mee in de score)
+function askQuestion(tag, q, after){
+  showModal(`<div class="tag">${tag} <span class="pill">${q.k}</span></div><h2 style="font-size:17px">${q.q}</h2>
+    <div class="options" id="qOpts">${shuffled(q.o.map((o, j) => [o, j])).map(([o, j]) => `<button class="option" data-j="${j}">${o}</button>`).join('')}</div><div id="qFeedback"></div>`);
+  document.querySelectorAll('#qOpts .option').forEach(b => b.onclick = () => {
+    const ok = +b.dataset.j === q.a;
+    state.quizCorrect += ok ? 1 : 0; state.quizTotal += 1; save();
+    document.querySelectorAll('#qOpts .option').forEach(x => { x.disabled = true; if(+x.dataset.j === q.a) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+    $('qFeedback').innerHTML = `<div class="msg ${ok ? 'good' : 'bad'}">${ok ? '✅ Goed!' : '❌ Helaas.'} ${q.e}</div><button class="cta" id="qNext">Verder ➡️</button>`;
+    $('qNext').onclick = () => after(ok);
+  });
+}
+function runQuiz(id, onDone){
+  const def = QUIZZES[id];
+  const picked = def.fixed.concat(shuffled(def.pool).slice(0, 4 - def.fixed.length));
+  const results = [];
+  showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2><p>${def.intro}</p><p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
+  $('qStart').onclick = () => ask(0);
+  const bar = i => `<div class="quiz-progress">${picked.map((_, j) => `<span class="${j < i ? (results[j] ? 'ok' : 'bad') : j === i ? 'cur' : ''}"></span>`).join('')}</div>`;
+  function ask(i){
+    const q = picked[i];
+    showModal(`<div class="tag">${def.title} – vraag ${i + 1} van 4 <span class="pill">${q.k}</span></div>${bar(i)}<h2 style="font-size:17px">${q.q}</h2>
+      <div class="options" id="qOpts">${shuffled(q.o.map((o, j) => [o, j])).map(([o, j]) => `<button class="option" data-j="${j}">${o}</button>`).join('')}</div><div id="qFeedback"></div>`);
+    document.querySelectorAll('#qOpts .option').forEach(b => b.onclick = () => {
+      const ok = +b.dataset.j === q.a; results.push(ok);
+      document.querySelectorAll('#qOpts .option').forEach(x => { x.disabled = true; if(+x.dataset.j === q.a) x.classList.add('correct'); else if(x === b) x.classList.add('wrong'); });
+      $('qFeedback').innerHTML = `<div class="msg ${ok ? 'good' : 'bad'}">${ok ? '✅ Goed!' : '❌ Helaas.'} ${q.e}</div><button class="cta" id="qNext">${i < 3 ? 'Volgende vraag ➡️' : 'Bekijk je resultaat'}</button>`;
+      $('qNext').onclick = () => i < 3 ? ask(i + 1) : finish();
+    });
+  }
+  function finish(){
+    const correct = results.filter(Boolean).length;
+    state.quiz[id] = { correct, total:4 }; state.quizCorrect += correct; state.quizTotal += 4;
+    const effect = onDone(correct); save();
+    showModal(`<div class="tag">🎓 Resultaat</div><h2>${def.title}: ${correct} van de 4 goed</h2>${bar(4)}
+      <div class="msg ${correct >= 3 ? 'good' : correct >= 2 ? 'warn' : 'bad'}">${effect}</div><button class="cta" onclick="closeModal()">Verder</button>`);
+  }
+}
+
+// =====================================================================
+// MAANDVERLOOP
+// =====================================================================
+function beginMonth(){
+  state.price = null; state.prediction = null; state.todayExtra = [];
+  const m = state.month;
+  if(part === 1) beginMonth1(m); else beginMonth2(m);
+  save(); render();
+}
+
+// ---------- DEEL 1 ----------
+function beginMonth1(m){
+  if(m === 2) queueModal(() => simpleModal('📬 Post van de gemeente', 'Aanslag onroerendezaakbelasting', `<p>Je hebt een kleine opslagruimte gekocht voor je voorraad. Als eigenaar betaal je daarover <b>ozb</b> aan de gemeente: <b>${eur0(OZB)}</b> deze maand.</p><p>Ondertussen legt de <b>provincie</b> een nieuwe fietsroute naar school aan: infrastructuur.</p>`));
+  if(m === 3 && !state.quiz.gemeente) queueModal(() => simpleModal('🏛️ Gemeentehuis', 'Ondernemersavond', '<p>De gemeente nodigt alle ondernemers uit voor een avond over de plannen in de stad. Daarna hoor je nog nieuws over de kantine van je school…</p>'));
+  if(m === 4) queueModal(() => simpleModal('📈 Nieuws', 'Het CPB: de economie groeit', '<div class="news"><h3>CPB: economie groeit dit voorjaar</h3>Het Centraal Planbureau verwacht dat het bbp de komende maanden stijgt. Huishoudens geven meer uit.</div>'));
+  if(m === 5) queueModal(() => simpleModal('📉 Nieuws', 'Recessie!', '<div class="news"><h3>Nederland in recessie</h3>De economie groeide twee kwartalen op rij minder dan daarvoor en minder dan gemiddeld. Consumenten geven minder uit.</div><p>Je zult merken dat er minder klanten komen.</p>'));
+  if(m === 6 && !state.quiz.econoom) queueModal(() => simpleModal('🎤 Lezing', 'Een econoom over de recessie', '<p>De ondernemersvereniging heeft een econoom uitgenodigd. Hoe werkt de economie, en hoe kom je als ondernemer door een recessie heen?</p>'));
+  if(m === 10 && !state.quiz.uwv && state.worker) queueModal(() => simpleModal('🏢 UWV', 'Voorlichting voor werkgevers', '<p>Het UWV geeft voorlichting aan werkgevers over de sociale zekerheid en de verzuimverzekering die je als werkgever nodig hebt.</p>'));
+  if(m === 10 && !state.quiz.uwv && !state.worker) queueModal(() => simpleModal('🏢 UWV', 'Voorlichting over de sociale zekerheid', '<p>Je oud-medewerker vroeg je om mee te gaan naar een voorlichting van het UWV over uitkeringen. Een goede kans om te leren hoe het zit.</p>'));
+  teachMonth(m);
+  if(m === 3 && !state.quiz.gemeente) queueModal(() => runQuiz('gemeente', c => { state.permitAdj = -5 * c + 5 * (4 - c); return `Je marktvergunning kost voortaan <b>${eur0(PERMIT + state.permitAdj)} per maand</b> (was ${eur0(PERMIT)}).`; }));
+  if(m === 3) queueModal(() => simpleModal('🍽️ Nieuws van school', 'De kantine wordt geprivatiseerd', '<p>De school verkoopt de kantine aan cateringbedrijf <b>FrisFood</b>. Die verkoopt nu ook warme snacks. Dat is <b>privatisering</b>, en voor jou een extra concurrent: <b>marktwerking</b>. Reken op ongeveer 8 klanten per dag minder.</p>'));
+  if(m === 6 && !state.quiz.econoom) queueModal(() => runQuiz('econoom', c => { state.actionBonus = c; return c ? `Je bedenkt de actie <b>patat + drinken</b>: ${c} klant${c > 1 ? 'en' : ''} per dag extra, de rest van het jaar.` : 'Je bedenkt nog geen goede actie.'; }));
+  if(m === 7 && !state.workerDecided) queueModal(workerModal);
+  if(m === 8 && !state.visitAnswer) queueModal(ministerVisit);
+  if(m === 9 && !state.ministerDone) queueModal(ministryDay);
+  if(m === 10 && !state.quiz.uwv) queueModal(() => runQuiz('uwv', c => {
+    state.insuranceAdj = -5 * c + 5 * (4 - c);
+    return state.worker ? `Je verzuimverzekering kost <b>${eur0(INSURANCE + state.insuranceAdj)} per maand</b>.` : 'Je hebt geen personeel, dus geen verzuimverzekering nodig. Maar je weet nu hoe de sociale zekerheid werkt!';
+  }));
+  if(m === 10 && state.advice.length) queueModal(() => simpleModal('📰 Het advies werkt door', 'Vanaf deze maand…', `<ul>${adviceEffects().map(t => `<li>${t}</li>`).join('')}</ul>`));
+}
+function workerModal(){
+  showModal(`<div class="tag">👷 Je medewerker</div><h2>Houden of laten gaan?</h2>
+    <p>Door de recessie komen er minder klanten. Je kunt je medewerker eigenlijk missen: in je eentje kun je ${CAP_ALONE} porties per dag maken, en zoveel klanten komen er nu niet. Zijn loon kost je ${eur0(WAGE)} per maand.</p>
+    ${optionList('wOpts', [{ k:'keep', title:'🤝 Ik houd hem', text:'Hij hoort erbij. En als de economie aantrekt, heb ik hem weer nodig.' }, { k:'fire', title:'👋 Ik laat hem gaan', text:'Dat scheelt loonkosten. Hij krijgt WW.' }])}
+    <button class="cta" id="wGo" disabled>Bevestig mijn keuze</button>`);
+  bindOptions('wOpts', 'wGo', k => {
+    state.workerDecided = true; state.worker = k === 'keep'; save();
+    simpleModal('👷 Jouw keuze', k === 'keep' ? 'Je houdt je medewerker' : 'Je laat je medewerker gaan', k === 'keep'
+      ? '<p>Je medewerker blijft. Je vriend Kevin heeft minder geluk: hij wordt ontslagen bij een winkel. Hij krijgt <b>WW</b>, een <b>werknemersverzekering</b>, omdat hij in loondienst werkte. Vindt hij na de WW geen werk, dan kan hij <b>bijstand</b> krijgen: een <b>sociale voorziening</b>, betaald uit belastinggeld, tot het <b>sociaal minimum</b>.</p>'
+      : '<p>Je medewerker verliest zijn baan. Hij krijgt <b>WW</b>: een <b>werknemersverzekering</b>, want hij werkte in loondienst. De WW duurt niet eeuwig. Vindt hij daarna geen werk, dan kan hij <b>bijstand</b> krijgen: een <b>sociale voorziening</b>, betaald uit belastinggeld, tot het <b>sociaal minimum</b>.</p><p>Jij bespaart loonkosten, maar je kunt nog maar ' + CAP_ALONE + ' porties per dag maken.</p>');
+  });
+}
+function ministerVisit(){
+  showModal(`<div class="tag">🚗 Bezoek</div><h2>Wie stopt daar?</h2>
+    <p>Een zwarte auto stopt bij het schoolplein. Minister van Financiën <b>${MINISTER}</b> is op werkbezoek bij jouw school, en bestelt een patatje met.</p>
+    <div class="speech"><b>${MINISTER}:</b> "Lekker! Hoe gaan de zaken?"</div>
+    ${optionList('vOpts', [{ k:'recessie', title:'"Door de recessie komen er minder klanten."' }, { k:'belasting', title:'"Al die belastingen maken het me moeilijk."' }, { k:'goed', title:'"Het gaat prima, dank u!"' }])}
+    <button class="cta" id="vGo" disabled>Zeg het</button>`);
+  bindOptions('vOpts', 'vGo', k => {
+    state.visitAnswer = k; save();
+    const reply = { recessie:'Dat hoor ik overal. Door de recessie krijgen wij ook minder belasting binnen, en betalen we meer uitkeringen.', belasting:'Iedereen wil minder belasting. Maar van dat geld betalen we de zorg, de AOW en de scholen.', goed:'Fijn om te horen! Bij ons is het minder rooskleurig.' }[k];
+    simpleModal('🚗 Bezoek', `${MINISTER} antwoordt`, `<div class="speech"><b>${MINISTER}:</b> "${reply} En we hebben een tekort op de begroting. Weet je wat? Volgende maand maak ik de miljoenennota. Kom een dag meedenken op het ministerie. Ik wil horen wat een jonge ondernemer zou doen."</div><p>Je krijgt een uitnodiging voor een dag als <b>adviseur</b> op het ministerie van Financiën.</p>`, 'Afgesproken!');
+  });
+}
+// ---------- DE DAG OP HET MINISTERIE ----------
+const BUDGET = { income:[['Inkomstenbelasting (direct)', 150], ['Btw (indirect)', 100], ['Accijns (indirect)', 20], ['Overige inkomsten', 30]], spend:[['Zorg', 105], ['AOW en uitkeringen', 110], ['Onderwijs', 50], ['Infrastructuur', 20], ['Overig', 35]], debt:480 };
+const MEASURES = [
+  { k:'btw', title:'🧾 Btw op eten verhogen (9% → 11%)', text:'+ € 6 miljard inkomsten. Maar alles in de supermarkt en je patat worden duurder.', effect:6, growth:-0.2 },
+  { k:'accijns', title:'⛽ Accijns op brandstof verhogen', text:'+ € 5 miljard inkomsten. Maar vervoer wordt duurder, ook voor je leverancier.', effect:5, growth:-0.1 },
+  { k:'subsidie', title:'✂️ Subsidie op zuinige apparaten schrappen', text:'− € 5 miljard uitgaven. Maar ook jij krijgt geen subsidie meer voor je zuinige frituur.', effect:5, growth:0 },
+  { k:'infra', title:'🛣️ Investeren in infrastructuur', text:'+ € 4 miljard uitgaven. Maar de economie groeit sneller: op termijn meer inkomsten.', effect:-4, growth:0.5 },
+  { k:'lenen', title:'🏦 Niets veranderen en lenen', text:'Het tekort blijft. De staatsschuld stijgt.', effect:0, growth:0 }
+];
+function budgetTable(){
+  const inc = BUDGET.income.reduce((a, r) => a + r[1], 0), sp = BUDGET.spend.reduce((a, r) => a + r[1], 0);
+  const rows = Math.max(BUDGET.income.length, BUDGET.spend.length);
+  let html = '<table class="budget"><thead><tr><th>Inkomsten</th><th>€ mld</th><th>Uitgaven</th><th>€ mld</th></tr></thead><tbody>';
+  for(let i = 0; i < rows; i++){ const a = BUDGET.income[i], b = BUDGET.spend[i];
+    html += `<tr><td>${a ? a[0] : ''}</td><td>${a ? a[1] : ''}</td><td>${b ? b[0] : ''}</td><td>${b ? b[1] : ''}</td></tr>`; }
+  return html + `<tr><td><b>Totaal</b></td><td><b>${inc}</b></td><td><b>Totaal</b></td><td><b>${sp}</b></td></tr></tbody></table>`;
+}
+function ministryDay(){
+  const qs = [
+    { k:'rekenen', q:'Bekijk de begroting: € 300 miljard inkomsten en € 320 miljard uitgaven. Wat is er aan de hand?', o:['Een begrotingsoverschot van € 20 miljard','Een begrotingstekort van € 20 miljard','Een staatsschuld van € 20 miljard','Alles is in evenwicht'], a:1, e:'De verwachte inkomsten zijn lager dan de verwachte uitgaven: een begrotingstekort van € 320 − € 300 = € 20 miljard.' },
+    { k:'herkennen', q:'Btw en accijns zijn verwerkt in de prijs van een product. Wat voor belastingen zijn dat?', o:['Directe belastingen','Indirecte belastingen','Volksverzekeringen','Subsidies'], a:1, e:'Belastingen die in de prijs zitten, zijn indirecte belastingen. De inkomstenbelasting en de ozb zijn direct.' },
+    { k:'redeneren', q:'Waarom stijgen de uitgaven aan AOW en zorg ieder jaar?', o:['Door vergrijzing: er komen meer ouderen','Door privatisering','Door marktwerking','Door de btw'], a:0, e:'Door vergrijzing stijgt het aandeel ouderen. Er zijn meer mensen met AOW, en ouderen hebben meer zorg nodig.' },
+    { k:'herkennen', q:'In welk document legt de regering op Prinsjesdag haar keuzes voor de begroting uit?', o:['De miljoenennota','De cao','De belastingaangifte','Het CPB-rapport'], a:0, e:'De miljoenennota is de toelichting op de rijksbegroting, gepresenteerd op Prinsjesdag.' }
+  ];
+  const step = i => {
+    if(i === 0){
+      showModal(`<div class="tag">🏛️ Ministerie van Financiën – Den Haag</div><h2>Welkom, adviseur!</h2>
+        <div class="speech"><b>${MINISTER}:</b> "Dit is de <b>rijksbegroting</b> voor volgend jaar, in afgeronde bedragen. Kijk eens mee."</div>
+        ${budgetTable()}<p class="small">De <b>staatsschuld</b> is al € ${BUDGET.debt} miljard: geleend in alle jaren met een tekort.</p>
+        <button class="cta" id="mGo">Ik heb het bekeken</button>`);
+      $('mGo').onclick = () => askQuestion('🏛️ Ministerie – vraag 1 van 4', qs[0], () => askQuestion('🏛️ Ministerie – vraag 2 van 4', qs[1], () => step(1)));
+    } else if(i === 1){
+      showModal(`<div class="tag">🏛️ Ministerie – jouw advies</div><h2>De opdracht van de minister</h2>
+        <div class="speech"><b>${MINISTER}:</b> "Door de recessie en de vergrijzing hebben we een tekort van <b>€ 20 miljard</b>. Jouw opdracht: <b>zorg dat het tekort minstens half zo groot wordt</b>, maar maak de economie niet kapot. Kies <b>twee</b> maatregelen."</div>
+        <div class="options" id="mOpts">${MEASURES.map(x => `<button class="option" data-k="${x.k}"><b>${x.title}</b><span class="small">${x.text}</span></button>`).join('')}</div>
+        <div class="small muted" id="mCount">0 van 2 gekozen</div>
+        <button class="cta" id="mConfirm" disabled>Laat het CPB rekenen 🧮</button>`);
+      const sel = new Set();
+      document.querySelectorAll('#mOpts .option').forEach(b => b.onclick = () => {
+        const k = b.dataset.k;
+        if(sel.has(k)){ sel.delete(k); b.classList.remove('sel'); }
+        else if(sel.size < 2){ sel.add(k); b.classList.add('sel'); }
+        $('mCount').textContent = `${sel.size} van 2 gekozen`; $('mConfirm').disabled = sel.size !== 2;
+      });
+      $('mConfirm').onclick = () => { state.advice = [...sel]; save(); step(2); };
+    } else if(i === 2){
+      const chosen = MEASURES.filter(x => state.advice.includes(x.k));
+      const cut = chosen.reduce((a, x) => a + x.effect, 0);
+      const after = 20 - cut, growth = chosen.reduce((a, x) => a + x.growth, 0);
+      const ok = after <= 10;
+      state.deficitAfter = after; save();
+      const ser = state.advice.includes('btw') ? 'De SER waarschuwt: "Een hogere btw raakt vooral mensen met een laag inkomen en kleine ondernemers."'
+        : state.advice.includes('infra') ? 'De SER is positief: "Investeren in infrastructuur is goed voor de werkgelegenheid."'
+        : state.advice.includes('lenen') ? 'De SER waarschuwt: "Steeds meer lenen schuift de rekening door naar de volgende generatie."'
+        : 'De SER: "Een evenwichtig advies, al zullen sommige ondernemers het merken."';
+      showModal(`<div class="tag">🧮 Het CPB rekent</div><h2>${ok ? '✅ Opdracht gehaald' : '❌ Opdracht niet gehaald'}</h2>
+        <table><tbody>
+          <tr><td>Begrotingstekort</td><td>€ 20 mld → <b>€ ${after} mld</b> ${after <= 0 ? '(zelfs een overschot!)' : ''}</td></tr>
+          <tr><td>Staatsschuld volgend jaar</td><td>€ ${BUDGET.debt} mld → <b>€ ${BUDGET.debt + Math.max(0, after)} mld</b></td></tr>
+          <tr><td>Economische groei</td><td>${growth > 0 ? '📈 iets hoger' : growth < 0 ? '📉 iets lager' : '➖ geen effect'}</td></tr>
+        </tbody></table>
+        <div class="msg info">🗣️ ${ser}</div>
+        ${ok ? '' : '<p class="small">Het tekort is niet gehalveerd. De minister neemt je advies toch mee, maar de staatsschuld blijft stijgen.</p>'}
+        <button class="cta" id="mNext">Verder</button>`);
+      $('mNext').onclick = () => askQuestion('🏛️ Ministerie – vraag 3 van 4', qs[2], () => askQuestion('🏛️ Ministerie – vraag 4 van 4', qs[3], () => step(3)));
+    } else {
+      state.ministerDone = true; save();
+      const names = MEASURES.filter(x => state.advice.includes(x.k)).map(x => x.title.replace(/^\S+ /, '').toLowerCase());
+      simpleModal('📺 Prinsjesdag', 'De miljoenennota', `<div class="news"><h3>Miljoenennota: kabinet kiest voor ${names.join(' en ')}</h3>Minister ${MINISTER} presenteerde vandaag de miljoenennota. "Ik heb me laten adviseren door een jonge ondernemer," aldus de minister. ${state.deficitAfter <= 10 ? 'Het begrotingstekort wordt fors kleiner.' : 'Het begrotingstekort blijft groot, en de staatsschuld stijgt verder.'}</div>
+        <p>Vanaf oktober merk je de gevolgen van jouw advies in je eigen kraam!</p>`, 'Terug naar mijn kraam');
+    }
+  };
+  step(0);
+}
+function adviceEffects(){
+  const t = [];
+  if(has('btw')) t.push('🧾 De btw op eten is 11%: van je consumentenprijs gaat meer naar de Belastingdienst. Verhoog je je prijs, dan komen er minder klanten.');
+  if(has('accijns')) t.push('⛽ Door de hogere accijns op brandstof rekent je leverancier € 0,05 per portie meer: je inkoopprijs stijgt.');
+  if(has('subsidie')) t.push('✂️ De subsidie voor je zuinige frituur (€ 40 per maand) stopt.');
+  if(has('infra')) t.push('🛣️ Door de investeringen in infrastructuur herstelt de economie sneller: meer klanten.');
+  if(has('lenen')) t.push('🏦 Er verandert voor jou niets, maar de staatsschuld stijgt.');
+  return t;
+}
+
+// ---------- DEEL 2 ----------
+const TAX = { s1:68508, r1:0.371, r2:0.495, catering:70000, bijtelling:4800, woz:320000, ewfRate:0.0035, hypotheek:8000, korting:3400, voorlopig:24000,
+  vermogen:84000, vrij:50000, fictief:0.019, box3rate:0.31 };
+function taxFigures(){
+  const winst = state.kraamWinstVorigJaar + TAX.catering;
+  const bij = state.busPrivate ? TAX.bijtelling : 0;
+  const ewf = Math.round(TAX.woz * TAX.ewfRate);
+  const belastbaar = winst + bij + ewf - TAX.hypotheek;
+  const in2 = Math.max(0, belastbaar - TAX.s1);
+  const b1 = Math.floor(Math.min(belastbaar, TAX.s1) * TAX.r1), b2 = Math.floor(in2 * TAX.r2);
+  const box1 = b1 + b2;
+  const v3 = Math.max(0, TAX.vermogen - TAX.vrij), f3 = Math.round(v3 * TAX.fictief), box3 = Math.floor(f3 * TAX.box3rate);
+  const due = box1 + box3 - TAX.korting;
+  return { winst, bij, ewf, belastbaar, in2, b1, b2, box1, v3, f3, box3, due, diff: due - TAX.voorlopig };
+}
+function beginMonth2(m){
+  if(m === 1 && state.busPrivate == null) queueModal(situationModal);
+  if(m === 2 && !state.quiz.adviseur) queueModal(() => simpleModal('🧾 Afspraak', 'Bij je belastingadviseur', '<p>In het voorjaar moet je <b>aangifte inkomstenbelasting</b> doen over vorig jaar. Je adviseur legt uit hoe dat werkt. Zijn rekening is normaal € 300…</p>'));
+  if(m === 3 && !state.aangifte) queueModal(() => simpleModal('📝 Belastingdienst', 'Tijd voor je aangifte', '<p>Je hebt een brief gekregen: doe vóór <b>1 mei</b> aangifte inkomstenbelasting over vorig jaar. Je doet het zelf, met de stappenplannen die je kent.</p>'));
+  if(m === 4 && !state.quiz.bank) queueModal(() => simpleModal('🏦 Afspraak', 'Bij de bank', `<p>Je hebt <b>${eur0(state.priveMoney)}</b> privé gespaard. De bank wil met je praten over je spaargeld, en over de belasting die je erover betaalt in box 3.</p>`));
+  if(m === 5 && !state.evasion) queueModal(evasionModal);
+  if(m === 6 && !state.payslipDone) queueModal(payslipModal);
+  if(m === 7 && !state.levelling) queueModal(minister2);
+  if(m === 4 && state.aangifte && state.aangifte.wrong >= 3) state.todayExtra = [['Navraag Belastingdienst (administratie)', 50]];
+  if(m === 6 && state.evasion === 'yes') state.reputationHit = true; else if(m === 7) state.reputationHit = false;
+  teachMonth(m);
+  if(m === 2 && !state.quiz.adviseur) queueModal(() => runQuiz('adviseur', c => { state.adviserFee = 300 - 25 * c + 25 * (4 - c); return `De rekening van je adviseur wordt <b>${eur0(state.adviserFee)}</b> (bedrijfskosten van februari).`; }));
+  if(m === 2 && !state.mrbDone) queueModal(mrbModal);
+  if(m === 3 && !state.aangifte) queueModal(aangifteModal);
+  if(m === 4 && !state.quiz.bank) queueModal(() => runQuiz('bank', c => { state.interestAdj = 0.001 * c - 0.001 * (4 - c); return `Je spaarrente wordt <b>${pct(0.015 + state.interestAdj, 1)}</b> per jaar.`; }));
+}
+function situationModal(){
+  showModal(`<div class="tag">📋 Jouw situatie</div><h2>Een nieuw jaar</h2>
+    <p>Vorig jaar maakte je kraam <b>${eur0(state.kraamWinstVorigJaar)}</b> winst. Daarnaast heb je een cateringtak: op feesten en partijen verdiende je nog eens <b>${eur0(TAX.catering)}</b> winst. Samen is dat je inkomen uit je eenmanszaak.</p>
+    <p>Vorig jaar kocht je ook een <b>appartement</b> (WOZ-waarde ${eur0(TAX.woz)}), met een hypotheek. En je bedrijf heeft een <b>bestelbus</b> voor de catering.</p>
+    <h3>Gebruik je de bus ook privé, bijvoorbeeld in het weekend of op vakantie?</h3>
+    ${optionList('busOpts', [{ k:'yes', title:'🚐 Ja, handig!', text:'Je hoeft geen eigen auto te kopen. Maar dan moet je een bijtelling bij je inkomen optellen.' }, { k:'no', title:'🚲 Nee, alleen zakelijk', text:'Geen bijtelling, maar je hebt privé geen auto.' }])}
+    <button class="cta" id="busGo" disabled>Bevestig</button>`);
+  bindOptions('busOpts', 'busGo', k => { state.busPrivate = k === 'yes'; save(); closeModal(); });
+}
+function mrbModal(){
+  const q = { k:'tabel', q:'Je bestelbus rijdt op diesel en weegt 1.650 kg. Hoeveel motorrijtuigenbelasting betaal je per kwartaal?', o:['€ 105','€ 135','€ 165','€ 195'], a:1, e:'In de tabel zoek je de rij 1.551 – 1.850 kg en de kolom diesel: € 135 per kwartaal. Dat is € 45 per maand.' };
+  showModal(`<div class="tag">📬 Post van de Belastingdienst</div><h2>Motorrijtuigenbelasting</h2>
+    <p>Voor het bezit van je bestelbus betaal je <b>motorrijtuigenbelasting</b> (wegenbelasting). Zoek het bedrag op in de tabel (bestelauto, per kwartaal):</p>
+    <table><thead><tr><th>Gewicht</th><th>Benzine</th><th>Diesel</th></tr></thead><tbody>
+      <tr><td>951 – 1.250 kg</td><td>€ 60</td><td>€ 105</td></tr><tr><td>1.251 – 1.550 kg</td><td>€ 70</td><td>€ 120</td></tr>
+      <tr><td>1.551 – 1.850 kg</td><td>€ 80</td><td>€ 135</td></tr><tr><td>1.851 – 2.150 kg</td><td>€ 90</td><td>€ 165</td></tr></tbody></table>
+    <button class="cta" id="mrbGo">Opzoeken</button>`);
+  $('mrbGo').onclick = () => askQuestion('📬 Motorrijtuigenbelasting', q, () => { state.mrbDone = true; save(); closeModal(); });
+}
+// ---------- DE AANGIFTE ----------
+function aangifteModal(){
+  const f = taxFigures();
+  let wrong = 0, right = 0;
+  const done = (ok) => { if(ok) right++; else wrong++; };
+  const row = (label, val, cls = '') => `<div class="step-row ${cls}"><span>${label}</span><b>${val}</b></div>`;
+  const header = (n, title) => `<div class="tag">📝 Aangifte inkomstenbelasting – stap ${n} van 8</div><h2>${title}</h2>`;
+  const steps = [
+    () => { // 1 inkomen
+      showModal(`${header(1, 'Je inkomen uit je onderneming')}
+        ${row('Winst snackkraam', eur0(state.kraamWinstVorigJaar))}${row('Winst catering', eur0(TAX.catering))}${row('<b>Winst uit onderneming</b>', eur0(f.winst))}
+        <button class="cta" id="aNext">Verder</button>`);
+      $('aNext').onclick = () => askQuestion('📝 Aangifte – begrip', { k:'herkennen', q:'De winst van je eigen eenmanszaak: wat voor inkomen is dat?', o:['Een primair inkomen','Een secundair inkomen','Een uitkering','Een toeslag'], a:0, e:'Je verdient het door productiefactoren te leveren (arbeid en ondernemerschap): een primair inkomen. Over de winst betaal je inkomstenbelasting.' }, ok => { done(ok); next(); });
+    },
+    () => { // 2 bijtelling
+      showModal(`${header(2, 'De bestelbus')}${row('Bus ook privé gebruikt?', state.busPrivate ? 'ja' : 'nee')}${row('Bijtelling', eur0(f.bij))}
+        <p class="small">${state.busPrivate ? 'Omdat je de bus van de zaak ook privé gebruikt, tel je een <b>bijtelling</b> bij je inkomen op.' : 'Je gebruikt de bus alleen zakelijk: geen bijtelling.'}</p><button class="cta" id="aNext">Verder</button>`);
+      $('aNext').onclick = () => askQuestion('📝 Aangifte – begrip', { k:'redeneren', q:'Waarom moet je een bijtelling optellen als je de bus van de zaak privé gebruikt?', o:['Omdat je privé voordeel hebt van een auto die de zaak betaalt','Omdat de bus kapot is','Omdat je btw moet betalen','Omdat de bus subsidie krijgt'], a:0, e:'Je rijdt privé in een auto die je bedrijf betaalt. Dat voordeel telt als inkomen: de bijtelling.' }, ok => { done(ok); next(); });
+    },
+    () => { // 3+4 woning
+      showModal(`${header(3, 'Je appartement')}${row(`Eigenwoningforfait (0,35% van ${eur0(TAX.woz)})`, '+ ' + eur0(f.ewf))}${row('Hypotheekrente (aftrekpost)', '− ' + eur0(TAX.hypotheek))}
+        <p class="small">Voor je eigen huis tel je het <b>eigenwoningforfait</b> op. De hypotheekrente mag je aftrekken: een <b>aftrekpost</b>.</p><button class="cta" id="aNext">Verder</button>`);
+      $('aNext').onclick = () => askQuestion('📝 Aangifte – begrip', { k:'redeneren', q:'Wat doet de hypotheekrente met je belastbaar inkomen?', o:['Het wordt hoger','Het wordt lager, want het is een aftrekpost','Er verandert niets','Het wordt verdubbeld'], a:1, e:'Een aftrekpost breng je op je inkomen in mindering: je belastbaar inkomen wordt lager, dus je betaalt minder belasting.' }, ok => { done(ok); next(); });
+    },
+    () => { // 4 belastbaar inkomen
+      showModal(`${header(4, 'Je belastbaar inkomen (box 1)')}
+        ${row('Winst uit onderneming', eur0(f.winst))}${row('+ Bijtelling bus', eur0(f.bij))}${row('+ Eigenwoningforfait', eur0(f.ewf))}${row('− Hypotheekrente', eur0(TAX.hypotheek))}
+        ${row('<b>= Belastbaar inkomen</b>', eur0(f.belastbaar))}<p class="small">Dit is het inkomen waar de belasting in box 1 over berekend wordt.</p><button class="cta" id="aNext">Naar het schijventarief</button>`);
+      $('aNext').onclick = next;
+    },
+    () => { // 5 schijventarief rekenen
+      const s1 = Math.min(f.belastbaar, TAX.s1), w1 = s1 / f.belastbaar * 100;
+      showModal(`${header(5, 'Belasting box 1: het schijventarief')}
+        <div class="bar"><div style="width:${w1}%;background:#d97706">schijf 1: 37,1%</div><div style="width:${100 - w1}%;background:#b91c1c">${f.in2 ? '49,5%' : ''}</div></div>
+        <div class="calc" style="font-size:14px"><b>Stappenplan</b><br>1 Verdeel het inkomen over de schijven. 2 Bereken per schijf de belasting. 3 Tel op. Rond af op hele euro's in je eigen voordeel.</div>
+        ${row('Belastbaar inkomen', eur0(f.belastbaar))}${row('Schijf 1: tot € 68.508 × 37,1%', eur0(f.b1) + ' <span class="small muted">(voorgerekend)</span>')}
+        <div class="step-row"><span>a. Hoeveel euro valt in schijf 2?</span><span>€ <input class="inp" id="i1" inputmode="numeric"></span></div>
+        <div class="step-row"><span>b. Belasting schijf 2 (49,5%)</span><span>€ <input class="inp" id="i2" inputmode="numeric"></span></div>
+        <div class="step-row"><span>c. Belasting box 1 totaal</span><span>€ <input class="inp" id="i3" inputmode="numeric"></span></div>
+        <div id="calcFb"></div><button class="cta" id="aCheck">Controleer</button>`);
+      $('aCheck').onclick = () => {
+        const v = ['i1','i2','i3'].map(id => parseEuro($(id).value)), want = [f.in2, f.b2, f.box1];
+        const ok = v.map((x, i) => Math.abs(x - want[i]) <= 1);
+        const all = ok.every(Boolean);
+        state.quizCorrect += all ? 1 : 0; state.quizTotal += 1; done(all); save();
+        ['i1','i2','i3'].forEach((id, i) => { $(id).style.borderColor = ok[i] ? '#16a34a' : '#b91c1c'; $(id).disabled = true; });
+        $('calcFb').innerHTML = `<div class="msg ${all ? 'good' : 'bad'}">${all ? '✅ Helemaal goed!' : '❌ Niet helemaal.'} ${eur0(f.belastbaar)} − € 68.508 = <b>${eur0(f.in2)}</b> in schijf 2. 49,5% × ${eur0(f.in2)} = <b>${eur0(f.b2)}</b>. Totaal: ${eur0(f.b1)} + ${eur0(f.b2)} = <b>${eur0(f.box1)}</b>.</div>`;
+        $('aCheck').textContent = 'Verder'; $('aCheck').onclick = () => askQuestion('📝 Aangifte – begrip', { k:'redeneren', q:'Over welke euro van je inkomen betaal je het hoogste percentage belasting?', o:['Over je eerste euro','Over je laatste euro, want die valt in schijf 2','Over alle euro\'s evenveel','Over geen enkele'], a:1, e:'Hoe hoger je inkomen, hoe hoger het percentage over het deel daarboven: een progressief belastingtarief. Bij een proportioneel tarief zou iedereen hetzelfde percentage betalen.' }, ok2 => { done(ok2); next(); });
+      };
+    },
+    () => { // 6 box 3 rekenen
+      showModal(`${header(6, 'Belasting box 3: je spaargeld')}
+        <div class="calc" style="font-size:14px"><b>Stappenplan box 3</b><br>1 Trek het heffingsvrij vermogen (€ 50.000) af van je vermogen. 2 Bereken het fictief rendement (1,9%). 3 Bereken daarover 31% belasting. Rond af in je eigen voordeel.</div>
+        ${row('Je vermogen op 1 januari', eur0(TAX.vermogen))}
+        <div class="step-row"><span>1. Belastbaar vermogen</span><span>€ <input class="inp" id="j1" inputmode="numeric"></span></div>
+        <div class="step-row"><span>2. Fictief rendement (1,9%)</span><span>€ <input class="inp" id="j2" inputmode="numeric"></span></div>
+        <div class="step-row"><span>3. Belasting box 3 (31%)</span><span>€ <input class="inp" id="j3" inputmode="numeric"></span></div>
+        <div id="calcFb"></div><button class="cta" id="aCheck">Controleer</button>`);
+      $('aCheck').onclick = () => {
+        const v = ['j1','j2','j3'].map(id => parseEuro($(id).value)), want = [f.v3, f.f3, f.box3];
+        const ok = v.map((x, i) => Math.abs(x - want[i]) <= 1), all = ok.every(Boolean);
+        state.quizCorrect += all ? 1 : 0; state.quizTotal += 1; done(all); save();
+        ['j1','j2','j3'].forEach((id, i) => { $(id).style.borderColor = ok[i] ? '#16a34a' : '#b91c1c'; $(id).disabled = true; });
+        $('calcFb').innerHTML = `<div class="msg ${all ? 'good' : 'bad'}">${all ? '✅ Helemaal goed!' : '❌ Niet helemaal.'} ${eur0(TAX.vermogen)} − € 50.000 = <b>${eur0(f.v3)}</b>. 1,9% × ${eur0(f.v3)} = <b>${eur0(f.f3)}</b>. 31% × ${eur0(f.f3)} = <b>${eur0(f.box3)}</b>.</div>`;
+        $('aCheck').textContent = 'Verder'; $('aCheck').onclick = next;
+      };
+    },
+    () => { // 7 heffingskorting
+      showModal(`${header(7, 'Verschuldigde inkomstenbelasting')}
+        ${row('Belasting box 1', eur0(f.box1))}${row('+ Belasting box 3', eur0(f.box3))}${row('− Heffingskortingen (algemeen + arbeidskorting)', eur0(TAX.korting))}${row('<b>= Verschuldigde inkomstenbelasting</b>', eur0(f.due))}
+        <button class="cta" id="aNext">Verder</button>`);
+      $('aNext').onclick = () => askQuestion('📝 Aangifte – begrip', { k:'herkennen', q:'Waar gaat de heffingskorting vanaf?', o:['Van je inkomen','Van de belasting die je moet betalen','Van je vermogen','Van je omzet'], a:1, e:'De heffingskorting is een korting op het bedrag aan inkomstenbelasting: je trekt hem af van de belasting, niet van je inkomen.' }, ok => { done(ok); next(); });
+    },
+    () => { // 8 uitkomst
+      state.aangifte = { ...f, right, wrong };
+      state.priveMoney -= f.diff; save();
+      showModal(`${header(8, 'De uitkomst')}
+        ${row('Verschuldigde inkomstenbelasting', eur0(f.due))}${row('Al betaald via voorlopige aanslag (12 × € 2.000)', eur0(TAX.voorlopig))}
+        ${row(f.diff >= 0 ? '<b>Je moet bijbetalen</b>' : '<b>Je krijgt terug</b>', eur0(Math.abs(f.diff)))}
+        <p class="small">Dit bedrag gaat ${f.diff >= 0 ? 'af van' : 'naar'} je privé spaarrekening.</p>
+        <div class="msg ${wrong >= 3 ? 'warn' : 'good'}">${wrong >= 3 ? '📨 Er zaten nogal wat foutjes in je aangifte. De Belastingdienst stuurt een navraagbrief: in april € 50 extra administratiekosten.' : '✅ Een zorgvuldige aangifte. Geen vragen van de Belastingdienst!'}</div>
+        <button class="cta" onclick="closeModal()">Aangifte versturen 📨</button>`);
+    }
+  ];
+  let i = 0;
+  function next(){ i++; if(i < steps.length) steps[i](); }
+  steps[0]();
+}
+function evasionModal(){
+  showModal(`<div class="tag">🤫 Een "slimme" tip</div><h2>Contant geld</h2>
+    <div class="speech"><b>Collega-ondernemer:</b> "Jij krijgt toch veel contant geld bij de catering? Als je € 4.000 daarvan gewoon niet opgeeft, scheelt dat je zo € 2.000 belasting. Niemand die het merkt…"</div>
+    ${optionList('evOpts', [{ k:'yes', title:'🤫 Ik doe het', text:'Ik corrigeer mijn aangifte niet en houd het geld buiten de boeken.' }, { k:'no', title:'✋ Nee, dat doe ik niet', text:'Ik geef alles eerlijk op.' }])}
+    <button class="cta" id="evGo" disabled>Bevestig mijn keuze</button>`);
+  bindOptions('evOpts', 'evGo', k => {
+    state.evasion = k;
+    if(k === 'yes'){ state.priveMoney -= 1980 + 1000; }
+    save();
+    simpleModal('🤫 Jouw keuze', k === 'yes' ? '⚖️ Betrapt!' : 'Eerlijk is eerlijk', k === 'yes'
+      ? '<p>De Belastingdienst vergelijkt je pinbetalingen en inkopen met je aangifte en ziet dat het niet klopt. Dit is <b>belastingontduiking</b>: opzettelijk verkeerde informatie geven om minder belasting te betalen. Het geld zat in het <b>zwarte circuit</b>.</p><p>Je betaalt de belasting alsnog (49,5% van € 4.000 = € 1.980) <b>plus € 1.000 boete</b>, van je privérekening. En het verhaal komt in de krant: in juni komen er minder klanten.</p>'
+      : '<p>Goed zo. Niet opgeven zou <b>belastingontduiking</b> zijn: strafbaar, en oneerlijk tegenover iedereen die wel betaalt. Van belastinggeld worden de zorg, de scholen en de uitkeringen betaald.</p>');
+  });
+}
+function payslipModal(){
+  showModal(`<div class="tag">💬 Je medewerker</div><h2>Vragen over de loonstrook</h2>
+    <p>Je medewerker werkt ook bij FrisFood. Hij laat zijn loonstrook van die baan zien en snapt er niets van.</p>
+    <div class="calc" style="font-size:14px"><b>🧾 Loonstrook (per maand)</b>
+      <div class="calc-row"><span>Brutoloon</span><b>€ 1.600,00</b></div>
+      <div class="calc-row"><span>− Loonheffing (loonbelasting + premies volksverzekeringen)</span><b>€ 190,00</b></div>
+      <div class="calc-row"><span>− Premies werknemersverzekeringen</span><b>€ 60,00</b></div>
+      <div class="calc-row total"><span>= Nettoloon</span><b>?</b></div></div>
+    <p class="small">Hij krijgt ook <b>zorgtoeslag</b> en <b>huurtoeslag</b>, omdat zijn inkomen niet hoog is.</p>
+    <button class="cta" id="psGo">Help hem</button>`);
+  $('psGo').onclick = () => askQuestion('💬 Loonstrook', { k:'rekenen', q:'Wat is zijn nettoloon?', o:['€ 1.350','€ 1.410','€ 1.540','€ 1.850'], a:0, e:'€ 1.600 − € 190 − € 60 = € 1.350. Het nettoloon is wat je ontvangt na inhouding van loonheffing en premies werknemersverzekeringen.' },
+    () => askQuestion('💬 Loonstrook', { k:'herkennen', q:'De zorgtoeslag en huurtoeslag zijn…', o:['Volksverzekeringen','Werknemersverzekeringen','Sociale voorzieningen, betaald uit belastinggeld','Primaire inkomens'], a:2, e:'Toeslagen en de bijstand zijn sociale voorzieningen: de overheid betaalt ze met belastinggeld. Samen met zijn nettoloon vormen ze zijn secundaire inkomen.' },
+      () => { state.payslipDone = true; save(); closeModal(); }));
+}
+function minister2(){
+  showModal(`<div class="tag">🚗 Bezoek</div><h2>${MINISTER} is er weer!</h2>
+    <div class="speech"><b>${MINISTER}:</b> "Weer een patatje met, graag. Hoe ging je aangifte? … Ik zit met een vraag. We hebben € 2 miljard over om de belasting te verlagen. Wie moet dat krijgen? Jij mag het zeggen."</div>
+    ${optionList('lvOpts', [{ k:'niv', title:'⚖️ Vooral de lage inkomens', text:'Hogere heffingskorting en huurtoeslag. De verschillen tussen inkomens worden kleiner.' }, { k:'deniv', title:'📊 Iedereen hetzelfde percentage minder', text:'Lager tarief in beide schijven. Wie meer verdient, gaat er in euro\'s meer op vooruit.' }])}
+    <button class="cta" id="lvGo" disabled>Geef je advies</button>`);
+  bindOptions('lvOpts', 'lvGo', k => {
+    state.levelling = k; save();
+    const niv = k === 'niv';
+    showModal(`<div class="tag">🚗 Het effect</div><h2>${niv ? 'Nivellering' : 'Denivellering'}</h2>
+      <p>Zo verandert het besteedbaar inkomen per jaar:</p>
+      <table><thead><tr><th>Huishouden</th><th>Verandering</th></tr></thead><tbody>
+        <tr><td>👵 Oma Ria, gepensioneerd met AOW (<b>inactief</b>)</td><td>${niv ? '+ € 420' : '+ € 60'}</td></tr>
+        <tr><td>👨‍👩‍👧 Gezin met een modaal inkomen (<b>actief</b>)</td><td>${niv ? '+ € 310' : '+ € 280'}</td></tr>
+        <tr><td>🍟 Jij, ondernemer met een hoog inkomen (<b>actief</b>)</td><td>${niv ? '+ € 40' : '+ € 950'}</td></tr></tbody></table>
+      <p class="small">${niv ? 'De verschillen tussen de inkomens worden in verhouding <b>kleiner</b>: nivellering. Dat past bij het <b>draagkrachtbeginsel</b>: wie veel kan betalen, betaalt in verhouding meer.' : 'De verschillen tussen de inkomens worden in verhouding <b>groter</b>: denivellering. Je gaat er zelf het meest op vooruit.'}</p>
+      <div class="speech"><b>${MINISTER}:</b> "Lastig hè, kiezen? Er zijn trouwens steeds meer ouderen en steeds minder werkenden die de AOW betalen. Dat noemen we vergrijzing."</div>
+      <button class="cta" id="lvNext">Verder</button>`);
+    $('lvNext').onclick = () => askQuestion('🚗 De minister vraagt', { k:'herkennen', q:'Oma Ria is gepensioneerd en krijgt AOW. Is zij actief of inactief?', o:['Actief','Inactief'], a:1, e:'Inactieven zijn mensen zonder betaald werk die een uitkering ontvangen, bijvoorbeeld omdat ze boven de pensioenleeftijd zijn.' },
+      () => askQuestion('🚗 De minister vraagt', { k:'redeneren', q:'Waarom is vergrijzing een probleem voor de overheid?', o:['Er komen meer inactieven per actieve: meer AOW en zorg, minder belastingbetalers','Ouderen betalen meer belasting','Er komen meer scholen','De btw stijgt vanzelf'], a:0, e:'Bij vergrijzing stijgt het aandeel ouderen. Er zijn meer mensen met AOW en meer zorgkosten, terwijl het aantal werkenden dat premie en belasting betaalt niet meegroeit.' },
+        () => askQuestion('🚗 De minister vraagt', { k:'herkennen', q:'Voor een nieuwe tunnel betalen automobilisten tol. Welk beginsel is dat?', o:['Draagkrachtbeginsel','Profijtbeginsel','Solidariteitsbeginsel','Progressief tarief'], a:1, e:'Je betaalt voor het gebruik van iets wat de overheid levert: het profijtbeginsel. Bij de inkomstenbelasting geldt het draagkrachtbeginsel.' },
+          () => simpleModal('🚗 Tot ziens', `${MINISTER} gaat weer`, `<div class="speech"><b>${MINISTER}:</b> "Dank je wel voor je advies, en voor de patat! Wie weet tot ziens."</div>`, 'Terug naar mijn kraam'))));
+  });
+}
+function reportExtras2(h){
+  const t = [];
+  if(h.month === 6 && state.evasion === 'yes') t.push('<div class="msg bad">📰 Door het krantenbericht over je belastingfraude kwamen er minder klanten.</div>');
+  if(h.month === 2) t.push(`<div class="msg info">🚐 Vanaf deze maand betaal je motorrijtuigenbelasting voor je bus: ${eur0(MRB)} per maand.</div>`);
+  return t;
+}
+function bonusLines2(b){
+  if(state.quiz.adviseur) b.push(`🧾 Adviseur (${state.quiz.adviseur.correct}/4): rekening ${eur0(state.adviserFee)}`);
+  if(state.aangifte) b.push(`📝 Aangifte: ${state.aangifte.right} van ${state.aangifte.right + state.aangifte.wrong} goed · ${state.aangifte.diff >= 0 ? 'bijbetalen' : 'terug'} ${eur0(Math.abs(state.aangifte.diff))}`);
+  if(state.quiz.bank) b.push(`🏦 Bank (${state.quiz.bank.correct}/4): spaarrente ${pct(0.015 + state.interestAdj, 1)}`);
+}
+function intro2(){
+  showModal(`<div class="tag">Snack Empire · Game 3 · Deel 2</div><h2>🧾 Iedereen betaalt belasting</h2>
+    <p>Een nieuw jaar met je kraam. Maar eerst: over de winst van vorig jaar moet je <b>inkomstenbelasting</b> betalen. Je hebt een eenmanszaak, dus de winst is jouw inkomen.</p>
+    <p>Dit deel duurt van <b>januari tot en met augustus</b>. Je doet aangifte, rekent zelf je belasting in box 1 en box 3 uit, en krijgt nog een keer bezoek van minister ${MINISTER}.</p>
+    <div class="msg warn"><b>🎯 Doel:</b> een zo hoog mogelijk nettoresultaat met je kraam.<br>⭐ ${eur0(GOALS[2][0])} &nbsp; ⭐⭐ ${eur0(GOALS[2][1])} &nbsp; ⭐⭐⭐ ${eur0(GOALS[2][2])}</div>
+    <button class="cta" id="startBtn">Aan de slag 🧾</button>`);
+  $('startBtn').onclick = () => { closeModal(); beginMonth(); };
+}
+function endReport2(){
+  const net = totalNet(), stars = starsFor(net), f = state.aangifte;
+  const rente = Math.round(state.priveMoney * (0.015 + state.interestAdj) * 8 / 12);
+  showModal(`<div class="tag">🏁 Eindrapport deel 2${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Iedereen betaalt belasting</h2>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="report-grid">
+      <div class="kpi"><div class="k">Nettoresultaat kraam (jan–aug)</div><div class="v">${eur(net)}</div></div>
+      <div class="kpi"><div class="k">Privé spaargeld (+ rente)</div><div class="v">${eur0(state.priveMoney + rente)}</div></div>
+      <div class="kpi"><div class="k">Verschuldigde inkomstenbelasting</div><div class="v">${f ? eur0(f.due) : '–'}</div></div>
+      <div class="kpi"><div class="k">Kennisvragen goed</div><div class="v">${state.quizCorrect} van ${state.quizTotal}</div></div>
+    </div>
+    <table><tbody>
+      <tr><td>🚐 Bus privé gebruikt</td><td>${state.busPrivate ? 'Ja (bijtelling € 4.800)' : 'Nee'}</td></tr>
+      ${f ? `<tr><td>📝 Belastbaar inkomen box 1</td><td>${eur0(f.belastbaar)} (waarvan ${eur0(f.in2)} in schijf 2)</td></tr><tr><td>🏦 Belasting box 3</td><td>${eur0(f.box3)}</td></tr>` : ''}
+      <tr><td>🤫 Contant geld verzwegen</td><td>${state.evasion === 'yes' ? 'Ja: betrapt, € 1.000 boete' : 'Nee, eerlijk opgegeven'}</td></tr>
+      <tr><td>⚖️ Advies aan de minister</td><td>${state.levelling === 'niv' ? 'Nivelleren' : state.levelling === 'deniv' ? 'Denivelleren' : '–'}</td></tr>
+    </tbody></table>
+    <p class="small muted">Je resultaten zijn opgeslagen. Goed gedaan: je hebt hoofdstuk 5 én 6 doorlopen!</p>
+    <button class="cta" id="endMenu2">Terug naar het menu</button>`);
+  $('endMenu2').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
+}
+
+
+// =====================================================================
+// SPELEN
+// =====================================================================
+function needPrediction(){ return state.history.length > 0 && !state.finished; }
+function playMonth(){
+  if(clockRunning || state.price === null) return;
+  if(needPrediction() && !state.prediction) return;
+  const noise = Math.round(Math.random() * 4 - 2);
+  const r = simulateMonth(state.price, noise);
+  const prev = state.history[state.history.length - 1];
+  if(prev && state.prediction){
+    const diff = r.wantDay - prev.wantDay;
+    r.predResult = { guess: state.prediction, actual: Math.abs(diff) <= 3 ? 'evenveel' : diff > 0 ? 'meer' : 'minder', diff, prevPrice: prev.price, prevMonth: prev.month };
+  }
+  state.money += r.cash;
+  state.history.push(r);
+  save();
+  runCalendar(r, () => reportModal(r));
+}
+function reportModal(h){
+  const m = h.month, parts = [];
+  if(h.predResult){
+    const pr = h.predResult, ok = pr.guess === pr.actual, label = { meer:'meer', minder:'minder', evenveel:'ongeveer evenveel' };
+    let why = h.price > pr.prevPrice ? 'Je prijs ging omhoog: minder klanten.' : h.price < pr.prevPrice ? 'Je prijs ging omlaag: meer klanten.' : 'Je prijs bleef gelijk.';
+    const prevE = ECON[part][pr.prevMonth - 1];
+    if(h.econ > prevE + 2) why += ' En de economie groeide: mensen geven meer uit.';
+    if(h.econ < prevE - 2) why += ' En de economie kromp: mensen geven minder uit.';
+    if(part === 1 && m === 3) why += ' Bovendien verkoopt de kantine nu ook snacks.';
+    parts.push(`<div class="msg ${ok ? 'good' : 'warn'}">${ok ? '✅ Goed voorspeld!' : '🤔 Niet helemaal.'} Je dacht: <b>${label[pr.guess]}</b> klanten per dag. Het waren er <b>${label[pr.actual]}</b> (${h.wantDay} per dag, in ${MN(pr.prevMonth)} ${h.wantDay - pr.diff}). ${why}</div>`);
+  }
+  if(h.walkaways > 0) parts.push(`<div class="msg bad">🚶 <b>${h.walkaways} keer</b> liep er een klant weg: je kunt maar ${h.cap} porties per dag maken${h.workers === 1 ? ' in je eentje' : ''}.</div>`);
+  if(part === 1 && m >= 10 && state.advice.length) parts.push(`<div class="msg info">🏛️ Jouw advies: ${adviceEffects().join(' ')}</div>`);
+  if(part === 2) parts.push(...reportExtras2(h));
+  let calc = `<div class="calc-row"><span>Omzet = ${h.sold.toLocaleString('nl-NL')} porties × ${eur(h.pEx)} <span class="small muted">(excl. ${pct(h.btw, 0)} btw)</span></span><b>${eur(h.revenue)}</b></div>
+    <div class="calc-row"><span>− Inkoopwaarde = ${h.sold.toLocaleString('nl-NL')} × ${eur(h.purchase)}</span><b>${eur(h.purchaseValue)}</b></div>
+    <div class="calc-row total"><span>= Brutowinst</span><b>${eur(h.gross)}</b></div>
+    ${h.costs.map(c => `<div class="calc-row"><span>− ${c[0]}</span><b>${eur(c[1])}</b></div>`).join('')}
+    ${h.subsidy ? `<div class="calc-row"><span>+ Subsidie zuinige frituur</span><b>${eur(h.subsidy)}</b></div>` : ''}
+    <div class="calc-row total"><span>= Nettoresultaat</span><b style="color:var(--${h.net >= 0 ? 'good' : 'bad'})">${eur(h.net)}</b></div>
+    <div class="small muted" style="margin-top:6px">${h.days} schooldagen · in de kassa zat ${eur(h.revenue + h.btwTotal)}, waarvan ${eur(h.btwTotal)} btw voor de Belastingdienst.</div>`;
+  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: nettoresultaat ${eur(h.net)}</h2>
+    <div class="report-grid"><div class="kpi"><div class="k">Klanten per dag (vraag)</div><div class="v">${h.wantDay}</div></div>
+      <div class="kpi"><div class="k">Porties deze maand (afzet)</div><div class="v">${h.sold.toLocaleString('nl-NL')}</div></div></div>
+    <div class="calc">${calc}</div>${parts.join('')}
+    <button class="cta" id="nextBtn">${m >= lastMonth() ? 'Afsluiten 🏁' : 'Volgende maand ➡️'}</button>`);
+  const nb = $('nextBtn'), label = nb.textContent; let left = REPORT_READ_SECONDS;
+  nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je maandrapport… ${left}`;
+  const iv = setInterval(() => { left--; if(left > 0){ nb.textContent = `📖 Lees je maandrapport… ${left}`; return; } clearInterval(iv); nb.disabled = false; nb.classList.remove('wait'); nb.textContent = label; }, 1000);
+  nb.onclick = () => {
+    modalQueue = []; $('overlay').classList.add('hidden');
+    if(m >= lastMonth()){ state.finished = true; save(); part === 1 ? endReport1() : endReport2(); }
+    else { state.month++; beginMonth(); }
+  };
+}
+
+// ---------- KALENDER ----------
+let clockRunning = false;
+function calendarDays(m){
+  // vaste, eenvoudige kalender: een maand van 4 à 5 weken, schooldagen op werkdagen
+  const year = part === 1 ? 2026 : 2027;
+  const first = new Date(year, m - 1, 1), daysInMonth = new Date(year, m, 0).getDate();
+  const offset = (first.getDay() + 6) % 7;
+  const n = SCHOOLDAYS[part][m - 1];
+  const weekdays = []; for(let d = 1; d <= daysInMonth; d++){ const wd = (new Date(year, m - 1, d).getDay() + 6) % 7; if(wd < 5) weekdays.push(d); }
+  // vakantie: de laatste werkdagen (of de eerste in augustus) zijn vrij
+  let school = m === 8 ? weekdays.slice(-n) : weekdays.slice(0, n);
+  return { offset, daysInMonth, school:new Set(school), year };
+}
+function runCalendar(h, done){
+  if(clockRunning) return;
+  clockRunning = true;
+  const ov = $('clockOverlay'), cal = calendarDays(h.month);
+  $('calHead').textContent = `${MN(h.month)} ${cal.year}`;
+  let html = ''; for(let i = 0; i < cal.offset; i++) html += '<div class="cal-day empty"></div>';
+  for(let d = 1; d <= cal.daysInMonth; d++) html += `<div class="cal-day ${cal.school.has(d) ? 'school' : 'off'}" data-d="${d}">${d}</div>`;
+  $('calGrid').innerHTML = html;
+  ov.classList.add('show'); ov.setAttribute('aria-hidden', 'false'); ov.style.background = 'rgba(120,94,36,.5)';
+  $('liveServed').textContent = '0'; $('liveWalk').textContent = '0'; $('liveRev').textContent = eur(0); $('liveFull').textContent = '';
+  $('clockText').textContent = `📅 ${Mcap(h.month)}`; $('clockSub').textContent = `${h.days} schooldagen · economie: ${ECON_LABEL[part][h.month - 1]}`;
+  const schoolDays = [...cal.school].sort((a, b) => a - b), start = performance.now();
+  function frame(now){
+    const t = Math.min(1, (now - start) / CLOCK_DURATION), doneDays = Math.floor(t * schoolDays.length + 1e-9);
+    schoolDays.slice(0, doneDays).forEach(d => { const el = document.querySelector(`.cal-day[data-d="${d}"]`); if(el) el.classList.add('done'); });
+    $('liveServed').textContent = (h.soldDay * doneDays).toLocaleString('nl-NL');
+    $('liveWalk').textContent = ((h.wantDay - h.soldDay) * doneDays).toLocaleString('nl-NL');
+    $('liveRev').textContent = eur(h.soldDay * doneDays * h.price);
+    if(h.wantDay > h.soldDay && doneDays) $('liveFull').textContent = `⚠️ Elke dag lopen er klanten weg: je kunt maar ${h.cap} porties per dag maken.`;
+    if(t < 1) requestAnimationFrame(frame);
+    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; done(); }, 700);
+  }
+  requestAnimationFrame(frame);
+}
+
+// =====================================================================
+// EINDRAPPORT DEEL 1
+// =====================================================================
+function starsFor(v){ const g = GOALS[part]; return v >= g[2] ? 3 : v >= g[1] ? 2 : v >= g[0] ? 1 : 0; }
+function endReport1(){
+  const net = totalNet(), stars = starsFor(net);
+  const best = state.history.reduce((a, b) => b.net > a.net ? b : a, state.history[0]);
+  const q = id => state.quiz[id] ? `${state.quiz[id].correct}/4` : '–';
+  const names = MEASURES.filter(x => state.advice.includes(x.k)).map(x => x.title).join('<br>');
+  showModal(`<div class="tag">🏁 Eindrapport deel 1${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Hoe werkt de overheid?</h2>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="report-grid">
+      <div class="kpi"><div class="k">Jaarwinst (totaal nettoresultaat)</div><div class="v">${eur(net)}</div></div>
+      <div class="kpi"><div class="k">In kas</div><div class="v">${eur(state.money)}</div></div>
+      <div class="kpi"><div class="k">Beste maand</div><div class="v">${best ? `${Mcap(best.month)}: ${eur(best.net)}` : '–'}</div></div>
+      <div class="kpi"><div class="k">Kennisvragen goed</div><div class="v">${state.quizCorrect} van ${state.quizTotal}</div></div>
+    </div>
+    <table><tbody>
+      <tr><td>🏛️ Gemeente / 📈 Econoom / 🏢 UWV</td><td>${q('gemeente')} · ${q('econoom')} · ${q('uwv')}</td></tr>
+      <tr><td>👷 Medewerker in de recessie</td><td>${state.worker ? 'Gehouden' : 'Laten gaan (WW)'}</td></tr>
+      <tr><td>🏛️ Jouw advies aan de minister</td><td>${names || '–'}</td></tr>
+      <tr><td>📉 Begrotingstekort na jouw advies</td><td>${state.deficitAfter != null ? `€ ${state.deficitAfter} miljard ${state.deficitAfter <= 10 ? '✅ gehalveerd' : '❌ niet gehalveerd'}` : '–'}</td></tr>
+    </tbody></table>
+    <p class="small">💡 Over deze jaarwinst moet je in het voorjaar <b>inkomstenbelasting</b> betalen. Dat doe je in deel 2.</p>
+    <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
+}
+
+// =====================================================================
+// WEERGAVE
+// =====================================================================
+function render(){
+  if(!state) return;
+  const m = Math.min(state.month, lastMonth()), s = setup();
+  $('topSub').textContent = part === 1 ? 'Deel 1 – Hoe werkt de overheid? (hoofdstuk 5)' : 'Deel 2 – Iedereen betaalt belasting (hoofdstuk 6)';
+  $('sDay').textContent = `${MN(m)}${part === 2 ? ' (jaar 2)' : ''}`;
+  $('sDayBar').style.width = (state.history.length / lastMonth() * 100) + '%';
+  $('sMoney').textContent = eur(state.money);
+  const net = totalNet(); $('sProfit').textContent = eur(net); $('sProfit').style.color = net < 0 ? 'var(--bad)' : '';
+  const st = starsFor(net); $('sGoal').innerHTML = st >= 3 ? '⭐⭐⭐ behaald!' : `${'⭐'.repeat(st + 1)} ${eur0(GOALS[part][st])}`;
+  $('pDay').textContent = Mcap(m);
+  $('dayNews').innerHTML = state.finished ? '🏁 Dit deel is afgerond.' : `${NEWS[part][m] || ''} <span class="small">· Economie: <b>${ECON_LABEL[part][m - 1]}</b></span>`;
+  $('costLine').innerHTML = `Inkoopprijs: <b>${eur(s.purchase)}</b> per portie. Btw op eten: <b>${pct(btwRate(), 0)}</b>. Bedrijfskosten deze maand: <b>${eur(s.costs.reduce((a, c) => a + c[1], 0))}</b>${s.subsidy ? `, subsidie: + ${eur(s.subsidy)}` : ''}. ${s.days} schooldagen.`;
+  $('prices').innerHTML = PRICES.map(p => `<button class="price-btn ${state.price === p ? 'sel' : ''}" data-p="${p}" ${state.finished ? 'disabled' : ''}>${eur(p)}</button>`).join('');
+  document.querySelectorAll('.price-btn').forEach(b => b.onclick = () => { state.price = +b.dataset.p; render(); });
+  const p = state.price, ex = p === null ? null : p / (1 + btwRate());
+  $('cVar').textContent = eur(s.purchase);
+  $('cMargin').textContent = p === null ? '–' : `${eur(ex - s.purchase)} (${Math.round((ex - s.purchase) / s.purchase * 100)}%)`;
+  $('cPriceEx').textContent = p === null ? '–' : eur(ex);
+  $('cBtw').previousElementSibling.textContent = `+ btw (${pct(btwRate(), 0)})`;
+  $('cBtw').textContent = p === null ? '–' : eur(p - ex);
+  $('cPrice').textContent = p === null ? '–' : eur(p);
+  $('kpRow').classList.add('hidden');
+  const last = state.history[state.history.length - 1], needPred = needPrediction();
+  $('predBox').classList.toggle('hidden', !needPred);
+  if(needPred) $('predQ').innerHTML = `In ${MN(last.month)} vroeg je <b>${eur(last.price)}</b> en wilden <b>${last.wantDay}</b> klanten per dag patat. Verwacht je deze maand <b>meer, minder of ongeveer evenveel</b> klanten per dag?`;
+  document.querySelectorAll('#pred button').forEach(b => { b.classList.toggle('sel', state.prediction === b.dataset.p); b.onclick = () => { state.prediction = b.dataset.p; render(); }; });
+  const ready = !state.finished && p !== null && (!needPred || state.prediction);
+  $('playBtn').disabled = !ready && !state.finished;
+  $('playBtn').textContent = state.finished ? 'Bekijk eindrapport 🏁' : `Speel ${MN(m)} 📅`;
+  $('playHint').textContent = state.finished ? '' : p === null ? 'Kies eerst een prijs.' : (needPred && !state.prediction) ? 'Maak eerst je voorspelling.' : '';
+  // productie
+  $('investPanel').classList.remove('hidden');
+  $('investInfo').innerHTML = `<table><tbody>
+    <tr><td>Productiecapaciteit</td><td>${s.capacity} porties per dag</td></tr>
+    <tr><td>Werkenden</td><td>${s.workers === 2 ? '2 (jij en je medewerker)' : '1 (jij)'}</td></tr>
+    <tr><td>Concurrenten</td><td>SnackPoint (${eur(COMPETITOR_PRICE)})${part === 2 || state.month >= 3 ? ' + kantine FrisFood' : ''}</td></tr>
+    ${part === 1 && state.advice.length ? `<tr><td>Jouw advies</td><td>${MEASURES.filter(x => has(x.k)).map(x => x.title.split(' ')[0]).join(' ')}</td></tr>` : ''}
+    ${part === 2 && state.busPrivate != null ? `<tr><td>Bestelbus</td><td>${state.busPrivate ? 'ook privé (bijtelling)' : 'alleen zakelijk'}</td></tr>` : ''}
+    ${part === 2 ? `<tr><td>Privé spaargeld</td><td>${eur0(state.priveMoney)}</td></tr>` : ''}
+  </tbody></table>`;
+  // kennisbonus
+  const b = [];
+  if(part === 1){
+    if(state.quiz.gemeente) b.push(`🏛️ Gemeente (${state.quiz.gemeente.correct}/4): vergunning ${eur0(PERMIT + state.permitAdj)} per maand`);
+    if(state.quiz.econoom) b.push(`📈 Econoom (${state.quiz.econoom.correct}/4): +${state.actionBonus} klanten per dag`);
+    if(state.quiz.uwv) b.push(`🏢 UWV (${state.quiz.uwv.correct}/4)${state.worker ? `: verzekering ${eur0(INSURANCE + state.insuranceAdj)} per maand` : ''}`);
+  } else bonusLines2(b);
+  $('bonusInfo').innerHTML = b.length ? b.join('<br>') : 'Nog niets. Bij de quizmomenten kun je met je kennis voordelen verdienen.';
+  $('envPanel').classList.add('hidden');
+  $('competitorPanel').classList.add('hidden');
+  // logboek
+  $('log').querySelector('tbody').innerHTML = state.history.length
+    ? [...state.history].reverse().map(h => `<tr><td>${MN(h.month).slice(0, 3)}</td><td>${eur(h.price)}</td><td>${h.wantDay}</td><td>${h.sold.toLocaleString('nl-NL')}</td><td>${eur0(h.revenue)}</td><td>${eur0(h.gross)}</td><td class="${h.net >= 0 ? 'pos' : 'neg'}">${eur0(h.net)}</td></tr>`).join('')
+    : '<tr><td colspan="7" class="muted" style="text-align:center">Nog geen maanden gespeeld.</td></tr>';
+  $('terms').innerHTML = state.concepts.length ? state.concepts.map(k => `<span class="term ${CONCEPTS[k].t === 'v' ? 'vk' : ''}" data-k="${k}">${CONCEPTS[k].title}</span>`).join('') : '<span class="small muted">Nog geen begrippen.</span>';
+  document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
+  renderChart();
+}
+function renderChart(){
+  const N = lastMonth(), W = 420, H = 226, pad = { l:50, r:10, t:34, b:26 };
+  const hist = state.history, vals = hist.map(h => h.net);
+  const max = Math.max(1000, ...vals), min = Math.min(0, ...vals);
+  const step = max > 1500 ? 500 : 250;
+  const y = v => pad.t + (max - v) / (max - min) * (H - pad.t - pad.b), bw = (W - pad.l - pad.r) / N;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Nettoresultaat per maand">`;
+  for(let v = Math.ceil(min / step) * step; v <= max; v += step) svg += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? '#a89b86' : '#eee4d5'}"/><text x="${pad.l - 6}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="#6a6359">€${v}</text>`;
+  for(let m = 1; m <= N; m++){
+    const x = pad.l + (m - 1) * bw, h = hist.find(e => e.month === m);
+    if(h){ const top = Math.min(y(h.net), y(0)), height = Math.max(1, Math.abs(y(h.net) - y(0)));
+      svg += `<rect x="${x + 3}" y="${top}" width="${bw - 6}" height="${height}" rx="3" fill="${h.net >= 0 ? '#d97706' : '#b91c1c'}"><title>${MN(m)}: ${eur(h.net)}</title></rect>`; }
+    const cur = m === state.month && !state.finished;
+    svg += `<text x="${x + bw / 2}" y="${H - 8}" font-size="10" text-anchor="middle" fill="${cur ? '#d97706' : '#6a6359'}" font-weight="${cur ? 700 : 400}">${MN(m).slice(0, 3)}</text>`;
+    const e = ECON[part][m - 1];
+    if(e <= -8) svg += `<text x="${x + bw / 2}" y="12" font-size="10" text-anchor="middle">📉</text>`;
+  }
+  const icons = part === 1 ? [[3,'🏛️'],[6,'🎤'],[7,'👷'],[8,'🚗'],[9,'📺'],[10,'🏢']] : [[2,'🧾'],[3,'📝'],[4,'🏦'],[5,'🤫'],[7,'🚗']];
+  icons.forEach(([m, icon]) => { const x = pad.l + (m - 1) * bw; svg += `<text x="${x + bw / 2}" y="27" font-size="11" text-anchor="middle">${icon}</text>`; });
+  $('chart').innerHTML = svg + '</svg><div class="small muted" style="margin-top:4px">' + (part === 1 ? '📉 recessie · 🏛️ gemeente · 🎤 econoom · 👷 medewerker · 🚗 minister · 📺 Prinsjesdag · 🏢 UWV' : '🧾 adviseur · 📝 aangifte · 🏦 bank · 🤫 dilemma · 🚗 minister') + '</div>';
+}
+
+// =====================================================================
+// INLOGGEN, MENU, DOCENT
+// =====================================================================
+function msg(el, cls, text){ $(el).innerHTML = text ? `<div class="msg ${cls}">${text}</div>` : ''; }
+async function doLogin(){
+  const name = $('inName').value.trim(), klas = $('inClass').value.trim(), pin = $('inPin').value.trim();
+  if(!name || !klas) return msg('loginMsg', 'bad', 'Vul je naam en je klas in.');
+  if(!/^[0-9]{4}$/.test(pin)) return msg('loginMsg', 'bad', 'Je pincode bestaat uit precies 4 cijfers.');
+  if(!sb){ msg('loginMsg', 'bad', 'Er is geen verbinding met de database.'); $('trialBtn').classList.remove('hidden'); return; }
+  msg('loginMsg', 'info', 'Bezig met inloggen…');
+  try{
+    const { data, error } = await sb.rpc('register_or_login_student', { p_name: name, p_class: klas, p_pin: pin });
+    if(error) throw error;
+    const st = Array.isArray(data) ? data[0] : data;
+    session.student = { id: st.id, name: st.name, class: st.class }; session.pin = pin; session.trial = false; session.teacherTest = false;
+    msg('loginMsg'); openMenu();
+  }catch(e){
+    const m = String(e && (e.message || e.details) || e);
+    if(m.includes('wrong_pin')) msg('loginMsg', 'bad', 'Deze pincode klopt niet bij deze naam en klas. Pincode vergeten? Vraag je docent om hem opnieuw in te stellen.');
+    else { msg('loginMsg', 'bad', 'Inloggen lukt nu niet. Controleer je internetverbinding en probeer het opnieuw.'); $('trialBtn').classList.remove('hidden'); }
+  }
+}
+async function openMenu(){
+  if(state){ clearTimeout(saveTimer); await saveNow(); }
+  state = null; show('menuScreen');
+  $('topSub').textContent = 'Hoofdstuk 5 en 6 – overheid en belasting';
+  $('menuHello').textContent = session.teacherTest ? 'Docent – testmodus' : session.trial ? 'Proefmodus' : `Hoi ${session.student.name}!`;
+  $('menuSub').textContent = session.teacherTest ? 'Testmodus: er wordt niets in de database opgeslagen. Log uit om te stoppen.' : session.trial ? 'Je voortgang wordt alleen in deze browser bewaard, niet bij je docent.' : `Klas ${session.student.class}`;
+  $('menuGrid').innerHTML = '<div class="small muted">Laden…</div>';
+  let d1 = null, d2 = null, unlocked = false;
+  try{
+    d1 = await loadState(KEY1); d2 = await loadState(KEY2);
+    unlocked = session.trial ? true : !!(await sb.rpc('game_is_unlocked', { p_class: session.student.class, p_game: KEY2 })).data;
+  }catch(e){ console.error(e); }
+  const sum = st => st.history.reduce((s, h) => s + h.net, 0);
+  const d1Status = !d1 ? 'Nog niet begonnen' : d1.finished ? `✅ Afgerond · jaarwinst ${eur0(sum(d1))}` : `Bezig: ${MN(d1.month)}`;
+  const d2Open = unlocked;
+  const d2Status = !unlocked ? '🔒 Je docent zet dit deel open.' : !d2 ? 'Klaar om te beginnen!' : d2.finished ? `✅ Afgerond · nettoresultaat ${eur0(sum(d2))}` : `Bezig: ${MN(d2.month)}`;
+  $('menuGrid').innerHTML = `
+    <div class="menu-card"><h3>🏛️ Deel 1</h3><div><b>Hoe werkt de overheid?</b><br><span class="small">Hoofdstuk 5: overheid, economie, sociale zekerheid en de begroting</span></div>
+      <div class="status">${d1Status}</div><button class="cta" id="playD1" style="margin-top:0">${!d1 ? 'Start deel 1 🚀' : d1.finished ? 'Bekijk je eindrapport' : 'Verder spelen ▶️'}</button></div>
+    <div class="menu-card ${d2Open ? '' : 'locked'}"><h3>🧾 Deel 2</h3><div><b>Iedereen betaalt belasting</b><br><span class="small">Hoofdstuk 6: inkomstenbelasting, box 3, nivelleren</span></div>
+      <div class="status">${d2Status}</div><button class="cta" id="playD2" ${d2Open ? '' : 'disabled'} style="margin-top:0">${!d2 ? 'Start deel 2 🧾' : d2.finished ? 'Bekijk je eindrapport' : 'Verder spelen ▶️'}</button></div>`;
+  $('playD1').onclick = () => startPart(1, d1);
+  if(d2Open) $('playD2').onclick = () => startPart(2, d2, d1);
+}
+function setPart(n){ part = n; SAVE_KEY = n === 1 ? KEY1 : KEY2; }
+function startPart(n, saved, d1){
+  setPart(n);
+  state = saved ? Object.assign(freshState(), saved) : freshState();
+  if(n === 2 && !saved) state.kraamWinstVorigJaar = d1 && d1.finished ? Math.round(d1.history.reduce((s, h) => s + h.net, 0) / 100) * 100 : 10000;
+  modalQueue = []; show('gameScreen'); render();
+  if(state.finished){ n === 1 ? endReport1() : endReport2(); return; }
+  if(!saved){ queueModal(n === 1 ? intro1 : intro2); return; }
+  const last = state.history[state.history.length - 1];
+  if(last && last.month === state.month){
+    if(state.month >= lastMonth()){ state.finished = true; save(); n === 1 ? endReport1() : endReport2(); return; }
+    state.month++;
+  }
+  beginMonth();
+}
+function intro1(){
+  showModal(`<div class="tag">Snack Empire · Game 3 · Deel 1</div><h2>🏛️ Hoe werkt de overheid?</h2>
+    <p>Je bent 25 en je snackkraam op het schoolplein loopt goed: een moderne frituur, een medewerker en vaste klanten. SnackPoint aan de overkant is je concurrent.</p>
+    <p>Dit spel duurt <b>een heel jaar</b>. Elke beurt is een maand. Je merkt hoe de <b>economie</b> en de <b>overheid</b> je kraam raken. En halverwege het jaar krijg je bijzonder bezoek…</p>
+    <div class="msg warn"><b>🎯 Doel:</b> een zo hoog mogelijke jaarwinst (nettoresultaat).<br>⭐ ${eur0(GOALS[1][0])} &nbsp; ⭐⭐ ${eur0(GOALS[1][1])} &nbsp; ⭐⭐⭐ ${eur0(GOALS[1][2])}</div>
+    <button class="cta" id="startBtn">Start het jaar 🚀</button>`);
+  $('startBtn').onclick = () => { closeModal(); beginMonth(); };
+}
+let teacherKey = null;
+function teacherModal(){
+  showModal(`<div class="tag">👩‍🏫 Docent</div><h2>Docentenpaneel</h2><p class="small">Vul de docentensleutel in die je ook in het klassenoverzicht gebruikt.</p>
+    <input type="password" id="tKey" placeholder="Docentensleutel" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit">
+    <button class="cta" id="tGo">Openen</button><div id="tMsg"></div><button class="ghost" style="width:100%;margin-top:8px" onclick="closeModal()">Sluiten</button>`);
+  $('tGo').onclick = async () => {
+    const key = $('tKey').value;
+    if(!sb){ msg('tMsg', 'bad', 'Geen verbinding met de database.'); return; }
+    const { data, error } = await sb.rpc('verify_teacher_key', { p_teacher_key: key });
+    if(error || !data){ msg('tMsg', 'bad', 'Deze sleutel klopt niet.'); return; }
+    teacherKey = key; teacherPanel();
+  };
+}
+async function teacherPanel(){
+  showModal('<div class="tag">👩‍🏫 Docent</div><h2>Laden…</h2>');
+  try{
+    const [cls, unl, ov] = await Promise.all([ sb.rpc('game_list_classes', { p_teacher_key: teacherKey }), sb.rpc('game_list_unlocks', { p_teacher_key: teacherKey }), sb.rpc('game_teacher_overview', { p_teacher_key: teacherKey, p_game_prefix: 'game3' }) ]);
+    if(cls.error || unl.error || ov.error) throw (cls.error || unl.error || ov.error);
+    const open = new Set((unl.data || []).filter(u => u.game === KEY2).map(u => u.class));
+    const rows = ov.data || [];
+    showModal(`<div class="tag">👩‍🏫 Docent</div><h2>Game 3 – docentenpaneel</h2>
+      <h3>Deel 2 openzetten per klas</h3>
+      <table class="teacher"><tbody>${(cls.data || []).map(c => `<tr><td>${escapeHtml(c.class)}</td><td class="small muted">${c.students} leerlingen</td><td><button class="toggle ${open.has(c.class) ? 'on' : ''}" data-c="${escapeHtml(c.class)}">${open.has(c.class) ? '🔓 Deel 2 open' : '🔒 Deel 2 dicht'}</button></td></tr>`).join('')}</tbody></table>
+      <h3>Voortgang</h3>
+      ${rows.length ? `<div style="overflow-x:auto"><table class="teacher"><thead><tr><th>Klas</th><th>Naam</th><th>Deel</th><th>Maand</th><th>Nettoresultaat</th><th>Vragen</th></tr></thead><tbody>
+        ${rows.map(r => `<tr><td>${escapeHtml(r.class)}</td><td>${escapeHtml(r.name)}</td><td>${r.game === KEY1 ? '1' : '2'}</td><td>${r.finished ? '✅' : '–'}</td><td>${r.net_result != null ? eur0(+r.net_result) : '–'}</td><td>${r.quiz_correct}/${r.quiz_total}</td></tr>`).join('')}</tbody></table></div>` : '<p class="small muted">Nog geen leerlingen begonnen aan game 3.</p>'}
+      <h3>Zelf testen</h3><p class="small muted" style="margin-top:0">Speel als docent, zonder inloggen. Er wordt niets opgeslagen bij je leerlingen.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" id="tTest1">🏛️ Test deel 1</button><button class="ghost" id="tTest2">🧾 Test deel 2</button></div>
+      <button class="ghost" style="width:100%;margin-top:12px" id="tClose">Sluiten</button>`);
+    document.querySelectorAll('.toggle').forEach(b => b.onclick = async () => {
+      b.disabled = true;
+      const { error } = await sb.rpc('game_set_unlock', { p_teacher_key: teacherKey, p_class: b.dataset.c, p_game: KEY2, p_unlocked: !b.classList.contains('on') });
+      if(error) console.error(error);
+      teacherPanel();
+    });
+    $('tTest1').onclick = () => teacherTest(1);
+    $('tTest2').onclick = () => teacherTest(2);
+    $('tClose').onclick = () => { teacherKey = null; modalQueue = []; $('overlay').classList.add('hidden'); };
+  }catch(e){ console.error(e); showModal('<div class="tag">👩‍🏫 Docent</div><h2>Er ging iets mis</h2><p>Het docentenpaneel kon niet laden.</p><button class="cta" onclick="closeModal()">Sluiten</button>'); }
+}
+function teacherTest(n){
+  modalQueue = []; $('overlay').classList.add('hidden');
+  session.trial = true; session.teacherTest = true; session.student = { id:null, name:'Docent (test)', class:'TEST' };
+  try{ localStorage.removeItem(LOCAL_KEY + KEY1); localStorage.removeItem(LOCAL_KEY + KEY2); }catch(e){}
+  startPart(n, null, null);
+}
+
+// ---------- START ----------
+$('loginBtn').onclick = doLogin;
+['inName','inClass','inPin'].forEach(id => $(id).addEventListener('keydown', e => { if(e.key === 'Enter') doLogin(); }));
+$('trialBtn').onclick = () => { session.trial = true; session.student = null; openMenu(); };
+$('teacherBtn').onclick = () => queueModal(teacherModal);
+$('logoutBtn').onclick = () => { session.student = null; session.pin = null; session.trial = false; session.teacherTest = false; $('inPin').value = ''; show('loginScreen'); };
+$('toMenuBtn').onclick = () => openMenu();
+$('playBtn').onclick = () => { if(state.finished){ part === 1 ? endReport1() : endReport2(); return; } playMonth(); };
+if(!sb || /[?&]proef\b/.test(location.search)) $('trialBtn').classList.remove('hidden');
+show('loginScreen');
+
+</script>
+</body>
+</html>
