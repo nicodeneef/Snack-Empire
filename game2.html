@@ -147,7 +147,24 @@
   .toggle.on{background:var(--good-bg);border-color:#86efac;color:var(--good);font-weight:700}
   .rain .clock-face{filter:saturate(.4)}
   .badge-line{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
-  @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} }
+  .grid{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+  .grid > div{min-width:0}
+  .clock-text,.clock-subtext{background:rgba(20,14,8,.45);border-radius:12px;padding:4px 12px}
+  .clock-text:empty,.clock-subtext:empty{background:none;padding:0}
+  @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width:520px){
+    .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
+    #log td{white-space:nowrap}
+    .topbar-title{font-size:19px;letter-spacing:.5px}
+    .wrap{padding:0 8px 30px}
+    .panel{padding:14px 12px}
+    .modal{padding:18px 16px}
+    .clock-text{font-size:19px;min-width:0}
+    .clock-subtext{min-width:0}
+    .stat .v{font-size:17px}
+    table{font-size:12px}
+    th,td{padding:5px 3px}
+  }
 </style>
 </head>
 <body>
