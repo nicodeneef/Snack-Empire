@@ -162,6 +162,8 @@
   .cal-day.done{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;transform:scale(1.04);border-color:transparent}
   .cal-day.off{background:#e9e3d8;color:#b0a594}
   .cal-day.empty{background:transparent}
+  .cal-day.passed{background:#ddd5c6;color:#9a8f7e;text-decoration:line-through}
+  .cal-day.today{outline:3px solid #2563eb;outline-offset:1px}
   .cal-legend{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
   .budget td:nth-child(2),.budget td:nth-child(4){text-align:right}
   .bar{height:18px;border-radius:6px;display:flex;overflow:hidden;border:1px solid var(--line);margin:6px 0}
@@ -349,7 +351,7 @@ const PRICES = [2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50];
 const COMPETITOR_PRICE = 2.50;
 const KANTINE_LOSS = 8;           // cateraar in de geprivatiseerde kantine (vanaf maart)
 const BASE_PURCHASE = 1.10;
-const CAP_ALONE = 75, CAP_TEAM = 105;
+const CAP_ALONE = 75, CAP_TEAM = 90;
 const RENT = 400, DEPRECIATION = 100, WAGE = 260, PERMIT = 50, INSURANCE = 30, SUBSIDY = 40, OZB = 150, MRB = 45;
 const START_MONEY = { 1:2000, 2:4000 };
 const GOALS = { 1:[8500, 9500, 10500], 2:[5000, 5700, 6300] };
@@ -1092,10 +1094,19 @@ function runCalendar(h, done){
   ov.classList.add('show'); ov.setAttribute('aria-hidden', 'false'); ov.style.background = 'rgba(120,94,36,.5)';
   $('liveServed').textContent = '0'; $('liveWalk').textContent = '0'; $('liveRev').textContent = eur(0); $('liveFull').textContent = '';
   $('clockText').textContent = `📅 ${Mcap(h.month)}`; $('clockSub').textContent = `${h.days} schooldagen · economie: ${ECON_LABEL[part][h.month - 1]}`;
-  const schoolDays = [...cal.school].sort((a, b) => a - b), start = performance.now();
+  // alle dagen van de maand lopen gelijkmatig voorbij; op schooldagen wordt er verkocht
+  const start = performance.now();
+  let shown = 0, doneDays = 0;
   function frame(now){
-    const t = Math.min(1, (now - start) / CLOCK_DURATION), doneDays = Math.floor(t * schoolDays.length + 1e-9);
-    schoolDays.slice(0, doneDays).forEach(d => { const el = document.querySelector(`.cal-day[data-d="${d}"]`); if(el) el.classList.add('done'); });
+    const t = Math.min(1, (now - start) / CLOCK_DURATION), upto = Math.min(cal.daysInMonth, Math.floor(t * cal.daysInMonth + 1e-9));
+    while(shown < upto){
+      shown++;
+      const el = document.querySelector(`.cal-day[data-d="${shown}"]`);
+      if(el){ el.classList.add(cal.school.has(shown) ? 'done' : 'passed'); }
+      if(cal.school.has(shown)) doneDays++;
+      document.querySelectorAll('.cal-day.today').forEach(x => x.classList.remove('today'));
+      if(el && shown < cal.daysInMonth) el.classList.add('today');
+    }
     $('liveServed').textContent = (h.soldDay * doneDays).toLocaleString('nl-NL');
     $('liveWalk').textContent = ((h.wantDay - h.soldDay) * doneDays).toLocaleString('nl-NL');
     $('liveRev').textContent = eur(h.soldDay * doneDays * h.price);
