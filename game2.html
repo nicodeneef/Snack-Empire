@@ -1145,7 +1145,7 @@ function mergerModal(){
         <p>${k === 'yes'
           ? 'Na de fusie is er nog maar één patatkraam op het plein: een <b>monopolie</b>. Fijn voor jullie, maar de leerlingen kunnen nergens anders meer heen. Daarom kijkt de toezichthouder ACM bij grote fusies of dat niet slecht is voor de klant.'
           : 'Er blijven twee aanbieders op het plein: een <b>oligopolie</b>. De leerlingen kunnen blijven kiezen, en jullie blijven elkaar scherp houden met prijs en kwaliteit.'}</p>
-        <p class="small muted">Deze keuze heeft geen gevolgen voor deel 2. Daar begin je weer met je eigen kraam.</p>
+        <p class="small muted">Hoe het verder gaat met jullie samenwerking, zie je aan het begin van deel 2.</p>
         <button class="cta" id="toEnd">Naar je eindrapport 🏁</button>`);
       $('toEnd').onclick = () => { modalQueue = []; endReport(); };
     });
@@ -1301,6 +1301,8 @@ function introModal2(d1){
   const net1 = d1.history.reduce((s, h) => s + h.net, 0);
   showModal(`<div class="tag">Snack Empire · Game 2 · Deel 2</div><h2>👷 Werk aan de winkel!</h2>
     <p>Welkom terug! Je kraam uit deel 1 draait nog: ${INVESTMENTS[d1.investment || 'none'].name.replace(/^\S+ /, '').toLowerCase()}, ${eur(d1.money)} in kas${d1.sauce ? ', je eigen saus' : ''}. In deel 1 was je nettoresultaat ${eur(net1)}.</p>
+    ${d1.merger === 'yes' ? `${say('cees', `Eerlijk is eerlijk: samen werkte het niet. Ik wil een goedkope kraam met veel snacks, jij wilt kwaliteit${d1.sauce ? ' en je eigen saus' : ''}. Zo komen we er nooit uit. Laten we maar weer ieder onze eigen kraam runnen.`)}
+    <div class="msg info">🤝 Jullie gaan weer uit elkaar. Er zijn opnieuw <b>twee aanbieders</b> op het plein: van een <b>monopolie</b> terug naar een <b>oligopolie</b>. Cees Patat staat weer aan de overkant.</div>` : ''}
     <p>Je kraam is <b>populair</b> geworden: er komen veel meer klanten. In je eentje red je het niet meer. Tijd voor <b>personeel</b>!</p>
     <div class="msg warn"><b>🎯 Doel:</b> een zo hoog mogelijk <b>nettoresultaat</b> in dag 13 t/m 24.<br>⭐ ${eur0(GOALS_P2[0])} &nbsp; ⭐⭐ ${eur0(GOALS_P2[1])} &nbsp; ⭐⭐⭐ ${eur0(GOALS_P2[2])}</div>
     <button class="cta" id="startBtn2">Aan de slag 💪</button>`);
