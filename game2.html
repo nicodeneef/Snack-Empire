@@ -1850,7 +1850,7 @@ function createScene(root){
   const bg = cb.getContext('2d'), mid = cm.getContext('2d'), fx = cf.getContext('2d'), fg = cg.getContext('2d');
   [bg, mid, fg].forEach(c => c.imageSmoothingEnabled = false);
   const S = { el, t:.45, weather:null, people:[], running:false, raf:0, last:0, steam:[], motes: Array.from({ length:30 }, () => ({ x: Math.random() * VW, y: Math.random() * 130, v: .5 + Math.random(), p: Math.random() * 6.28 })),
-    flakes: Array.from({ length:120 }, () => ({ x: Math.random() * VW, y: Math.random() * VH, v: 140 + Math.random() * 90 })), px:0, py:0, cx:0, cy:0, opts:{} };
+    flakes: Array.from({ length:120 }, () => ({ x: Math.random() * VW, y: Math.random() * VH, v: 140 + Math.random() * 90 })), px:0, py:0, cx:0, cy:0, opts:{}, glints:[], cashCoins:[], cash:0, flash:0, items:null, lastPrice:null };
   el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); S.px = (e.clientX - r.left) / r.width - .5; S.py = (e.clientY - r.top) / r.height - .5; });
   el.addEventListener('pointerleave', () => { S.px = 0; S.py = 0; });
 
@@ -1871,13 +1871,22 @@ function createScene(root){
     for(let r = 0; r < 3; r++) for(let c = 0; c < 4; c++){ const wx = 13 + c * 21, wy = 64 + r * 20; px(bg, wx, wy, 12, 12, '#2c3e50'); px(bg, wx + 1, wy + 1, 10, 10, lit && (r + c) % 3 ? '#f8d58a' : mixHex('#bfe3f3', L.sky0, .3)); px(bg, wx + 6, wy + 1, 1, 10, '#2c3e50'); px(bg, wx + 1, wy + 6, 10, 1, '#2c3e50'); }
     px(bg, 42, 110, 16, 20, '#4b2a1d'); px(bg, 43, 111, 14, 1, '#6b3e2a');
   }
-  function stall(L, o){
+  function stall(L, o, time){
     const wood = '#6b3b22';
     px(mid, 128, 72, 3, 78, wood); px(mid, 205, 72, 3, 78, wood); px(mid, 129, 72, 1, 78, '#8a5131');
     px(mid, 131, 86, 74, 34, '#6b3f26'); px(mid, 131, 86, 74, 2, '#4e2c1a'); for(let y = 92; y < 118; y += 5) px(mid, 131, y, 74, 1, '#5c341f');
     px(mid, 136, 90, 16, 6, '#f3dfb4'); px(mid, 137, 91, 14, 1, '#c62828'); px(mid, 137, 93, 10, 1, '#3b1d10');
-    if(o.owner) { sprite(mid, BUST, { h:'#3b2618', s:'#e9b98b', e:'#1b1410', D:'#cf9c70', a:'#d66a1f', w:'#f3efe6' }, 142, 105); sprite(mid, CAP, { k:'#b33b2a' }, 142, 103); }
-    if(o.worker){ const w = WORKER_LOOK[o.worker] || WORKER_LOOK.daan; sprite(mid, BUST, { h:w.h, s:w.s, e:'#1b1410', D:shade(w.s, -.18), a:'#0f8a7e', w:'#f3efe6' }, 160, 106); }
+    if(o.owner){
+      const turn = (time % 3.2) > 2.2, ox = turn ? 147 : 142, oy = 105 + ((time % 3.2) > 2.5 && (time % 3.2) < 2.9 ? -1 : 0);
+      sprite(mid, BUST, { h:'#3b2618', s:'#e9b98b', e:'#1b1410', D:'#cf9c70', a:'#d66a1f', w:'#f3efe6' }, ox, oy); sprite(mid, CAP, { k:'#b33b2a' }, ox, oy - 2);
+      if((time % 5.1) < .12){ px(mid, ox + 2, oy + 3, 1, 1, '#e9b98b'); px(mid, ox + 5, oy + 3, 1, 1, '#e9b98b'); }
+      // een puntzak patat gaat van de frituur naar de toonbank
+      if(!o.closed){ const f = (time % 3.2) / 3.2;
+        if(f > .35 && f < .7){ const k = (f - .35) / .35, x = 186 - k * 34, y = 110 - Math.sin(k * Math.PI) * 6; px(mid, x, y + 2, 4, 4, '#d9581f'); px(mid, x, y, 4, 2, '#fcd34d'); }
+        else if(f >= .7 && f < .95){ px(mid, 150, 114, 4, 4, '#d9581f'); px(mid, 150, 112, 4, 2, '#fcd34d'); } } }
+    if(o.worker){ const w = WORKER_LOOK[o.worker] || WORKER_LOOK.daan, wy = 106 + ((time % 2.4) < .3 ? -1 : 0);
+      sprite(mid, BUST, { h:w.h, s:w.s, e:'#1b1410', D:shade(w.s, -.18), a:'#0f8a7e', w:'#f3efe6' }, 160, wy);
+      if(((time + 1.7) % 4.6) < .12){ px(mid, 162, wy + 3, 1, 1, w.s); px(mid, 165, wy + 3, 1, 1, w.s); } }
     if(o.fryer === 'modern'){ px(mid, 176, 104, 24, 15, '#a9b4bd'); px(mid, 176, 104, 24, 2, '#e1e7ec'); px(mid, 178, 107, 20, 3, '#1f2328'); px(mid, 180, 108, 6, 1, '#4ade80'); px(mid, 196, 114, 2, 2, '#4ade80'); }
     else if(o.fryer === 'used'){ px(mid, 178, 107, 20, 12, '#8f9aa3'); px(mid, 178, 107, 20, 1, '#b8c1c8'); px(mid, 180, 110, 16, 3, '#2a2f35'); px(mid, 194, 115, 2, 2, '#e24a3b'); }
     else { px(mid, 182, 112, 14, 6, '#4b4f55'); px(mid, 182, 112, 14, 1, '#6b7078'); px(mid, 196, 114, 6, 1, '#3a3d42'); }
@@ -1887,9 +1896,11 @@ function createScene(root){
       px(mid, x, 66, 6, 12, col); px(mid, x, 66, 6, 1, shade(col, .2)); px(mid, x, 76, 6, 2, shade(col, -.15)); if(i % 2 === 0) px(mid, x + 1, 78, 4, 2, shade(col, -.1)); }
     px(mid, 146, 54, 46, 11, '#3b1d10'); px(mid, 146, 54, 46, 1, '#5a2d18'); px(mid, 150, 65, 2, 2, wood); px(mid, 186, 65, 2, 2, wood);
     ptext(mid, 'PATAT', 159, 57, '#fcd34d');
-    if(o.price != null){ px(mid, 186, 130, 26, 11, '#1f2328'); ptext(mid, priceLabel(o.price), 188, 133, '#fde68a'); }
+    if(o.price != null){ px(mid, 186, 130, 26, 11, '#1f2328'); ptext(mid, priceLabel(o.price), 188, 133, '#fde68a');
+      if(S.flash > 0){ const a = Math.min(1, S.flash); mid.strokeStyle = `rgba(253,224,71,${a})`; mid.lineWidth = 1; mid.strokeRect(184.5, 128.5, 29, 14); } }
     if(o.sauce){ px(mid, 134, 111, 4, 7, '#c62828'); px(mid, 135, 109, 2, 2, '#f2c94c'); }
     if(o.paper){ px(mid, 140, 112, 8, 6, '#f3efe6'); px(mid, 141, 113, 6, 1, '#16a34a'); px(mid, 141, 115, 4, 1, '#16a34a'); }
+    if(o.kassa){ px(mid, 166, 112, 10, 6, '#374151'); px(mid, 167, 110, 8, 3, '#4b5563'); px(mid, 168, 111, 3, 1, '#4ade80'); }
     if(o.closed){ px(mid, 132, 96, 72, 15, '#1f2328'); px(mid, 132, 96, 72, 1, '#3a3f46'); ptext(mid, 'GESLOTEN', 152, 101, '#f87171'); }
   }
   function compStall(o){
@@ -1921,11 +1932,17 @@ function createScene(root){
     const [sdx, sdy] = L.shadow;
     mid.fillStyle = 'rgba(25,18,14,.26)'; mid.beginPath(); mid.moveTo(124, 150); mid.lineTo(212, 150); mid.lineTo(212 + 60 * sdx, 150 + 22 * sdy); mid.lineTo(124 + 60 * sdx, 150 + 22 * sdy); mid.closePath(); mid.fill();
     if(o.competitor){ mid.beginPath(); mid.moveTo(248, 150); mid.lineTo(308, 150); mid.lineTo(308 + 40 * sdx, 150 + 16 * sdy); mid.lineTo(248 + 40 * sdx, 150 + 16 * sdy); mid.closePath(); mid.fill(); compStall(o); }
-    stall(L, o);
+    stall(L, o, time);
     if(o.kiosk){ px(mid, 213, 116, 10, 34, '#1f2328'); px(mid, 214, 117, 8, 1, '#3a3f46'); px(mid, 215, 119, 6, 9, '#38bdf8'); px(mid, 216, 122, 4, 2, '#fcd34d'); px(mid, 216, 131, 4, 1, '#4b5563'); }
     if(o.bins){ px(mid, 109, 134, 9, 15, '#2f6b45'); px(mid, 108, 132, 11, 3, '#24563a'); px(mid, 111, 137, 1, 10, '#3f8a5a'); }
     if(o.litter) for(let i = 0; i < 12; i++){ const x = (i * 47 + 30) % 300 + 6, y = 152 + (i * 13) % 24; px(mid, x, y, 3, 2, '#f5f5f4'); px(mid, x + 1, y + 2, 1, 1, '#d6d3d1'); }
-    if(o.queue) [[90, 0], [76, 1], [62, 2]].forEach(([x, i]) => person(L, x, 136 + (i % 2), CROWD[(o.seed + i) % CROWD.length], false, time, false));
+    if(o.queue){
+      // de rij schuift op: de voorste krijgt patat en loopt weg, achteraan sluit iemand aan
+      const P = 4, c = time / P, k = Math.floor(c), f = c - k, m = Math.min(1, f / .35), slot = [90, 76, 62];
+      const look = j => CROWD[((o.seed + j) % CROWD.length + CROWD.length) % CROWD.length];
+      if(m < 1){ const x = 90 - 18 * m, y = 137 + 26 * m; person(L, x, y, look(k - 1), true, time, true, 'fries'); }
+      for(let i = 0; i < 3; i++){ const from = i < 2 ? slot[i + 1] : 40, x = from + (slot[i] - from) * m; person(L, x, 136 + ((k + i) % 2), look(k + i), false, time, m < 1); }
+    }
     S.people.forEach(p => { if(!p.gone) person(L, p.x, p.y, CROWD[p.look % CROWD.length], p.dir < 0, time, p.phase !== 'wait', p.extra); });
   }
   function drawFx(L, time, dt){
@@ -1953,6 +1970,14 @@ function createScene(root){
       S.flakes.forEach(r => { r.y += r.v * dt; r.x -= r.v * dt * .15; if(r.y > VH){ r.y = -5; r.x = Math.random() * (VW + 30); } fx.beginPath(); fx.moveTo(r.x * VS, r.y * VS); fx.lineTo((r.x + 1.5) * VS, (r.y - 6) * VS); fx.stroke(); });
       for(let i = 0; i < 6; i++){ const x = (i * 53 + 20) % VW, y = 145 + (i * 13) % 28, rr = ((time * 1.3 + i * .37) % 1) * 7;
         fx.strokeStyle = `rgba(210,225,240,${.4 * (1 - rr / 7)})`; fx.beginPath(); fx.ellipse(x * VS, y * VS, rr * VS, rr * .35 * VS, 0, 0, 7); fx.stroke(); } }
+    // glinstering bij iets nieuws, munten uit de kassa
+    for(let i = S.glints.length - 1; i >= 0; i--){ const g = S.glints[i]; g.t += dt; if(g.t > 1.3){ S.glints.splice(i, 1); continue; }
+      const a = Math.sin(g.t / 1.3 * Math.PI), s = 3 + g.t * 6; fx.fillStyle = `rgba(255,250,210,${a})`;
+      fx.fillRect((g.x - s) * VS, g.y * VS, s * 2 * VS, VS); fx.fillRect(g.x * VS, (g.y - s) * VS, VS, s * 2 * VS);
+      fx.fillStyle = `rgba(255,255,255,${a * .8})`; fx.beginPath(); fx.arc((g.x + .5) * VS, (g.y + .5) * VS, 2.5 * VS, 0, 7); fx.fill(); }
+    if(S.cash > 0){ S.cash -= dt; if(Math.random() < .5) S.cashCoins.push({ x: 171, y: 110, vx: (Math.random() - .5) * 40, vy: -50 - Math.random() * 30, t: 0 }); }
+    for(let i = S.cashCoins.length - 1; i >= 0; i--){ const c = S.cashCoins[i]; c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.vy += 120 * dt;
+      if(c.t > .9){ S.cashCoins.splice(i, 1); continue; } fx.fillStyle = '#f2c94c'; fx.fillRect(c.x * VS, c.y * VS, 3 * VS, 3 * VS); fx.fillStyle = '#fde68a'; fx.fillRect(c.x * VS, c.y * VS, 3 * VS, VS); }
     if(L.weather === 'cold'){ fx.fillStyle = 'rgba(255,255,255,.85)';
       S.flakes.forEach((r, i) => { r.y += r.v * dt * .12; r.x += Math.sin(time + i) * dt * 6; if(r.y > VH){ r.y = -3; r.x = Math.random() * VW; } fx.fillRect(r.x * VS, r.y * VS, VS * (i % 3 ? .9 : 1.6), VS * (i % 3 ? .9 : 1.6)); }); }
   }
@@ -1962,11 +1987,23 @@ function createScene(root){
     for(let i = 0; i < 9; i++){ const x = -8 + i * 9, y = 160 + Math.round(Math.sin(i) * 4); fg.fillStyle = leaf; fg.beginPath(); fg.arc(x, y, 12, 0, 7); fg.fill(); fg.fillStyle = leafL; fg.beginPath(); fg.arc(x - 3, y - 4, 5, 0, 7); fg.fill(); }
     for(let i = 0; i < 6; i++){ const x = 272 + i * 10, y = 166 + Math.round(Math.cos(i) * 4); fg.fillStyle = leaf; fg.beginPath(); fg.arc(x, y, 12, 0, 7); fg.fill(); fg.fillStyle = leafL; fg.beginPath(); fg.arc(x - 3, y - 5, 5, 0, 7); fg.fill(); }
   }
+  const SPOTS = { fryer:[188,108], sauce:[136,112], paper:[144,114], bins:[113,138], kiosk:[218,124], worker:[164,110], competitor:[279,100] };
+  function itemsOf(o){ const s = new Set(); if(o.fryer) s.add('fryer:' + o.fryer); ['sauce','paper','bins','kiosk','competitor'].forEach(k => { if(o[k]) s.add(k); }); if(o.worker) s.add('worker'); return s; }
+  function track(dt){
+    const o = S.opts;
+    if(S.items == null){ S.items = itemsOf(o); S.lastPrice = o.price; return; }
+    const now = itemsOf(o);
+    now.forEach(k => { if(!S.items.has(k)){ const key = k.split(':')[0]; if(SPOTS[key]) S.glints.push({ x: SPOTS[key][0], y: SPOTS[key][1], t: 0 }); } });
+    S.items = now;
+    if(o.price != null && o.price !== S.lastPrice){ if(S.lastPrice != null) S.flash = 1.4; S.lastPrice = o.price; }
+    if(S.flash > 0) S.flash -= dt;
+  }
   let fgKey = '';
   function frame(now){
     if(!S.running) return;
     const dt = Math.min(.05, (now - S.last) / 1000 || 0), time = now / 1000; S.last = now;
     if(S.onFrame) S.onFrame(dt);
+    track(dt);
     const L = lightAt(S.t, S.weather);
     S.cx += (S.px - S.cx) * .06; S.cy += (S.py - S.cy) * .06;
     [[cb, 5], [cm, 10], [cf, 10], [cg, 22]].forEach(([c, d]) => c.style.transform = `translate(${(-S.cx * d).toFixed(2)}px,${(-S.cy * d * .6).toFixed(2)}px)`);
@@ -1987,7 +2024,7 @@ function sceneOpts(extra = {}){
   return Object.assign({ owner: !closed, worker: closed ? null : workerId, fryer: state.investment, sauce: state.sauce > 0, price: closed ? null : state.price, closed,
     competitor: state.competitor, compOwner: !closed, compPrice: state.day === DAY.CARTEL && state.cartel === 'join' ? CARTEL_PRICE : COMPETITOR_PRICE,
     kiosk: part === 2 && state.kiosk, bins: state.env === 'bins', paper: state.env === 'paper', litter: state.env === 'none' && state.day >= DAY.ENV,
-    queue: !closed, seed: state.day }, extra);
+    queue: !closed, seed: state.day, kassa: true }, extra);
 }
 function weatherNow(){ return (isClosedDay() && !state.finished) ? 'rain' : (part === 2 && state.day === D2.COLD && !state.finished) ? 'cold' : null; }
 function renderStall(){
@@ -2161,7 +2198,8 @@ function placeScene(target){
   const t = target || (innerWidth > 860 ? $('sceneDock') : $('sceneTop'));
   if(t && sc.parentNode !== t) t.appendChild(sc);
 }
-function showSceneIn(box){ if(!box || !mainScene) return; placeScene(box); mainScene.opts = sceneOpts(); mainScene.weather = weatherNow(); mainScene.start(); }
+function showSceneIn(box){ if(!box || !mainScene) return; placeScene(box); mainScene.opts = sceneOpts(); mainScene.weather = weatherNow();
+  const last = state.history[state.history.length - 1]; if(last && !last.closed && last.net > 0) mainScene.cash = 1.4; mainScene.start(); }
 window.addEventListener('resize', () => { if($('overlay').classList.contains('hidden')) placeScene(); });
 
 // ---------- START ----------
