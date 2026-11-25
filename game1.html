@@ -186,6 +186,47 @@
   .news h3{margin:0 0 4px;font-size:18px}
   .speech{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;position:relative}
   .speech b{color:var(--accent)}
+  /* ===== beeld in HD-2D ===== */
+  body{transition:background-color .8s ease}
+  body.w-rain{background:#e4e8ee}
+  body.w-cold{background:#eaf2fa}
+  .scene{margin:4px 0 12px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#1d1822}
+  .scene-cap{padding:5px 10px;background:var(--panel);border-top:1px solid var(--line)}
+  .hd{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#1d1822}
+  .hd canvas{position:absolute;left:-3%;top:-3%;width:106%;height:106%;image-rendering:pixelated;image-rendering:crisp-edges}
+  .hd .hd-bg{filter:blur(1.2px) saturate(1.05)}
+  .hd .hd-fg{filter:blur(2.6px)}
+  .hd .hd-fx{image-rendering:auto;mix-blend-mode:screen}
+  .hd-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 55%,rgba(0,0,0,.5) 100%),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,0) 22%,rgba(0,0,0,0) 80%,rgba(0,0,0,.2))}
+  .plein{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .portrait{display:block;border-radius:12px;image-rendering:pixelated;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+  .say{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+  .say-face{flex:none}
+  .say-bubble{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px;flex:1;font-size:15px;line-height:1.45}
+  .say-bubble:before{content:"";position:absolute;left:-8px;top:18px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+  .say-name{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:2px}
+  .say.whisper .say-bubble{background:#f5f3ff;border-style:dashed}
+  .say.whisper .say-bubble:before{border-right-color:#f5f3ff}
+  .cand-head{display:flex;gap:10px;align-items:center}
+  .opt-face{display:flex!important;gap:10px;align-items:center;flex-wrap:wrap}
+  .opt-face img{flex:none}
+  .modal.pop{animation:pop .28s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .celebrate{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;animation:pop .4s ease-out}
+  .cel-icon{font-size:28px;flex:none}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;image-rendering:pixelated}
+  .cert{border:10px double #d97706;border-radius:18px;padding:6px;background:#fffbeb}
+  .cert-in{border:2px solid #fcd34d;border-radius:12px;padding:20px 18px;text-align:center}
+  .cert-top{font-size:12px;letter-spacing:2px;font-weight:800;color:#b45309}
+  .cert h2{font-family:Georgia,serif;font-size:34px;margin:6px 0 0;color:#7c2d12}
+  .cert-sub{font-style:italic;color:#92400e;margin-bottom:10px}
+  .cert-name{font-family:Georgia,serif;font-size:28px;font-weight:700;margin:8px 0;border-bottom:2px solid #fcd34d;display:inline-block;padding:0 18px 4px}
+  .cert-stars{font-size:34px;margin:6px 0}
+  .cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;font-size:13px;color:#78350f}
+  .cert-sign{font-family:'Brush Script MT',cursive;font-size:22px;text-align:right;line-height:1}
+  .cert-sign small{font-family:inherit;font-size:11px}
+  @media print{ body *{visibility:hidden} #cert,#cert *{visibility:visible} #cert{position:fixed;left:0;top:0;width:100%} .noprint{display:none} }
+  @media (max-width:520px){ .say-face img{width:48px;height:48px} .cert h2{font-size:26px} .cert-name{font-size:22px} }
   @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
   @media (max-width:520px){
     .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
@@ -248,6 +289,7 @@
     <div>
       <section class="panel" id="playPanel">
         <h2>🏠 <span id="pDay">Januari</span> – <span id="pTitle">je eerste baan</span></h2>
+        <div class="scene"><div id="roomScene"></div><div class="small muted scene-cap" id="roomCaption"></div></div>
         <div id="dayNews" class="msg info"></div>
 
         <h3>1. Wat ga je deze maand doen? <span class="small muted">(kies zelf: elke keuze kost geld en levert geluk op)</span></h3>
@@ -436,24 +478,24 @@ const SCHEDULE = {
       6:{v:['ruil'], n:['geldfuncties']}, 7:{v:[], n:[]}, 8:{v:[], n:['hypothecair']} }
 };
 const TITLES = {
-  1:{ 1:'je eerste loonstrook', 2:'kiezen kost geld', 3:'een influencer', 4:'festivaltijd', 5:'vakantiegeld en een workshop', 6:'verjaardag van oom Ruud', 7:'alles wordt duurder', 8:'de cao' },
+  1:{ 1:'je eerste loonstrook', 2:'kiezen kost geld', 3:'een influencer', 4:'festivaltijd', 5:'vakantiegeld en een workshop', 6:'verjaardag van ome Willem', 7:'alles wordt duurder', 8:'de cao' },
   2:{ 1:'een budgetplan', 2:'nu kopen, later betalen?', 3:'naar de bank', 4:'december en pech', 5:'de ECB verhoogt de rente', 6:'het Nibud op bezoek', 7:'beursnieuws', 8:'genoeg voor je kraam?' }
 };
 const NEWS = {
   1:{ 1:'Gefeliciteerd met je mbo-diploma! Je werkt vier dagen per week in de keuken van cateraar FrisFood. Je woont thuis en betaalt kostgeld.',
       2:'Je telefoon valt van het aanrecht. Het scherm is gebarsten…', 3:'Op je tijdlijn verschijnen steeds dezelfde sneakers. Zelfs je vrienden hebben het erover.',
       4:'Het festivalseizoen begint! Je vrienden hebben al kaartjes.', 5:'In mei krijg je vakantiegeld. En FrisFood organiseert een workshop over geldzaken.',
-      6:'Oom Ruud werkt bij het CBS en is jarig. Op het feestje gaat het natuurlijk over cijfers…', 7:'Het nieuws meldt: de prijzen stijgen hard. Je krijgt wel 3% loonsverhoging. Is dat genoeg?',
+      6:'Ome Willem werkt bij het CBS en is jarig. Op het feestje gaat het natuurlijk over cijfers…', 7:'Het nieuws meldt: de prijzen stijgen hard. Je krijgt wel 3% loonsverhoging. Is dat genoeg?',
       8:'De vakbond onderhandelt met de werkgevers over een nieuwe cao. Er is een ledenvergadering.' },
   2:{ 1:'Een nieuw schooljaar voor je vrienden, voor jou gewoon werken. Tijd om je geld beter te plannen.', 2:'Reclame overal: "Nu kopen, later betalen!" Ook bij jou kriebelt het.',
-      3:'Je spaargeld staat nu gewoon op je betaalrekening. Wordt dat niet meer waard? Je maakt een afspraak bij de bank.', 4:'December: cadeaus, etentjes en het personeelsfeest van FrisFood.',
-      5:'Nieuwjaar. De ECB verhoogt de rente. En dan begint je scooter vreemd te ratelen…', 6:'Het Nibud geeft voorlichting bij FrisFood: "Grip op je geld".',
+      3:'Je spaargeld staat nu gewoon op je betaalrekening. Wordt dat niet meer waard? Je maakt een afspraak bij de bank.', 4:'December: cadeaus, het personeelsfeest van FrisFood… en je scooter maakt een raar geluid.',
+      5:'Nieuwjaar. De ECB verhoogt de rente.', 6:'Het Nibud geeft voorlichting bij FrisFood: "Grip op je geld".',
       7:'De beurs is in het nieuws. Wat hebben je beleggingen gedaan?', 8:'De laatste maand. Heb je genoeg gespaard voor je eigen snackkraam?' }
 };
 
 // ---------- QUIZZEN ----------
 const QUIZZES = {
-  workshop: { title:'💼 Workshop geldzaken bij FrisFood', intro:'FrisFood wil dat jonge medewerkers verstandig met hun geld omgaan. Elk goed antwoord: <b>€ 15 bonus</b>. Elk fout antwoord: je leest het thuis na, <b>−2 geluk</b>.', fixed:[], pool:[
+  workshop: { who:'kelvin', title:'💼 Workshop geldzaken bij FrisFood', intro:'FrisFood wil dat jonge medewerkers verstandig met hun geld omgaan. Elk goed antwoord: <b>€ 15 bonus</b>. Elk fout antwoord: je leest het thuis na, <b>−2 geluk</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Je loon van FrisFood is een…', o:['Primair inkomen uit arbeid','Primair inkomen uit bezit','Inkomen uit overdrachten','Zelfvoorziening'], a:0, e:'Je levert de productiefactor arbeid en krijgt daarvoor loon: een primair inkomen uit arbeid.' },
     { k:'herkennen', q:'Je zorgtoeslag van € 125 is…', o:['Een primair inkomen','Een inkomen uit overdrachten; het hoort bij je secundair inkomen','Loonheffing','Een besteding'], a:1, e:'Een toeslag is een overdracht. Netto inkomen plus overdrachten = secundair inkomen.' },
     { k:'rekenen', q:'Je brutoloon is € 1.500. De loonheffing is 6% van je brutoloon. Hoeveel is je nettoloon?', o:['€ 1.590','€ 1.410','€ 1.494','€ 90'], a:1, e:'Loonheffing = 6 ÷ 100 × € 1.500 = € 90. Nettoloon = € 1.500 − € 90 = € 1.410.' },
@@ -462,7 +504,7 @@ const QUIZZES = {
     { k:'herkennen', q:'Prijs, product, plaats, promotie, personeel en presentatie heten samen…', o:['Bestedingen','Marketinginstrumenten','Doelgroepen','Sociale invloed'], a:1, e:'Dat zijn de 6 P\'s: de marketinginstrumenten.' },
     { k:'redeneren', q:'Na een festival ligt het terrein vol plastic. De gemeente betaalt de schoonmaak. Wat is dit?', o:['Duurzaam consumeren','Maatschappelijke kosten','Een besteding van de gemeente aan een doelgroep','Zelfvoorziening'], a:1, e:'Nadelen die de samenleving ondervindt van het gedrag van personen en bedrijven: maatschappelijke kosten.' }
   ]},
-  oom: { title:'🎂 Quiz van oom Ruud (CBS)', intro:'Oom Ruud wil weten of je snapt waar hij de hele dag mee bezig is. Per goed antwoord stopt hij <b>€ 20</b> in je spaarpot voor de kraam. Per fout antwoord kijkt hij je hoofdschuddend aan: <b>−2 geluk</b>.', fixed:[], pool:[
+  oom: { who:'willem', title:'🎂 Quiz van ome Willem (CBS)', intro:'Ome Willem wil weten of je snapt waar hij de hele dag mee bezig is. Per goed antwoord stopt hij <b>€ 20</b> in je spaarpot voor de kraam. Per fout antwoord kijkt hij je hoofdschuddend aan: <b>−2 geluk</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Wat doet het CBS?', o:['Het bepaalt de rente','Het verzamelt allerlei cijfermatige informatie','Het int de belasting','Het maakt de cao'], a:1, e:'Het Centraal Bureau voor de Statistiek verzamelt cijfers, bijvoorbeeld over inkomens en prijzen.' },
     { k:'redeneren', q:'Je kunt extra diensten draaien: meer geld, maar minder vrije tijd. Welke welvaart gaat dan omlaag?', o:['De materiële welvaart','De brede welvaart, want je welzijn telt daarin mee','Het nationaal inkomen','Geen enkele'], a:1, e:'Je verdient meer (materiële welvaart omhoog), maar je hebt minder vrije tijd. In de brede welvaart telt het welzijn mee.' },
     { k:'rekenen', q:'Een patatje kostte in 2020 (basisjaar) € 2,00. Nu kost het € 2,50. Wat is het indexcijfer?', o:['50','125','25','250'], a:1, e:'Indexcijfer = 2,50 ÷ 2,00 × 100 = 125. De prijs is dus 25% gestegen.' },
@@ -470,7 +512,7 @@ const QUIZZES = {
     { k:'redeneren', q:'Je hebt € 200 over en wilt een nieuwe jas, een concert en een etentje. Je kiest de jas. Wat doe je?', o:['Prioriteiten stellen','Zelfvoorziening','Reserveren','Lenen'], a:0, e:'Je kiest welke behoefte je het belangrijkst vindt: prioriteiten stellen.' },
     { k:'herkennen', q:'Welke twee middelen zijn het belangrijkst om in je behoeften te voorzien?', o:['Geld en tijd','Rente en krediet','Loon en loonheffing','Vrienden en familie'], a:0, e:'Middelen: alles wat je nodig hebt om in je behoeften te voorzien. Vooral geld en tijd.' }
   ]},
-  vakbond: { title:'✊ Ledenvergadering van de vakbond', intro:'Hoe beter jij de cao-argumenten snapt, hoe sterker de vakbond staat. <b>3 of 4 goed</b>: de vakbond haalt <b>2% extra loon</b> binnen. <b>2 goed</b>: 1% extra. <b>0 of 1 goed</b>: niets extra.', fixed:[], pool:[
+  vakbond: { who:'wilhelm', title:'✊ Ledenvergadering van de vakbond', intro:'Hoe beter jij de cao-argumenten snapt, hoe sterker de vakbond staat. <b>3 of 4 goed</b>: de vakbond haalt <b>2% extra loon</b> binnen. <b>2 goed</b>: 1% extra. <b>0 of 1 goed</b>: niets extra.', fixed:[], pool:[
     { k:'herkennen', q:'Wat is inflatie?', o:['Een algemene stijging van de prijzen','Een stijging van je loon','Een daling van de rente','Meer geld op je spaarrekening'], a:0, e:'Inflatie: een algemene stijging van de prijzen.' },
     { k:'rekenen', q:'Je loon stijgt 3%. De prijzen stijgen 5%. Wat gebeurt er met je koopkracht?', o:['Die stijgt ongeveer 3%','Die daalt ongeveer 2%','Die blijft gelijk','Die daalt 8%'], a:1, e:'Reëel indexcijfer = 103 ÷ 105 × 100 = 98,1. Je koopkracht daalt dus ongeveer 2%.' },
     { k:'herkennen', q:'De vakbond eist dat de lonen net zo veel stijgen als de prijzen. Hoe heet dat?', o:['Loon-prijsspiraal','Prijscompensatie','Geldontwaarding','Nominale verandering'], a:1, e:'Prijscompensatie: de lonen stijgen net zo veel als de prijzen, zodat je koopkracht gelijk blijft.' },
@@ -478,7 +520,7 @@ const QUIZZES = {
     { k:'herkennen', q:'Wat laat de cpi zien?', o:['Hoeveel je verdient','De verandering van de prijzen ten opzichte van het basisjaar','Hoe de inkomens verdeeld zijn','Hoeveel rente je krijgt'], a:1, e:'Het consumentenprijsindexcijfer laat de prijsverandering ten opzichte van het basisjaar zien.' },
     { k:'redeneren', q:'Je hebt € 100 contant in je la. Er is 5% inflatie. Wat merk je volgend jaar?', o:['Je kunt er meer mee kopen','Je kunt er minder mee kopen: geldontwaarding','Er staat € 105 in de la','Niets'], a:1, e:'Het geld zelf wordt minder waard: geldontwaarding.' }
   ]},
-  kerst: { title:'🎄 Quiz op het personeelsfeest', intro:'De directeur van FrisFood houdt een geldquiz. Per goed antwoord: <b>€ 25 kerstbonus</b>. Per fout antwoord: je collega\'s lachen je uit, <b>−2 geluk</b>.', fixed:[], pool:[
+  kerst: { who:'jolien', title:'🎄 Quiz op het personeelsfeest', intro:'Als directeur van FrisFood houd ik een geldquiz. Per goed antwoord: <b>€ 25 kerstbonus</b>. Per fout antwoord: je collega\'s lachen je uit, <b>−2 geluk</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Je kostgeld van elke maand is een…', o:['Dagelijkse uitgave','Vaste last','Incidentele uitgave','Besparing'], a:1, e:'Een bedrag dat je elke maand betaalt: een vaste last.' },
     { k:'herkennen', q:'Je spaart elke maand € 40 voor als je scooter kapotgaat. Hoe heet dat?', o:['Beleggen','Reserveren','Lenen','Aflossen'], a:1, e:'Sparen om een grote, incidentele uitgave te kunnen betalen: reserveren.' },
     { k:'rekenen', q:'Je zet € 1.000 op een rekening met 2% enkelvoudige rente. Hoeveel rente krijg je in 3 jaar samen?', o:['€ 20','€ 60','€ 61,21','€ 200'], a:1, e:'Per jaar 2 ÷ 100 × € 1.000 = € 20. Je tegoed verandert niet, dus 3 × € 20 = € 60.' },
@@ -487,7 +529,7 @@ const QUIZZES = {
     { k:'redeneren', q:'Waarom geeft beleggen gemiddeld een hoger rendement dan sparen?', o:['Omdat je risico loopt: het kan ook minder waard worden','Omdat de overheid het betaalt','Omdat er geen inflatie is','Omdat het altijd stijgt'], a:0, e:'Als belegger loop je risico. Daarvoor krijg je gemiddeld een hoger rendement.' },
     { k:'herkennen', q:'Je collega spaart "voor als ik ooit ziek word of mijn baan kwijtraak". Welk spaarmotief is dat?', o:['Voor een doel','Voor de rente','Uit voorzorg','Reserveren voor een woning'], a:2, e:'Sparen voor onverwachte tegenvallers: uit voorzorg.' }
   ]},
-  nibud: { title:'📋 Nibud-voorlichting: grip op je geld', intro:'Per goed antwoord krijg je een bespaartip die je vaste lasten met <b>€ 5 per maand</b> verlaagt. Per fout antwoord: <b>−2 geluk</b>.', fixed:[], pool:[
+  nibud: { who:'henrie', title:'📋 Nibud-voorlichting: grip op je geld', intro:'Per goed antwoord krijg je een bespaartip die je vaste lasten met <b>€ 5 per maand</b> verlaagt. Per fout antwoord: <b>−2 geluk</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Je rijdt in een auto waarvoor je elke maand een vast bedrag aan de leverancier betaalt. Hij wordt nooit van jou. Welke kredietvorm is dat?', o:['Persoonlijke lening','Private lease','Hypothecaire lening','Salariskrediet'], a:1, e:'Private lease: een kredietvorm bij een leverancier. Je huurt de auto voor een vast bedrag per maand.' },
     { k:'rekenen', q:'Een laptop kost contant € 800. Op afbetaling betaal je 12 termijnen van € 75. Hoeveel zijn de kredietkosten?', o:['€ 75','€ 100','€ 900','€ 800'], a:1, e:'12 × € 75 = € 900. Kredietkosten = € 900 − € 800 = € 100.' },
     { k:'herkennen', q:'Waarvoor sluit je een hypothecaire lening af?', o:['Voor een auto','Voor een woning','Voor een vakantie','Voor studie'], a:1, e:'Een hypothecaire lening is een lening voor de aankoop van een woning.' },
@@ -508,7 +550,7 @@ function freshState(){
     choices:['vrienden','sport','games'], extraShifts:false, prediction:null, history:[], concepts:[], quiz:{}, quizCorrect:0, quizTotal:0, bonus:[],
     finished:false, started:true, mFor:null, mIncome:[], mExtra:[], mHappy:[], down:false,
     // deel 1
-    kostgeldUp:false, vacation:null, cao:null, phone:null, festival:null,
+    kostgeldUp:false, vacation:null, sneakers:false, cao:null, phone:null, festival:null,
     // deel 2
     telTip:false, credit:null, debtLeft:0, deposit:0, depRate:0.03, invest:0, investIn:0, investR:null, spaarRate:0.015, nibudTips:0, potsDone:false, depositIn:0, kraam:null, fromD1:false };
 }
@@ -590,7 +632,7 @@ function monthCalc(){
 let modalQueue = [];
 function queueModal(fn){ modalQueue.push(fn); if(modalQueue.length === 1) fn(); }
 function closeModal(){ modalQueue.shift(); if(modalQueue.length) modalQueue[0](); else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); } }
-function showModal(html, voork){ $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
+function showModal(html, voork){ $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop'); $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
 function simpleModal(tag, title, html, btn = 'Verder'){ showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">${btn}</button>`); }
 function conceptHtml(k){ const c = CONCEPTS[k]; return `<h2 style="margin-top:12px">${c.title}</h2><p>${c.text}</p>${c.formula ? `<div class="formula">${c.formula}</div>` : ''}`; }
 function conceptModal(k){ const c = CONCEPTS[k]; showModal(`<div class="tag">${c.t === 'v' ? '🔁 Weet je het nog?' : '📘 Begrip'}</div>${conceptHtml(k)}<button class="cta" onclick="closeModal()">Sluiten</button>`, c.t === 'v'); }
@@ -667,7 +709,7 @@ function runQuiz(id, onDone){
     const def = QUIZZES[id];
     const picked = def.fixed.concat(shuffled(def.pool).slice(0, 4 - def.fixed.length));
     const results = [];
-    showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2><p>${def.intro}</p><p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
+    showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2>${def.who ? say(def.who, def.intro) : `<p>${def.intro}</p>`}<p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
     $('qStart').onclick = () => ask(0);
     const bar = i => `<div class="quiz-progress">${picked.map((_, j) => `<span class="${j < i ? (results[j] ? 'ok' : 'bad') : j === i ? 'cur' : ''}"></span>`).join('')}</div>`;
     function ask(i){
@@ -698,6 +740,293 @@ function quizReward(label, perOk, c){
   return `${c ? `Je krijgt <b>${eur0(perOk * c)}</b> erbij deze maand.` : 'Geen bonus deze keer.'}${c < 4 ? ` Je geluk gaat <b>${2 * (4 - c)} punten</b> omlaag.` : ' En je voelt je slim. 😎'}`;
 }
 
+// ---------- gedeelde HD-2D-onderdelen (uit game 2) ----------
+const VW = 320, VH = 180, VS = 2;
+
+// ---------- kleuren en hulpjes ----------
+function hexToRgb(h){ const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function rgbToHex(r, g, b){ return '#' + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1); }
+function mixHex(a, b, f){ const x = hexToRgb(a), y = hexToRgb(b); return rgbToHex(x[0] + (y[0] - x[0]) * f, x[1] + (y[1] - x[1]) * f, x[2] + (y[2] - x[2]) * f); }
+function shade(hex, f){ return mixHex(hex, f < 0 ? '#000000' : '#ffffff', Math.abs(f)); }
+function px(c, x, y, w, h, col){ c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); }
+function sprite(c, rows, pal, x, y, flip){
+  rows.forEach((r, j) => { for(let i = 0; i < r.length; i++){ const ch = r[flip ? r.length - 1 - i : i]; if(ch !== '.' && pal[ch]) px(c, x + i, y + j, 1, 1, pal[ch]); } });
+}
+const FONT = { P:['111','101','111','100','100'], A:['010','101','111','101','101'], T:['111','010','010','010','010'], C:['011','100','100','100','011'], E:['111','100','110','100','111'],
+  S:['011','100','010','001','110'], G:['011','100','101','101','011'], L:['100','100','100','100','111'], O:['010','101','101','101','010'], N:['101','111','111','111','101'],
+  '0':['111','101','101','101','111'], '1':['010','110','010','010','111'], '2':['111','001','111','100','111'], '3':['111','001','011','001','111'], '4':['101','101','111','001','001'],
+  '5':['111','100','111','001','111'], '6':['111','100','111','101','111'], '7':['111','001','010','010','010'], '8':['111','101','111','101','111'], '9':['111','101','111','001','111'],
+  ',':['000','000','000','010','100'], '€':['011','100','111','100','011'], ' ':['000','000','000','000','000'] };
+function ptext(c, s, x, y, col){ let cx = x; for(const ch of s){ const g = FONT[ch]; if(g) g.forEach((r, j) => [...r].forEach((b, i) => { if(b === '1') px(c, cx + i, y + j, 1, 1, col); })); cx += 4; } }
+const priceLabel = p => '€' + p.toFixed(2).replace('.', ',');
+
+// ---------- poppetjes ----------
+const PERSON = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.cccccc.','cCccccCc','cCccccCc','sCccccCs','.cccccc.','.pppppp.','.pp..pp.','.pp..pp.','.bb..bb.'];
+const PERSON_WALK = [...PERSON.slice(0, 12), '.pp.pp..', 'pp...pp.', 'bb....bb'];
+const BUST = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.aawwaa.','aawwwwaa','aawwwwaa'];
+const CAP = ['.kkkkkk.','kkkkkkkkk'];
+const CROWD = [
+  { h:'#3b2618', s:'#e9b98b', c:'#2f6fb3', C:'#245a93', p:'#2b2f3a' }, { h:'#151515', s:'#8d5a3b', c:'#c0453a', C:'#9c3530', p:'#3a3a46' },
+  { h:'#c89b3c', s:'#f2c9a0', c:'#2f9e6b', C:'#227a52', p:'#2d3442' }, { h:'#5a2f1b', s:'#c98d5c', c:'#8b55c7', C:'#6c40a0', p:'#2b2f3a' },
+  { h:'#1d1d1d', s:'#f0c39a', c:'#e0a12b', C:'#b98317', p:'#353a48' }, { h:'#7a3b1b', s:'#a8714a', c:'#d9536b', C:'#b23f55', p:'#2b2f3a' },
+  { h:'#2a1a10', s:'#e3a77a', c:'#3aa3a3', C:'#2a8080', p:'#3a3a46' }, { h:'#d7b46a', s:'#f6d2b0', c:'#e76f51', C:'#c3563c', p:'#2d3442' }
+];
+const WORKER_LOOK = { daan:{ h:'#e3c25a', s:'#f1c27d' }, lotte:{ h:'#7c4a1e', s:'#ffe0bd' }, samira:{ h:'#1c1917', s:'#c68642' }, peter:{ h:'#a3a3a3', s:'#ffdbac' }, ahmed:{ h:'#151515', s:'#a0663c' } };
+const palOf = p => ({ h:p.h, s:p.s, e:'#1b1410', D:shade(p.s, -.18), c:p.c, C:p.C, p:p.p, b:'#1a1512' });
+
+const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+const portraitCache = {};
+function portraitUrl(k){
+  if(portraitCache[k]) return portraitCache[k];
+  const c = CHARS[k] || CHARS.chrik, small = document.createElement('canvas'); small.width = 24; small.height = 24;
+  const g = small.getContext('2d'), P = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const sk = c.skin, skD = shade(sk, -.16), skL = shade(sk, .12), hr = c.hair, hrD = shade(hr, -.25), sh = c.shirt, shD = shade(sh, -.25);
+  for(let y = 0; y < 24; y++) P(0, y, 24, 1, mixHex('#3b3046', '#1d1822', y / 24));
+  if(c.long){ P(5, 6, 14, 16, hr); P(5, 18, 3, 6, hrD); P(16, 18, 3, 6, hrD); }
+  P(4, 19, 16, 5, sh); P(3, 21, 18, 3, sh); P(4, 22, 16, 2, shD);
+  if(c.apron){ P(8, 19, 8, 5, c.apron); P(7, 19, 1, 2, c.apron); P(16, 19, 1, 2, c.apron); }
+  if(c.tie) P(11, 19, 2, 5, '#b91c1c');
+  if(c.keys){ P(17, 21, 2, 2, '#d4d4d8'); P(18, 20, 1, 1, '#a1a1aa'); }
+  P(10, 17, 4, 3, skD);
+  P(7, 7, 10, 11, sk); P(6, 9, 1, 6, sk); P(17, 9, 1, 6, sk); P(8, 17, 8, 1, skD); P(16, 8, 1, 9, skD); P(8, 8, 3, 2, skL);
+  if(c.bald){ P(6, 8, 2, 4, hr); P(16, 8, 2, 4, hr); P(8, 6, 8, 1, skD); }
+  else if(c.helmet){ P(6, 3, 12, 5, c.helmet); P(5, 7, 14, 2, c.helmet); P(8, 4, 4, 1, shade(c.helmet, .4)); }
+  else { P(7, 4, 10, 4, hr); P(6, 5, 2, 6, hr); P(16, 5, 2, 5, hr); P(8, 3, 8, 1, hr); P(9, 4, 6, 1, shade(hr, .2)); P(6, 10, 1, 2, hrD); }
+  if(c.cap){ P(6, 3, 12, 4, c.cap); P(14, 6, 6, 2, c.cap); P(8, 4, 4, 1, shade(c.cap, .3)); }
+  if(c.bun) P(10, 1, 4, 3, hr);
+  if(c.ponytail){ P(17, 6, 3, 8, hr); P(18, 13, 2, 3, hrD); }
+  P(9, 11, 2, 2, '#1b1410'); P(13, 11, 2, 2, '#1b1410'); P(9, 11, 1, 1, '#ffffff'); P(13, 11, 1, 1, '#ffffff');
+  if(!c.helmet && !c.bald){ P(8, 10, 3, 1, hrD); P(13, 10, 3, 1, hrD); }
+  if(c.glasses){ P(8, 10, 4, 1, '#111'); P(12, 10, 4, 1, '#111'); P(8, 13, 4, 1, '#111'); P(12, 13, 4, 1, '#111'); P(8, 10, 1, 4, '#111'); P(15, 10, 1, 4, '#111'); P(11, 10, 1, 4, '#111'); P(12, 10, 1, 4, '#111'); }
+  P(11, 13, 2, 1, skD);
+  if(c.mustache) P(9, 15, 6, 1, c.bald ? hr : '#6b7280');
+  if(c.beard){ P(7, 15, 10, 3, hr); P(8, 18, 8, 1, hr); P(10, 16, 4, 1, '#7c2d12'); }
+  else if(c.stubble){ P(8, 16, 8, 2, mixHex(sk, hr, .35)); P(10, 16, 4, 1, '#7c2d12'); }
+  else P(10, 16, 4, 1, '#7c2d12');
+  if(c.earrings){ P(6, 14, 1, 1, '#fcd34d'); P(17, 14, 1, 1, '#fcd34d'); }
+  const big = document.createElement('canvas'); big.width = 96; big.height = 96;
+  const b = big.getContext('2d'); b.imageSmoothingEnabled = false; b.drawImage(small, 0, 0, 96, 96);
+  const rg = b.createRadialGradient(30, 22, 0, 30, 22, 70); rg.addColorStop(0, 'rgba(255,210,150,.35)'); rg.addColorStop(1, 'rgba(255,210,150,0)');
+  b.globalCompositeOperation = 'screen'; b.fillStyle = rg; b.fillRect(0, 0, 96, 96);
+  b.globalCompositeOperation = 'source-over'; const vg = b.createRadialGradient(48, 48, 30, 48, 48, 70); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); b.fillStyle = vg; b.fillRect(0, 0, 96, 96);
+  return (portraitCache[k] = big.toDataURL());
+}
+function faceSvg(k, size = 64){ return `<img class="portrait" src="${portraitUrl(k)}" width="${size}" height="${size}" alt="">`; }
+function say(k, html, whisper){
+  const c = CHARS[k] || CHARS.chrik;
+  return `<div class="say ${whisper ? 'whisper' : ''}"><div class="say-face">${faceSvg(k)}</div><div class="say-bubble"><div class="say-name">${c.name}</div>${html}</div></div>`;
+}
+
+function confettiFrom(el, n = 120){
+  let cv = $('confetti');
+  if(!cv){ cv = document.createElement('canvas'); cv.id = 'confetti'; document.body.appendChild(cv); }
+  const ctx = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const r = el ? el.getBoundingClientRect() : { left: W / 2, top: H / 3, width: 0, height: 0 }, ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+  const cols = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#fde047'];
+  const ps = Array.from({ length:n }, () => { const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 6; return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, s: 3 + Math.floor(Math.random() * 3), c: cols[Math.floor(Math.random() * cols.length)] }; });
+  const start = performance.now();
+  (function tick(now){
+    ctx.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .22; p.vx *= .99; ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); });
+    if(now - start < 2200) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+  })(start);
+}
+
+// =====================================================================
+// GAME 1 · je kamer thuis in HD-2D
+// =====================================================================
+const CHARS = {
+  jolien:{ name:'Jolien Werveij, je baas bij FrisFood', skin:'#f1c9a5', hair:'#8a5a2b', shirt:'#15803d', bun:true },
+  mama:{ name:'Mama', skin:'#eec1a0', hair:'#5a3a22', shirt:'#be185d', long:true },
+  bert:{ name:'Bert, je broer', skin:'#f1c27d', hair:'#3b2618', shirt:'#2563eb', glasses:true },
+  stephanie:{ name:'@stephanie.angel', skin:'#f6d2b0', hair:'#f2d27a', shirt:'#ec4899', long:true, earrings:true },
+  kelvin:{ name:'Kelvin Kornel, workshopleider FrisFood', skin:'#c68642', hair:'#111111', shirt:'#15803d', stubble:true },
+  willem:{ name:'Ome Willem (CBS)', skin:'#ffdbac', hair:'#a3a3a3', shirt:'#6b7280', bald:true, glasses:true, mustache:true },
+  wilhelm:{ name:'Wilhelm van Beuk, vakbond', skin:'#eab28c', hair:'#9ca3af', shirt:'#dc2626', beard:true },
+  leon:{ name:'Leon Kleineburger, bankadviseur', skin:'#f1c27d', hair:'#3f2a1d', shirt:'#1e3a8a', tie:true },
+  victor:{ name:'Victor Balv, verkoper', skin:'#e0ac69', hair:'#111111', shirt:'#7c3aed', tie:true },
+  dre:{ name:'Dré Binnelaar, monteur', skin:'#d9a066', hair:'#3b2618', shirt:'#374151', cap:'#f97316', mustache:true },
+  henrie:{ name:'Henrie Groenenburg, Nibud', skin:'#ffdbac', hair:'#a3a3a3', shirt:'#0d9488', glasses:true }
+};
+
+function spriteS(c, rows, pal, x, y, s){ rows.forEach((row, j) => { for(let i = 0; i < row.length; i++){ const ch = row[i]; if(ch !== '.' && pal[ch]) px(c, x + i * s, y + j * s, s, s, pal[ch]); } }); }
+function season(){ const cm = calMonth(part, Math.min(state.month, LAST)); return cm === 12 || cm <= 2 ? 'winter' : cm <= 5 ? 'lente' : cm <= 8 ? 'zomer' : 'herfst'; }
+const SEASON = {
+  winter:{ sky0:'#9fb7d1', sky1:'#e6eef6', tree:'#6b7d70', leaf:null, ground:'#f4f7fa', light:[220,232,255] },
+  lente:{ sky0:'#7cc4ee', sky1:'#e3f4fd', tree:'#5aa05a', leaf:'#f9c4d8', ground:'#8bc27a', light:[255,240,210] },
+  zomer:{ sky0:'#4fb0ec', sky1:'#d9f0fc', tree:'#2f7d3f', leaf:null, ground:'#79b45f', light:[255,235,180] },
+  herfst:{ sky0:'#d9a36b', sky1:'#f6dcb4', tree:'#b4612a', leaf:'#e39b3c', ground:'#9b8a5c', light:[255,190,120] }
+};
+const WIN = { x:206, y:26, w:92, h:70 };
+
+function createRoom(root){
+  root.innerHTML = `<div class="hd"><canvas class="hd-bg" width="${VW}" height="${VH}"></canvas><canvas class="hd-mid" width="${VW}" height="${VH}"></canvas><canvas class="hd-fx" width="${VW * VS}" height="${VH * VS}"></canvas><canvas class="hd-fg" width="${VW}" height="${VH}"></canvas><div class="hd-vig"></div></div>`;
+  const el = root.querySelector('.hd'), [cb, cm, cf, cg] = ['bg', 'mid', 'fx', 'fg'].map(k => root.querySelector('.hd-' + k));
+  const bg = cb.getContext('2d'), mid = cm.getContext('2d'), fx = cf.getContext('2d'), fg = cg.getContext('2d');
+  [bg, mid, fg].forEach(c => c.imageSmoothingEnabled = false);
+  const R = { el, running:false, raf:0, last:0, px:0, py:0, cx:0, cy:0, o:{}, coins:0, motes: Array.from({ length:26 }, () => ({ x: 150 + Math.random() * 120, y: 60 + Math.random() * 90, v: .3 + Math.random() * .6, p: Math.random() * 6.28 })),
+    flakes: Array.from({ length:40 }, () => ({ x: WIN.x + Math.random() * WIN.w, y: WIN.y + Math.random() * WIN.h, v: 6 + Math.random() * 8 })) };
+  el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); R.px = (e.clientX - r.left) / r.width - .5; R.py = (e.clientY - r.top) / r.height - .5; });
+  el.addEventListener('pointerleave', () => { R.px = 0; R.py = 0; });
+
+  function drawBg(time){
+    const S = SEASON[R.o.season];
+    const g = bg.createLinearGradient(0, 0, 0, 100); g.addColorStop(0, S.sky0); g.addColorStop(1, S.sky1); bg.fillStyle = g; bg.fillRect(0, 0, VW, VH);
+    [[220, 34, 20], [262, 44, 16]].forEach(([x, y, w], i) => { const xx = WIN.x + ((x - WIN.x + time * (1.5 + i)) % (WIN.w + 30)) - 15; px(bg, xx, y, w, 4, '#ffffff'); px(bg, xx + 4, y - 3, w - 8, 3, '#ffffff'); });
+    for(let x = WIN.x - 6; x < WIN.x + WIN.w + 6; x += 6){ const hh = 6 + Math.round(Math.sin(x * .3) * 3); px(bg, x, 70 - hh, 6, hh + 4, mixHex(S.tree, S.sky0, .35)); }
+    px(bg, 214, 52, 20, 22, '#c2785a'); px(bg, 212, 48, 24, 5, '#8e4a36'); px(bg, 218, 58, 5, 5, '#fde68a'); px(bg, 226, 58, 5, 5, '#fde68a');
+    px(bg, 270, 56, 24, 18, '#d6c7a8'); px(bg, 268, 52, 28, 5, '#7a6248'); px(bg, 276, 62, 5, 5, '#bfe3f3');
+    // boom met seizoen
+    px(bg, 247, 50, 4, 30, '#5a3d2a');
+    if(R.o.season !== 'winter'){ bg.fillStyle = S.tree; bg.beginPath(); bg.arc(249, 46, 13, 0, 7); bg.fill(); bg.fillStyle = shade(S.tree, .15); bg.beginPath(); bg.arc(245, 42, 6, 0, 7); bg.fill();
+      if(S.leaf) for(let i = 0; i < 9; i++) px(bg, 239 + (i * 7) % 20, 37 + (i * 5) % 16, 2, 2, S.leaf); }
+    else { px(bg, 243, 40, 1, 12, '#5a3d2a'); px(bg, 253, 38, 1, 14, '#5a3d2a'); px(bg, 240, 46, 18, 1, '#5a3d2a'); }
+    px(bg, WIN.x - 4, 74, WIN.w + 8, 30, S.ground); px(bg, WIN.x - 4, 80, WIN.w + 8, 7, '#6b7280'); px(bg, WIN.x - 4, 83, WIN.w + 8, 1, '#e5e7eb');
+    if(R.o.vehicle === 'car'){ px(bg, 222, 70, 30, 10, '#1d4ed8'); px(bg, 228, 64, 18, 7, '#1d4ed8'); px(bg, 230, 65, 6, 5, '#bfe3f3'); px(bg, 238, 65, 6, 5, '#bfe3f3'); px(bg, 225, 79, 6, 4, '#111'); px(bg, 243, 79, 6, 4, '#111'); }
+    else { px(bg, 232, 72, 16, 5, '#ea580c'); px(bg, 244, 66, 3, 7, '#374151'); px(bg, 242, 65, 6, 2, '#111'); px(bg, 230, 76, 5, 5, '#111'); px(bg, 245, 76, 5, 5, '#111'); px(bg, 236, 69, 7, 3, '#111'); }
+  }
+  function drawMid(time){
+    const o = R.o, wall = '#e9dcc4', wallD = shade(wall, -.08);
+    mid.clearRect(0, 0, VW, VH);
+    // muur met raamopening
+    px(mid, 0, 0, VW, WIN.y, wall); px(mid, 0, WIN.y + WIN.h, VW, 128 - WIN.y - WIN.h, wall); px(mid, 0, WIN.y, WIN.x, WIN.h, wall); px(mid, WIN.x + WIN.w, WIN.y, VW - WIN.x - WIN.w, WIN.h, wall);
+    for(let x = 0; x < VW; x += 16) px(mid, x, 0, 1, 128, wallD);
+    px(mid, 0, 122, VW, 6, '#cbb89a');
+    px(mid, WIN.x - 4, WIN.y - 4, WIN.w + 8, 4, '#f8f5ef'); px(mid, WIN.x - 4, WIN.y + WIN.h, WIN.w + 8, 5, '#f8f5ef'); px(mid, WIN.x - 4, WIN.y, 4, WIN.h, '#f8f5ef'); px(mid, WIN.x + WIN.w, WIN.y, 4, WIN.h, '#f8f5ef');
+    px(mid, WIN.x + WIN.w / 2 - 1, WIN.y, 2, WIN.h, '#f8f5ef'); px(mid, WIN.x - 6, WIN.y + WIN.h + 4, WIN.w + 12, 3, '#e2d9c8');
+    px(mid, WIN.x - 14, WIN.y - 6, 10, WIN.h + 14, '#7c8fb0'); px(mid, WIN.x + WIN.w + 4, WIN.y - 6, 10, WIN.h + 14, '#7c8fb0');
+    for(let y = WIN.y - 6; y < WIN.y + WIN.h + 8; y += 4){ px(mid, WIN.x - 12, y, 1, 3, '#6a7c9c'); px(mid, WIN.x + WIN.w + 8, y, 1, 3, '#6a7c9c'); }
+    // vloer
+    px(mid, 0, 128, VW, 52, '#a8774f'); for(let y = 128; y < VH; y += 6){ px(mid, 0, y, VW, 1, '#8e6340'); for(let x = (y / 6 % 2) * 20; x < VW; x += 40) px(mid, x, y, 1, 6, '#8e6340'); }
+    px(mid, 120, 140, 120, 30, '#c0563f'); px(mid, 122, 142, 116, 26, '#d4704f'); for(let x = 126; x < 236; x += 8) px(mid, x, 154, 4, 1, '#f2b38a');
+    // poster: mijn snackkraam
+    px(mid, 26, 22, 70, 58, '#2a2230'); px(mid, 28, 24, 66, 54, '#fff7ea');
+    px(mid, 44, 38, 34, 3, '#ef6c2c'); for(let i = 0; i < 6; i++) px(mid, 44 + i * 6, 38, 3, 3, '#f6ead5'); px(mid, 46, 41, 30, 12, '#6b3f26'); px(mid, 44, 53, 34, 9, '#d9581f'); px(mid, 52, 30, 18, 6, '#3b1d10'); ptext(mid, 'PATAT', 51, 31, '#fcd34d');
+    const pct = Math.max(0, Math.min(1, o.progress));
+    px(mid, 32, 66, 58, 6, '#d6d3d1'); px(mid, 32, 66, Math.round(58 * pct), 6, pct >= 1 ? '#16a34a' : '#f59e0b'); px(mid, 32, 66, 58, 1, '#a8a29e');
+    // bed
+    px(mid, 8, 118, 92, 30, '#6b4a33'); px(mid, 8, 104, 6, 44, '#5a3d2a'); px(mid, 10, 112, 86, 12, '#f3efe6'); px(mid, 12, 110, 22, 8, '#ffffff'); px(mid, 34, 112, 62, 14, '#3b82f6'); px(mid, 34, 112, 62, 2, '#60a5fa');
+    for(let x = 38; x < 94; x += 8) px(mid, x, 118, 4, 1, '#2563eb');
+    // sneakers
+    if(o.sneakers){ px(mid, 104, 150, 10, 4, '#f8fafc'); px(mid, 104, 153, 11, 1, '#ef4444'); px(mid, 116, 151, 10, 4, '#f8fafc'); px(mid, 116, 154, 11, 1, '#ef4444'); }
+    // festivalbandje of vakantie aan de muur
+    if(o.festival){ px(mid, 104, 34, 14, 2, '#a855f7'); px(mid, 108, 33, 6, 4, '#fde047'); }
+    if(o.vacation === 'camping'){ px(mid, 104, 46, 22, 16, '#fff7ea'); px(mid, 105, 47, 20, 14, '#7dd3fc'); px(mid, 109, 54, 12, 7, '#16a34a'); px(mid, 114, 51, 2, 3, '#16a34a'); }
+    if(o.vacation === 'ibiza'){ px(mid, 104, 46, 22, 16, '#fff7ea'); px(mid, 105, 47, 20, 14, '#38bdf8'); px(mid, 105, 56, 20, 5, '#fde68a'); px(mid, 120, 48, 3, 3, '#fde047'); }
+    // bureau
+    px(mid, 128, 112, 90, 5, '#7c5236'); px(mid, 128, 112, 90, 1, '#9a6a47'); px(mid, 132, 117, 4, 34, '#5a3d2a'); px(mid, 210, 117, 4, 34, '#5a3d2a'); px(mid, 186, 117, 28, 20, '#6b4730'); px(mid, 197, 125, 6, 2, '#c9a27c');
+    // stoel, speler (groter) en spullen op het bureau
+    px(mid, 142, 96, 24, 18, '#1f2937'); px(mid, 144, 98, 20, 14, '#374151');
+    const mood = o.happy >= 60 ? 'blij' : o.happy >= DOWN_LIMIT ? 'neutraal' : 'somber';
+    spriteS(mid, BUST, { h:'#3b2618', s:'#e9b98b', e:'#1b1410', D:'#e9b98b', a:'#f59e0b', w:'#fde68a' }, 146, 92, 2);
+    if(mood === 'blij'){ px(mid, 150, 102, 2, 1, '#7c2d12'); px(mid, 156, 102, 2, 1, '#7c2d12'); px(mid, 151, 103, 6, 1, '#7c2d12'); }
+    else if(mood === 'somber'){ px(mid, 151, 102, 6, 1, '#7c2d12'); px(mid, 150, 103, 2, 1, '#7c2d12'); px(mid, 156, 103, 2, 1, '#7c2d12'); px(mid, 149, 97, 3, 1, '#3b2618'); px(mid, 156, 97, 3, 1, '#3b2618'); }
+    else px(mid, 151, 102, 6, 1, '#7c2d12');
+    px(mid, 148, 116, 3, 20, '#1f2937'); px(mid, 157, 116, 3, 20, '#1f2937'); px(mid, 144, 134, 20, 3, '#111827');
+    if(o.pc){ px(mid, 172, 90, 26, 19, '#111827'); px(mid, 174, 92, 22, 15, '#1d4ed8'); px(mid, 176, 94, 9, 2, '#a855f7'); px(mid, 176, 98, 14, 1, '#22d3ee'); px(mid, 182, 109, 6, 3, '#374151');
+      px(mid, 112, 112, 10, 22, '#111827'); px(mid, 114, 115, 6, 1, '#22d3ee'); px(mid, 114, 119, 6, 1, '#a855f7'); }
+    else { px(mid, 172, 104, 22, 8, '#374151'); px(mid, 172, 103, 22, 1, '#6b7280'); px(mid, 175, 105, 16, 5, '#93c5fd'); }
+    if(o.phone === 'nieuw'){ px(mid, 134, 108, 6, 4, '#111827'); px(mid, 135, 109, 4, 2, '#38bdf8'); }
+    else if(o.phone === 'refurb'){ px(mid, 134, 108, 6, 4, '#374151'); px(mid, 135, 109, 4, 2, '#7dd3fc'); }
+    else { px(mid, 134, 108, 6, 4, '#374151'); px(mid, 135, 109, 4, 2, '#94a3b8'); px(mid, 135, 109, 1, 1, '#f8fafc'); px(mid, 137, 110, 1, 1, '#f8fafc'); px(mid, 138, 109, 1, 1, '#f8fafc'); }
+    // spaarpot (glazen pot) met munten
+    const jx = 198, jy = 94, fill = Math.max(0, Math.min(1, o.jar));
+    px(mid, jx, jy, 12, 18, 'rgba(220,235,245,.55)'); px(mid, jx - 1, jy - 2, 14, 3, '#9ca3af');
+    const fh = Math.round(16 * fill); if(fh) { px(mid, jx + 1, jy + 17 - fh, 10, fh, '#f2c94c'); for(let i = 0; i < fh; i += 2) px(mid, jx + 1 + (i * 3) % 8, jy + 17 - fh + i, 2, 1, '#b7791f'); }
+    px(mid, jx, jy, 1, 18, 'rgba(255,255,255,.7)');
+    // lamp
+    px(mid, 213, 96, 2, 16, '#374151'); px(mid, 209, 92, 10, 5, '#f59e0b'); px(mid, 211, 111, 6, 1, '#374151');
+    if(o.car) { px(mid, 162, 110, 4, 2, '#9ca3af'); px(mid, 165, 109, 2, 1, '#1d4ed8'); }
+    // plant op de vensterbank
+    px(mid, 282, 92, 10, 8, '#b45309'); px(mid, 284, 84, 6, 9, '#16a34a'); px(mid, 281, 86, 4, 4, '#22c55e'); px(mid, 289, 85, 4, 4, '#22c55e');
+  }
+  function drawFx(time, dt){
+    const W = VW * VS, H = VH * VS, L = SEASON[R.o.season].light;
+    fx.clearRect(0, 0, W, H);
+    // lichtbundel door het raam
+    fx.save(); fx.globalAlpha = .16 + Math.sin(time * .5) * .03;
+    const g = fx.createLinearGradient(WIN.x * VS, WIN.y * VS, 140 * VS, 170 * VS); g.addColorStop(0, rgba(L, 1)); g.addColorStop(1, rgba(L, 0));
+    fx.fillStyle = g; fx.beginPath(); fx.moveTo(WIN.x * VS, WIN.y * VS); fx.lineTo((WIN.x + WIN.w) * VS, WIN.y * VS); fx.lineTo((WIN.x + WIN.w - 40) * VS, 175 * VS); fx.lineTo((WIN.x - 90) * VS, 175 * VS); fx.closePath(); fx.fill(); fx.restore();
+    const wg = fx.createRadialGradient((WIN.x + WIN.w / 2) * VS, (WIN.y + WIN.h / 2) * VS, 0, (WIN.x + WIN.w / 2) * VS, (WIN.y + WIN.h / 2) * VS, 80 * VS);
+    wg.addColorStop(0, rgba(L, .35)); wg.addColorStop(1, rgba(L, 0)); fx.fillStyle = wg; fx.fillRect(0, 0, W, H);
+    const lg = fx.createRadialGradient(213 * VS, 98 * VS, 0, 213 * VS, 98 * VS, 40 * VS); lg.addColorStop(0, 'rgba(255,200,120,.35)'); lg.addColorStop(1, 'rgba(255,200,120,0)'); fx.fillStyle = lg; fx.fillRect(0, 0, W, H);
+    if(R.o.pc){ const pg = fx.createRadialGradient(185 * VS, 99 * VS, 0, 185 * VS, 99 * VS, 24 * VS); pg.addColorStop(0, 'rgba(120,140,255,.35)'); pg.addColorStop(1, 'rgba(120,140,255,0)'); fx.fillStyle = pg; fx.fillRect(0, 0, W, H); }
+    R.motes.forEach(m => { m.y -= m.v * dt * 2; m.x += Math.sin(time + m.p) * dt * 2; if(m.y < 50){ m.y = 160; m.x = 140 + Math.random() * 130; } fx.fillStyle = rgba(L, Math.max(0, .22 + Math.sin(time * 2 + m.p) * .18)); fx.fillRect(m.x * VS, m.y * VS, VS * .8, VS * .8); });
+    if(R.o.season === 'winter'){ fx.fillStyle = 'rgba(255,255,255,.9)';
+      R.flakes.forEach((f, i) => { f.y += f.v * dt; f.x += Math.sin(time + i) * dt * 3; if(f.y > WIN.y + WIN.h){ f.y = WIN.y; f.x = WIN.x + Math.random() * WIN.w; } if(f.x > WIN.x && f.x < WIN.x + WIN.w) fx.fillRect(f.x * VS, f.y * VS, VS, VS); }); }
+    if(R.o.season === 'herfst'){ fx.fillStyle = 'rgba(227,155,60,.9)';
+      R.flakes.slice(0, 10).forEach((f, i) => { f.y += f.v * dt * .8; f.x += Math.sin(time * 2 + i) * dt * 8; if(f.y > WIN.y + WIN.h){ f.y = WIN.y; f.x = WIN.x + Math.random() * WIN.w; } if(f.x > WIN.x && f.x < WIN.x + WIN.w) fx.fillRect(f.x * VS, f.y * VS, VS * 1.5, VS); }); }
+  }
+  function drawFg(){
+    fg.clearRect(0, 0, VW, VH);
+    fg.fillStyle = '#2e5a36'; [[6, 156, 14], [18, 148, 11], [-2, 146, 10], [12, 166, 12]].forEach(([x, y, r]) => { fg.beginPath(); fg.arc(x, y, r, 0, 7); fg.fill(); });
+    px(fg, 0, 166, 26, 14, '#9a4a2a'); px(fg, 292, 150, 30, 30, '#3a2c22'); px(fg, 296, 146, 28, 6, '#4a382c');
+  }
+  let fgDone = false;
+  function frame(now){
+    if(!R.running) return;
+    const dt = Math.min(.05, (now - R.last) / 1000 || 0), time = now / 1000; R.last = now;
+    R.cx += (R.px - R.cx) * .06; R.cy += (R.py - R.cy) * .06;
+    [[cb, 4], [cm, 9], [cf, 9], [cg, 20]].forEach(([c, d]) => c.style.transform = `translate(${(-R.cx * d).toFixed(2)}px,${(-R.cy * d * .6).toFixed(2)}px)`);
+    drawBg(time); drawMid(time); drawFx(time, dt); if(!fgDone){ drawFg(); fgDone = true; }
+    R.raf = requestAnimationFrame(frame);
+  }
+  R.start = () => { if(R.running) return; R.running = true; R.last = performance.now(); R.raf = requestAnimationFrame(frame); };
+  R.stop = () => { R.running = false; cancelAnimationFrame(R.raf); };
+  return R;
+}
+
+let room = null;
+function roomOpts(){
+  const goal = GOALS[part][1], w = wealth();
+  const phone = state.phone || (part === 2 ? 'refurb' : 'oud');
+  return { season: season(), happy: state.happy, progress: w / KRAAM_PRICE, jar: w / goal,
+    sneakers: state.sneakers || false, festival: state.festival && state.festival !== 'thuis', vacation: part === 1 && state.month >= 7 ? state.vacation : null,
+    pc: part === 2 && (state.credit === 'pc' || state.credit === 'cash') && state.month >= 2, car: part === 2 && state.credit === 'lease' && state.month >= 2,
+    vehicle: part === 2 && state.credit === 'lease' && state.month >= 2 ? 'car' : 'scooter', phone };
+}
+function renderRoom(){
+  const box = $('roomScene'); if(!box || !state) return;
+  if(!room || !box.contains(room.el)) room = createRoom(box);
+  room.o = roomOpts();
+  if(!$('gameScreen').classList.contains('hidden') && !clockRunning) room.start(); else room.stop();
+  const w = wealth(), mood = state.happy >= 60 ? 'blij' : state.happy >= DOWN_LIMIT ? 'gaat wel' : 'somber';
+  $('roomCaption').innerHTML = `Je kamer in ${MN(Math.min(state.month, LAST))} · stemming: <b>${mood}</b> · ${w >= KRAAM_PRICE ? 'genoeg voor je kraam! 🍟' : `nog ${eur0(KRAAM_PRICE - w)} tot je kraam`}`;
+}
+document.addEventListener('visibilitychange', () => { if(room){ if(document.hidden) room.stop(); else if(state && !$('gameScreen').classList.contains('hidden') && !clockRunning) room.start(); } });
+
+// ---------- feest met uitleg ----------
+function celebration(h){
+  const prev = state.history[state.history.length - 2], sa = h.stars, sb = prev ? prev.stars || 0 : 0;
+  const what = part === 1 ? 'spaargeld' : 'vermogen', val = part === 1 ? h.moneyEnd : h.wealthEnd;
+  if(sa > sb) return { kind:'star', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(sa)}</div><div><b>Je staat nu op ${sa} ster${sa > 1 ? 'ren' : ''}!</b><br>Je ${what} is <b>${eur0(val)}</b> en je gemiddelde geluk is <b>${Math.round(avgHappy())}</b>. ${sa < 3 ? 'Houd het vast tot het eind van dit deel.' : 'Alle drie de sterren, als je het zo volhoudt!'}</div></div>` };
+  if(sa < sb) return { kind:null, html: `<div class="msg warn">⚠️ <b>Je bent een ster kwijt.</b> ${avgHappy() < HAPPY_GOAL[0] ? `Je gemiddelde geluk is onder de ${HAPPY_GOAL[0]} gezakt.` : `Je ${what} is onder het doel gezakt.`} Je hebt nog ${LAST - h.month} maand${LAST - h.month === 1 ? '' : 'en'} om het goed te maken.</div>` };
+  const others = state.history.filter(x => x !== h);
+  if(others.length >= 2 && h.saved > 0 && h.saved > Math.max(...others.map(x => x.saved)))
+    return { kind:'record', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">🏆</div><div><b>Je beste spaarmaand tot nu toe!</b><br>Je spaarde <b>${eur0(h.saved)}</b>. Je vorige record was ${eur0(Math.max(...others.map(x => x.saved)))}.</div></div>` };
+  return { kind:null, html:'' };
+}
+function celebrateNow(cel){ if(cel && cel.kind) setTimeout(() => { const el = $('celebrate'); if(el) confettiFrom(el, cel.kind === 'star' ? 160 : 70); }, 350); }
+function starsBanner(stars){ return stars ? `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(stars)}</div><div><b>Gefeliciteerd: ${stars} ster${stars > 1 ? 'ren' : ''}!</b><br>${stars === 3 ? 'Je haalde je spaardoel ruim én bleef gelukkig.' : stars === 2 ? 'Je haalde je spaardoel en bleef gelukkig genoeg.' : 'Je haalde je spaardoel, maar je geluk kwam tekort.'}</div></div>` : ''; }
+
+// ---------- oorkonde ----------
+function certificateModal(back){
+  const v = part === 1 ? state.money : wealth(), ah = avgHappy(), stars = starsFor(v, ah), name = session.student ? escapeHtml(session.student.name) : 'Jij';
+  const today = new Date().toLocaleDateString('nl-NL', { day:'numeric', month:'long', year:'numeric' });
+  const title = part === 1 ? 'Inkomen en welvaart' : 'Geld genoeg?';
+  const line = part === 1 ? 'heeft acht maanden gewerkt bij FrisFood, verstandig gekozen tussen sparen en leuke dingen doen, en gespaard voor een eigen snackkraam.'
+    : 'heeft een budgetplan gemaakt, gespaard, belegd en goed nagedacht over lenen, en is klaar voor een eigen snackkraam.';
+  showModal(`<div class="cert" id="cert"><div class="cert-in">
+        <div class="cert-top">🍟 SNACK EMPIRE · GAME 1</div><h2>Oorkonde</h2><div class="cert-sub">${title}</div>
+        <p class="cert-name">${name}</p><p>${line}</p>
+        <div class="cert-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+        <p><b>${part === 1 ? 'Spaargeld' : 'Vermogen'}: ${eur0(v)}</b> · gemiddeld geluk ${Math.round(ah)} · ${state.quizCorrect} van de ${state.quizTotal} vragen goed</p>
+        <div class="cert-foot"><span>${today}</span><span class="cert-sign">Jolien Werveij<br><small>FrisFood</small></span></div>
+      </div></div>
+    <div class="noprint" style="display:flex;gap:8px;margin-top:10px"><button class="ghost" style="flex:1" id="certBack">⬅ Terug</button><button class="cta" style="flex:1;margin-top:0" onclick="window.print()">🖨️ Printen</button></div>`);
+  $('certBack').onclick = back;
+}
+
 // =====================================================================
 // MAANDVERLOOP
 // =====================================================================
@@ -717,7 +1046,7 @@ function events1(m){
     teachV(1);
     queueModal(payslipModal);
     teachN(1);
-    askQuestion('🧾 Je loonstrook', { k:'herkennen', q:'Je zus studeert en krijgt studiefinanciering van de overheid. Wat voor inkomen is dat?', o:['Een primair inkomen uit arbeid','Een inkomen uit een overdracht (dus onderdeel van een secundair inkomen)','Loonheffing','Een besteding'], a:1, e:'Studiefinanciering krijg je zonder dat je er een productiefactor voor levert: een overdracht, net als jouw zorgtoeslag.' });
+    askQuestion('🧾 Je loonstrook', { k:'herkennen', q:'Je broer Bert studeert en krijgt studiefinanciering van de overheid. Wat voor inkomen is dat?', o:['Een primair inkomen uit arbeid','Een inkomen uit een overdracht (dus onderdeel van een secundair inkomen)','Loonheffing','Een besteding'], a:1, e:'Studiefinanciering krijg je zonder dat je er een productiefactor voor levert: een overdracht, net als jouw zorgtoeslag.' });
   }
   if(m === 2){
     teachN(2);
@@ -735,11 +1064,11 @@ function events1(m){
   }
   if(m === 3){
     teachV(3);
-    choiceModal('👟 Influencer', 'De sneakers van @lisa.drops', '<p>Een bekende influencer draagt in elke video dezelfde sneakers: € 180. Ze is precies gericht op jongeren zoals jij. Twee vrienden hebben ze al.</p>', [
+    choiceModal('👟 Influencer', 'De sneakers van @stephanie.angel', say('stephanie', 'OMG deze sneakers zijn echt alles 😍 Ik draag ze elke dag! Link in bio, maar wees snel, ze zijn bijna op!') + '<p>Ze kosten € 180. De video is precies gericht op jongeren zoals jij, en twee vrienden hebben ze al.</p>', [
       { k:'ja', title:'Kopen – € 180', text:'+4 geluk' },
       { k:'nee', title:'Niet kopen', text:'Je spaart door' }
     ], k => {
-      if(k === 'ja'){ state.mExtra.push(['Sneakers', 180]); state.mHappy.push(['Nieuwe sneakers', 4]); }
+      if(k === 'ja'){ state.sneakers = true; state.mExtra.push(['Sneakers', 180]); state.mHappy.push(['Nieuwe sneakers', 4]); }
       return `<p>${k === 'ja' ? 'Mooi! Al merk je na een week dat ze toch gewoon schoenen zijn.' : 'Sterk. Je spaarpot voor de kraam blijft groeien.'}</p><p>Hier speelden twee soorten invloed: de influencer (<b>commerciële invloed</b>, want ze wordt betaald door het merk) en je vrienden (<b>sociale invloed</b>).</p>`;
     });
     teachN(3);
@@ -768,19 +1097,19 @@ function events1(m){
     runQuiz('workshop', c => quizReward('Workshop geldzaken', 15, c));
   }
   if(m === 6){
-    state.mExtra.push(['Cadeau voor oom Ruud', 30]);
+    state.mExtra.push(['Cadeau voor ome Willem', 30]);
     teachN(6);
-    runQuiz('oom', c => quizReward('Quiz oom Ruud', 20, c));
+    runQuiz('oom', c => quizReward('Quiz ome Willem', 20, c));
   }
   if(m === 7){
     teachV(7);
     teachN(7);
-    calcQuestion('🏠 Kostgeld', 'Mag het kostgeld omhoog?', `<p>Je moeder zegt: "Alles is 5% duurder geworden. Het kostgeld gaat ook 5% omhoog." Jij zegt: "Maar mijn koopkracht daalt ook!"</p>
+    calcQuestion('🏠 Kostgeld', 'Mag het kostgeld omhoog?', `${say('mama', 'Alles is 5% duurder geworden. Het kostgeld gaat ook 5% omhoog.')}<p>Jij zegt: "Maar mijn koopkracht daalt ook!"</p>
       <p>Je loon ging van <b>€ 1.500</b> naar <b>€ 1.545</b>: nominaal indexcijfer <b>103</b>. De prijzen stegen 5%: prijsindexcijfer <b>105</b>.</p>
-      <p><b>Bereken het reële indexcijfer van je loon (op 1 decimaal).</b> Klopt je berekening, dan laat je moeder het kostgeld gelijk.</p>`,
+      <p><b>Bereken het reële indexcijfer van je loon (op 1 decimaal).</b> Klopt je berekening, dan laat mama het kostgeld gelijk.</p>`,
       98.1, 0.15, 'Reëel indexcijfer = 103 ÷ 105 × 100 = <b>98,1</b>. Je koopkracht is dus ongeveer 1,9% gedaald.', ok => {
         state.kostgeldUp = !ok;
-        return ok ? 'Je moeder is onder de indruk: "Oké, het kostgeld blijft € 300."' : `Je moeder rekent het zelf uit en blijft erbij: het kostgeld wordt ${eur0(Math.round(FIXED.kostgeld * 1.05))}.`;
+        return ok ? 'Mama is onder de indruk: "Oké, het kostgeld blijft € 300."' : `Mama rekent het zelf uit en blijft erbij: het kostgeld wordt ${eur0(Math.round(FIXED.kostgeld * 1.05))}.`;
       });
     choiceModal('☀️ Zomervakantie', 'Wat doe je deze zomer?', '<p>Twee weken vrij (je vakantiedagen worden gewoon doorbetaald). Je vrienden gaan weg…</p>', [
       { k:'camping', title:'Camping in Frankrijk met vrienden – € 450', text:'+12 geluk' },
@@ -806,7 +1135,7 @@ function events1(m){
 function payslipModal(){
   const b = BRUTO, lh = Math.round(b * LH_RATE);
   showModal(`<div class="tag">🧾 Je eerste loonstrook</div><h2>Waarom krijg je minder dan € 1.500?</h2>
-    <p>In je contract staat een loon van € 1.500 per maand. Maar op je rekening komt minder binnen…</p>
+    ${say('jolien', 'Welkom bij FrisFood! Hier is je eerste loonstrook. In je contract staat € 1.500, maar dat krijg je niet helemaal op je rekening. Kijk maar.')}
     <div class="calc"><div class="calc-row"><span>Brutoloon</span><b>${eur0(b)}</b></div>
       <div class="calc-row"><span>− Loonheffing (6%)</span><b>${eur0(lh)}</b></div>
       <div class="calc-row total"><span>= Nettoloon</span><b>${eur0(b - lh)}</b></div>
@@ -824,7 +1153,7 @@ function events2(m){
   }
   if(m === 2){
     teachV(2);
-    choiceModal('🛒 Nu kopen, later betalen', 'Een dure wens', `<p>Je wilt een gaming-pc (contant € 1.200) óf een auto. Reclames beloven: "Nu kopen, later betalen!"</p><p class="small">Je hebt nu <b>${eur0(state.money)}</b> spaargeld.</p>`, [
+    choiceModal('🛒 Nu kopen, later betalen', 'Een dure wens', `${say('victor', 'Waarom wachten? Neem hem vandaag nog mee en betaal later! Een gaming-pc voor € 1.200, of rij gewoon in een nieuwe auto voor € 239 per maand.')}<p class="small">Je hebt nu <b>${eur0(state.money)}</b> spaargeld.</p>`, [
       { k:'pc', title:'Gaming-pc op afbetaling', text:'12 termijnen van € 110. Direct +8 geluk, daarna +1 per maand' },
       { k:'lease', title:'Auto via private lease', text:'€ 239 per maand, je scooter gaat de deur uit. +3 geluk per maand' },
       { k:'cash', title:'Gaming-pc contant betalen – € 1.200', text:'Van je spaargeld. Direct +8 geluk, daarna +1 per maand' },
@@ -843,11 +1172,11 @@ function events2(m){
   }
   if(m === 3){
     teachV(3); teachN(3);
-    calcQuestion('🏦 Bij de bank', 'Wat levert een spaardeposito op?', `<p>De adviseur zegt: "Op een <b>spaardeposito</b> krijgt u 3% rente per jaar, met rente-op-rente."</p>
+    calcQuestion('🏦 Bij de bank', 'Wat levert een spaardeposito op?', `${say('leon', 'Op een <b>spaardeposito</b> krijgt u 3% rente per jaar, met rente-op-rente.')}
       <p><b>Hoeveel staat er na 2 jaar als je € 2.000 inlegt?</b> Rond af op centen. Rekent u het goed uit, dan krijgt u van mij <b>0,5% extra rente</b>.</p>`,
       2121.80, 0.02, 'Samengestelde rente: € 2.000 × 1,03 = € 2.060. € 2.060 × 1,03 = <b>€ 2.121,80</b>.', ok => {
         state.depRate = ok ? 0.035 : 0.03;
-        return ok ? 'De adviseur geeft je <b>3,5%</b> rente op je deposito.' : 'Je krijgt de gewone <b>3%</b> rente op je deposito.';
+        return ok ? 'Leon geeft je <b>3,5%</b> rente op je deposito.' : 'Je krijgt de gewone <b>3%</b> rente op je deposito.';
       });
     teach(['beleggen','rendement'], 'n');
     queueModal(potsModal);
@@ -883,11 +1212,11 @@ function events2(m){
   if(m === 7) queueModal(beursModal);
   if(m === 8){
     teachN(8);
-    queueModal(() => simpleModal('🏦 Bij de bank', 'Een lening voor je kraam?', `<p>Je vraagt de bank alvast wat ze kunnen doen als je straks te weinig hebt. "Een <b>hypothecaire lening</b> is voor een woning, dus dat kan niet. Een <b>persoonlijke lening</b> wel: u leent een vast bedrag en lost elke maand af, met rente."</p>`));
+    queueModal(() => simpleModal('🏦 Bij de bank', 'Een lening voor je kraam?', `<p>Je vraagt Leon alvast wat de bank kan doen als je straks te weinig hebt.</p>${say('leon', 'Een <b>hypothecaire lening</b> is voor een woning, dus dat kan niet. Een <b>persoonlijke lening</b> wel: u leent een vast bedrag en lost elke maand af, met rente.')}`));
   }
 }
 function budgetSortModal(){
-  const items = [['Kostgeld','vast'], ['Boodschappen en lunch','dagelijks'], ['Verjaardagscadeau voor je moeder','incidenteel'], ['Telefoonabonnement','vast'], ['Reparatie van je scooter','incidenteel'], ['Zorgverzekering','vast']];
+  const items = [['Kostgeld','vast'], ['Boodschappen en lunch','dagelijks'], ['Verjaardagscadeau voor mama','incidenteel'], ['Telefoonabonnement','vast'], ['Reparatie van je scooter','incidenteel'], ['Zorgverzekering','vast']];
   showModal(`<div class="tag">📋 Budgetplan (Nibud-app)</div><h2>Sorteer je uitgaven</h2>
     <p>De Nibud-app helpt je een <b>budgetplan</b> te maken. Zet elke uitgave in de goede soort. Alles goed? Dan geeft de app je een bespaartip.</p>
     ${items.map((it, i) => `<div class="sortrow"><span>${it[0]}</span><select id="so${i}"><option value="">– kies –</option><option value="dagelijks">Dagelijkse uitgave</option><option value="vast">Vaste last</option><option value="incidenteel">Incidentele uitgave</option></select></div>`).join('')}
@@ -940,13 +1269,13 @@ function scooterModal(){
   const cost = 700;
   if(state.money >= cost){
     state.mExtra.push(['Reparatie scooter', cost]);
-    simpleModal('🔧 Scooter kapot', 'Reparatie: € 700', `<p>Je scooter moet naar de garage. Gelukkig staat er genoeg op je spaarrekening: je betaalt het direct.</p><div class="msg good">Dit is waarom je <b>reserveert</b>: geld opzij voor een grote incidentele uitgave, op een rekening waar je bij kunt.</div>`);
+    simpleModal('🔧 Scooter kapot', 'Reparatie: € 700', `${say('dre', 'Tja, de motor is aan vervanging toe. Dat wordt € 700, inclusief onderdelen.')}<p>Gelukkig staat er genoeg op je spaarrekening: je betaalt het direct.</p><div class="msg good">Dit is waarom je <b>reserveert</b>: geld opzij voor een grote incidentele uitgave, op een rekening waar je bij kunt.</div>`);
     return;
   }
   const opts = [{ k:'rood', title:'Rood staan', text:'Je saldo wordt negatief. De bank rekent 12% rente per jaar. Stress: −3 geluk' }];
   if(state.deposit > 0) opts.push({ k:'depo', title:'Deposito eerder opheffen', text:'Mag, maar je verliest al je depositorente en betaalt € 50 boete' });
   if(state.invest > 0) opts.push({ k:'beleg', title:'Beleggingen verkopen', text:'De koers staat nu 4% lager dan bij aankoop' });
-  choiceModal('🔧 Scooter kapot', 'Reparatie: € 700, maar je spaarrekening is te leeg', `<p>Je hebt maar <b>${eur0(state.money)}</b> op je spaarrekening. Je geld zit vast in je deposito of beleggingen. Wat nu?</p>`, opts, k => {
+  choiceModal('🔧 Scooter kapot', 'Reparatie: € 700, maar je spaarrekening is te leeg', `${say('dre', 'Tja, de motor is aan vervanging toe. Dat wordt € 700, inclusief onderdelen.')}<p>Je hebt maar <b>${eur0(state.money)}</b> op je spaarrekening. Je geld zit vast in je deposito of beleggingen. Wat nu?</p>`, opts, k => {
     state.mExtra.push(['Reparatie scooter', cost]);
     if(k === 'rood') state.mHappy.push(['Stress: rood staan', -3]);
     if(k === 'depo'){ const base = state.depositIn || state.deposit; state.money += base - 50; state.deposit = 0; state.depRate = 0; }
@@ -991,7 +1320,9 @@ function playMonth(){
     h.predResult = { guess: state.prediction, actual: Math.abs(diff) <= 25 ? 'evenveel' : diff > 0 ? 'meer' : 'minder', prevSaved: prev.saved, prevMonth: prev.month };
   }
   state.history.push(h);
+  h.stars = starsFor(part === 1 ? state.money : wealth(), avgHappy());
   save();
+  if(room) room.stop();
   runCalendar(h, () => reportModal(h));
 }
 function lines(arr, sign){ return arr.map(c => `<div class="calc-row"><span>${sign} ${c[0]}</span><b>${eur0(c[1])}</b></div>`).join(''); }
@@ -1016,13 +1347,15 @@ function reportModal(h){
   }
   const hap = h.hap.map(x => `<div class="calc-row"><span>${x[0]}</span><b style="color:var(--${x[1] >= 0 ? 'good' : 'bad'})">${sgn(x[1])}</b></div>`).join('');
   if(h.downNext) parts.push(`<div class="msg bad">😟 Je geluk is gezakt tot <b>${h.happyEnd}</b>. Je zit niet lekker in je vel. Volgende maand doe je een <b>frustratie-aankoop</b> van ${eur0(IMPULSE)}. Gun jezelf ook iets leuks!</div>`);
-  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: ${h.saved >= 0 ? 'gespaard' : 'ingeteerd'} ${eur0(Math.abs(h.saved))}</h2>
+  const cel = celebration(h);
+  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: ${h.saved >= 0 ? 'gespaard' : 'ingeteerd'} ${eur0(Math.abs(h.saved))}</h2>${cel.html}
     <div class="report-grid"><div class="kpi"><div class="k">${part === 1 ? '💰 Spaargeld' : '💰 Vermogen'}</div><div class="v">${eur0(part === 1 ? h.moneyEnd : h.wealthEnd)}</div></div>
       <div class="kpi"><div class="k">😊 Geluk</div><div class="v">${h.happyStart} → ${h.happyEnd}</div></div></div>
     <div class="calc">${calc}</div>
     <h3 style="margin-bottom:4px">😊 Geluk deze maand</h3><div class="calc">${hap}<div class="calc-row total"><span>= Verandering</span><b>${sgn(h.happyEnd - h.happyStart)}</b></div></div>
     ${parts.join('')}
     <button class="cta" id="nextBtn">${m >= LAST ? 'Afsluiten 🏁' : 'Volgende maand ➡️'}</button>`);
+  celebrateNow(cel);
   const nb = $('nextBtn'), label = nb.textContent; let left = REPORT_READ_SECONDS;
   nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je maandrapport… ${left}`;
   const iv = setInterval(() => { left--; if(left > 0){ nb.textContent = `📖 Lees je maandrapport… ${left}`; return; } clearInterval(iv); nb.disabled = false; nb.classList.remove('wait'); nb.textContent = label; }, 1000);
@@ -1078,7 +1411,7 @@ function runCalendar(h, done){
     $('liveWalk').textContent = eur0(spent * shown / cal.daysInMonth);
     if(h.wasDown && shown > 10) $('liveFull').textContent = '😤 Je baalt van alles en koopt iets wat je eigenlijk niet nodig hebt…';
     if(t < 1) requestAnimationFrame(frame);
-    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; done(); }, 700);
+    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; if(room && state) room.start(); done(); }, 700);
   }
   requestAnimationFrame(frame);
 }
@@ -1093,7 +1426,7 @@ function qs(id){ return state.quiz[id] ? `${state.quiz[id].correct}/4` : '–'; 
 function endReport1(){
   const v = state.money, ah = avgHappy(), stars = starsFor(v, ah);
   showModal(`<div class="tag">🏁 Eindrapport deel 1${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Inkomen en welvaart</h2>
-    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>${starsBanner(stars)}
     <div class="report-grid">
       <div class="kpi"><div class="k">💰 Spaargeld (welvaart)</div><div class="v">${eur0(v)}</div></div>
       <div class="kpi"><div class="k">😊 Gemiddeld geluk (brede welvaart)</div><div class="v">${Math.round(ah)}</div></div>
@@ -1101,13 +1434,16 @@ function endReport1(){
       <div class="kpi"><div class="k">Nog nodig voor je kraam</div><div class="v">${v >= KRAAM_PRICE ? '✅ niets!' : eur0(KRAAM_PRICE - v)}</div></div>
     </div>
     <table><tbody>
-      <tr><td>💼 Workshop · 🎂 oom Ruud · ✊ vakbond</td><td>${qs('workshop')} · ${qs('oom')} · ${qs('vakbond')}</td></tr>
+      <tr><td>💼 Workshop · 🎂 ome Willem · ✊ vakbond</td><td>${qs('workshop')} · ${qs('oom')} · ${qs('vakbond')}</td></tr>
       <tr><td>🏠 Kostgeld na de inflatie</td><td>${state.kostgeldUp ? eur0(FIXED.kostgeld * 1.05) + ' (omhoog)' : '€ 300 (gelijk gebleven)'}</td></tr>
       <tr><td>✊ Cao vanaf september</td><td>+${state.cao || 0}% loon</td></tr>
     </tbody></table>
     <p class="small">${starText()}</p>
     <p class="small">💡 Welvaart én brede welvaart tellen mee. Alles sparen maakt je niet gelukkig; alles uitgeven brengt je kraam niet dichterbij.</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport1);
+  if(stars) celebrateNow({ kind:'star' });
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 function endReport2(){
@@ -1115,7 +1451,7 @@ function endReport2(){
   const v = wealth(), ah = avgHappy(), stars = starsFor(v, ah);
   const k = state.kraam;
   showModal(`<div class="tag">🏁 Eindrapport deel 2${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Geld genoeg?</h2>
-    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>${starsBanner(stars)}
     <div class="report-grid">
       <div class="kpi"><div class="k">💰 Vermogen eind april</div><div class="v">${eur0(v)}</div></div>
       <div class="kpi"><div class="k">😊 Gemiddeld geluk</div><div class="v">${Math.round(ah)}</div></div>
@@ -1131,7 +1467,10 @@ function endReport2(){
     </tbody></table>
     <p class="small">${starText()}</p>
     <div class="msg info">🍟 <b>Volgende keer (game 2):</b> je staat met je eigen kraam op het schoolplein. Dan word je ondernemer!</div>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport2);
+  if(stars) celebrateNow({ kind:'star' });
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 function kraamModal(){
@@ -1213,6 +1552,7 @@ function render(){
   $('terms').innerHTML = state.concepts.length ? state.concepts.map(k => `<span class="term ${CONCEPTS[k].t === 'v' ? 'vk' : ''}" data-k="${k}">${CONCEPTS[k].title}</span>`).join('') : '<span class="small muted">Nog geen begrippen.</span>';
   document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
   renderChart();
+  renderRoom();
 }
 function renderChart(){
   const N = LAST, W = 420, H = 226, pad = { l:50, r:30, t:16, b:26 };
