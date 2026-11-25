@@ -180,6 +180,11 @@
   .opt-face img{flex:none}
   .modal.pop{animation:pop .28s ease-out}
   @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .scene-dock{position:sticky;top:96px;z-index:4}
+  .scene-dock:empty{display:none}
+  .scene-dock .scene{margin-top:0;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+  .rep-scene .scene{margin:6px auto 10px;max-width:440px}
+  .rep-scene:empty{display:none}
   .celebrate{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;animation:pop .4s ease-out}
   .cel-icon{font-size:28px;flex:none}
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;image-rendering:pixelated}
@@ -257,7 +262,7 @@
     <div>
       <section class="panel" id="playPanel">
         <h2>🏪 Dag <span id="pDay">1</span> – je kraam op het schoolplein</h2>
-        <div class="scene"><div id="stallScene"></div><div class="small muted scene-cap" id="stallCaption"></div></div>
+        <div id="sceneTop"><div class="scene" id="sceneBox"><div id="stallScene"></div><div class="small muted scene-cap" id="stallCaption"></div></div></div>
         <div id="dayNews" class="msg info"></div>
 
         <div id="priceArea">
@@ -304,6 +309,7 @@
     </div>
 
     <div>
+      <div id="sceneDock" class="scene-dock"></div>
       <section class="panel chart">
         <h2>📊 Nettoresultaat per dag</h2>
         <div id="chart"></div>
@@ -777,6 +783,7 @@ function closeModal(){
   else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); }
 }
 function showModal(html, voork){
+  { const sb = $('sceneBox'); if(sb && $('modal').contains(sb)) placeScene(); }
   $('modal').classList.toggle('voork', !!voork);
   $('modal').innerHTML = html;
   $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop');
@@ -1104,11 +1111,13 @@ function reportModal(h){
 
   const cel = celebration(h);
   showModal(`<div class="tag">📊 Dagrapport</div><h2>${title}</h2>${cel.html}
+    <div id="repScene" class="rep-scene"></div>
     ${h.closed ? '' : `<div class="report-grid">
       <div class="kpi"><div class="k">Klanten die patat wilden (vraag)</div><div class="v">${h.want}</div></div>
       <div class="kpi"><div class="k">Porties verkocht (afzet)</div><div class="v">${h.sold}</div></div></div>`}
     <div class="calc">${calc}</div>${kp}${parts.join('')}
     <button class="cta" id="nextBtn">${d >= DAYS ? 'Afsluiten 🏁' : 'Volgende dag ➡️'}</button>`);
+  showSceneIn($('repScene'));
   celebrateDay(cel);
   const nb = $('nextBtn'), label = nb.textContent;
   let left = REPORT_READ_SECONDS;
@@ -1983,6 +1992,7 @@ function sceneOpts(extra = {}){
 function weatherNow(){ return (isClosedDay() && !state.finished) ? 'rain' : (part === 2 && state.day === D2.COLD && !state.finished) ? 'cold' : null; }
 function renderStall(){
   const box = $('stallScene'); if(!box) return;
+  placeScene();
   if(!mainScene || !box.contains(mainScene.el)) mainScene = createScene(box);
   mainScene.opts = sceneOpts(); mainScene.weather = weatherNow(); mainScene.t = .42;
   if(!mainScene.walkers){ mainScene.walkers = true; mainScene.people = [{ x:-10, y:152, dir:1, look:3, phase:'go', sp:14 }, { x:330, y:158, dir:-1, look:5, phase:'go', sp:11 }];
@@ -2144,6 +2154,15 @@ function applyMood(){
   const w = weatherNow();
   document.body.classList.toggle('w-rain', w === 'rain'); document.body.classList.toggle('w-cold', w === 'cold'); document.body.classList.toggle('w-sun', !w);
 }
+
+// ---------- de tekening blijft in beeld ----------
+function placeScene(target){
+  const sc = $('sceneBox'); if(!sc) return;
+  const t = target || (innerWidth > 860 ? $('sceneDock') : $('sceneTop'));
+  if(t && sc.parentNode !== t) t.appendChild(sc);
+}
+function showSceneIn(box){ if(!box || !mainScene) return; placeScene(box); mainScene.opts = sceneOpts(); mainScene.weather = weatherNow(); mainScene.start(); }
+window.addEventListener('resize', () => { if($('overlay').classList.contains('hidden')) placeScene(); });
 
 // ---------- START ----------
 $('loginBtn').onclick = doLogin;

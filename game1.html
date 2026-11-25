@@ -156,6 +156,11 @@
   .cal-day.vak.passed{background:#bfdbfe;color:#1e3a8a;text-decoration:none}
   .cal-day.free{background:#ede9fe;color:#5b21b6;text-decoration:none;transform:scale(1.04)}
   .cal-ico{font-size:16px;line-height:1}
+  .scene-dock{position:sticky;top:96px;z-index:4}
+  .scene-dock:empty{display:none}
+  .scene-dock .scene{margin-top:0;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+  .rep-scene .scene{margin:6px auto 10px;max-width:440px}
+  .rep-scene:empty{display:none}
   .diploma{background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;line-height:1.5}
   .cal-day.vak.free{background:#bfdbfe}
   .spend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}
@@ -293,7 +298,7 @@
     <div>
       <section class="panel" id="playPanel">
         <h2>🏠 <span id="pDay">Januari</span> – <span id="pTitle">je eerste baan</span></h2>
-        <div class="scene"><div id="roomScene"></div><div class="small muted scene-cap" id="roomCaption"></div></div>
+        <div id="sceneTop"><div class="scene" id="sceneBox"><div id="roomScene"></div><div class="small muted scene-cap" id="roomCaption"></div></div></div>
         <div id="dayNews" class="msg info"></div>
 
         <h3>1. Wat ga je deze maand doen? <span class="small muted">(kies zelf: elke keuze kost geld en levert geluk op)</span></h3>
@@ -326,6 +331,7 @@
     </div>
 
     <div>
+      <div id="sceneDock" class="scene-dock"></div>
       <section class="panel chart">
         <h2>📊 Spaargeld en geluk</h2>
         <div id="chart"></div>
@@ -636,7 +642,7 @@ function monthCalc(){
 let modalQueue = [];
 function queueModal(fn){ modalQueue.push(fn); if(modalQueue.length === 1) fn(); }
 function closeModal(){ modalQueue.shift(); if(modalQueue.length) modalQueue[0](); else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); } }
-function showModal(html, voork){ $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop'); $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
+function showModal(html, voork){ { const sb = $('sceneBox'); if(sb && $('modal').contains(sb) && typeof placeScene === 'function') placeScene(); } $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop'); $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
 function simpleModal(tag, title, html, btn = 'Verder'){ showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">${btn}</button>`); }
 function conceptHtml(k){ const c = CONCEPTS[k]; return `<h2 style="margin-top:12px">${c.title}</h2><p>${c.text}</p>${c.formula ? `<div class="formula">${c.formula}</div>` : ''}`; }
 function conceptModal(k){ const c = CONCEPTS[k]; showModal(`<div class="tag">${c.t === 'v' ? '🔁 Weet je het nog?' : '📘 Begrip'}</div>${conceptHtml(k)}<button class="cta" onclick="closeModal()">Sluiten</button>`, c.t === 'v'); }
@@ -1353,12 +1359,14 @@ function reportModal(h){
   if(h.downNext) parts.push(`<div class="msg bad">😟 Je geluk is gezakt tot <b>${h.happyEnd}</b>. Je zit niet lekker in je vel. Volgende maand doe je een <b>frustratie-aankoop</b> van ${eur0(IMPULSE)}. Gun jezelf ook iets leuks!</div>`);
   const cel = celebration(h);
   showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: ${h.saved >= 0 ? 'gespaard' : 'ingeteerd'} ${eur0(Math.abs(h.saved))}</h2>${cel.html}
+    <div id="repScene" class="rep-scene"></div>
     <div class="report-grid"><div class="kpi"><div class="k">${part === 1 ? '💰 Spaargeld' : '💰 Vermogen'}</div><div class="v">${eur0(part === 1 ? h.moneyEnd : h.wealthEnd)}</div></div>
       <div class="kpi"><div class="k">😊 Geluk</div><div class="v">${h.happyStart} → ${h.happyEnd}</div></div></div>
     <div class="calc">${calc}</div>
     <h3 style="margin-bottom:4px">😊 Geluk deze maand</h3><div class="calc">${hap}<div class="calc-row total"><span>= Verandering</span><b>${sgn(h.happyEnd - h.happyStart)}</b></div></div>
     ${parts.join('')}
     <button class="cta" id="nextBtn">${m >= LAST ? 'Afsluiten 🏁' : 'Volgende maand ➡️'}</button>`);
+  showSceneIn($('repScene'));
   celebrateNow(cel);
   const nb = $('nextBtn'), label = nb.textContent; let left = REPORT_READ_SECONDS;
   nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je maandrapport… ${left}`;
@@ -1570,6 +1578,7 @@ function render(){
   $('terms').innerHTML = state.concepts.length ? state.concepts.map(k => `<span class="term ${CONCEPTS[k].t === 'v' ? 'vk' : ''}" data-k="${k}">${CONCEPTS[k].title}</span>`).join('') : '<span class="small muted">Nog geen begrippen.</span>';
   document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
   renderChart();
+  placeScene();
   renderRoom();
 }
 function renderChart(){
@@ -1596,6 +1605,15 @@ function renderChart(){
   pts.forEach(p => svg += `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="#2563eb"><title>Geluk ${p[2]}</title></circle>`);
   $('chart').innerHTML = svg + `</svg><div class="small muted" style="margin-top:4px">🟧 ${part === 1 ? 'spaargeld' : 'vermogen'} (links) · 🔵 geluk (rechts, 0–100) · ⭐ stippellijn = spaardoel</div>`;
 }
+
+// ---------- de tekening blijft in beeld ----------
+function placeScene(target){
+  const sc = $('sceneBox'); if(!sc) return;
+  const t = target || (innerWidth > 860 ? $('sceneDock') : $('sceneTop'));
+  if(t && sc.parentNode !== t) t.appendChild(sc);
+}
+function showSceneIn(box){ if(!box || !room) return; placeScene(box); room.o = roomOpts(); room.start(); }
+window.addEventListener('resize', () => { if(!$('repScene') || $('overlay').classList.contains('hidden')) placeScene(); });
 // =====================================================================
 // INLOGGEN, MENU, DOCENT
 // =====================================================================
