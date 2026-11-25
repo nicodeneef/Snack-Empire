@@ -151,6 +151,55 @@
   .grid > div{min-width:0}
   .clock-text,.clock-subtext{background:rgba(20,14,8,.45);border-radius:12px;padding:4px 12px}
   .clock-text:empty,.clock-subtext:empty{background:none;padding:0}
+
+  /* ===== beeld (game 2 verfraaid) ===== */
+  body{transition:background-color .8s ease}
+  body.w-rain{background:#e4e8ee}
+  body.w-cold{background:#eaf2fa}
+  .scene{margin:4px 0 12px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#e0f2fe}
+  .scene-svg{display:block;width:100%;height:auto}
+  .scene-cap{padding:5px 10px;background:var(--panel);border-top:1px solid var(--line)}
+  .scene-svg .steam{animation:steam 1.8s ease-in-out infinite}
+  @keyframes steam{0%{opacity:0;transform:translateY(4px)}50%{opacity:.9}100%{opacity:0;transform:translateY(-8px)}}
+  .scene-svg .rain line,.plein-svg .drop{animation:drop .7s linear infinite}
+  @keyframes drop{from{transform:translateY(-12px)}to{transform:translateY(12px)}}
+  .scene-svg .snow circle{animation:snow 3s linear infinite}
+  @keyframes snow{from{transform:translateY(-10px)}to{transform:translateY(14px)}}
+  .clock-zoom{zoom:.62}
+  .plein{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .plein-svg{display:block;width:100%;height:auto}
+  .say{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+  .say-face{flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+  .say-bubble{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px;flex:1;font-size:15px;line-height:1.45}
+  .say-bubble:before{content:"";position:absolute;left:-8px;top:18px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+  .say-name{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:2px}
+  .say.whisper .say-bubble{background:#f5f3ff;border-style:dashed}
+  .say.whisper .say-bubble:before{border-right-color:#f5f3ff}
+  .cand-head{display:flex;gap:10px;align-items:center}
+  .opt-face{display:flex!important;gap:10px;align-items:center;flex-wrap:wrap}
+  .opt-face svg{flex:none}
+  .modal.pop{animation:pop .28s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200}
+  .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:99px;font-weight:700;z-index:210;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:pop .3s ease-out;transition:opacity .5s}
+  .toast.out{opacity:0}
+  .cert{border:10px double #d97706;border-radius:18px;padding:6px;background:#fffbeb}
+  .cert-in{border:2px solid #fcd34d;border-radius:12px;padding:20px 18px;text-align:center}
+  .cert-top{font-size:12px;letter-spacing:2px;font-weight:800;color:#b45309}
+  .cert h2{font-family:Georgia,serif;font-size:34px;margin:6px 0 0;color:#7c2d12}
+  .cert-sub{font-style:italic;color:#92400e;margin-bottom:10px}
+  .cert-name{font-family:Georgia,serif;font-size:28px;font-weight:700;margin:8px 0;border-bottom:2px solid #fcd34d;display:inline-block;padding:0 18px 4px}
+  .cert-stars{font-size:34px;margin:6px 0}
+  .cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;font-size:13px;color:#78350f}
+  .cert-sign{font-family:'Brush Script MT',cursive;font-size:22px;text-align:right;line-height:1}
+  .cert-sign small{font-family:inherit;font-size:11px}
+  @media print{
+    body *{visibility:hidden}
+    #cert,#cert *{visibility:visible}
+    #cert{position:fixed;left:0;top:0;width:100%}
+    .noprint{display:none}
+  }
+  @media (max-width:520px){ .say-face svg{width:48px;height:48px} .clock-zoom{zoom:.5} .cert h2{font-size:26px} .cert-name{font-size:22px} }
   @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
   @media (max-width:520px){
     .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
@@ -213,6 +262,7 @@
     <div>
       <section class="panel" id="playPanel">
         <h2>🏪 Dag <span id="pDay">1</span> – je kraam op het schoolplein</h2>
+        <div class="scene"><div id="stallScene"></div><div class="small muted scene-cap" id="stallCaption"></div></div>
         <div id="dayNews" class="msg info"></div>
 
         <div id="priceArea">
@@ -287,12 +337,12 @@
 
 <div class="clock-overlay" id="clockOverlay" aria-hidden="true">
   <div class="clock-shell">
-    <div class="clock-face" id="clockFace">
+    <div class="clock-zoom"><div class="clock-face" id="clockFace">
       <div id="clockHours"></div>
       <div class="clock-hand-short" id="clockHandShort"></div>
       <div class="clock-hand" id="clockHand"></div>
       <div class="clock-center"></div>
-    </div>
+    </div></div>
     <div class="clock-text" id="clockText"></div>
     <div class="clock-subtext" id="clockSub"></div>
     <div class="live">
@@ -301,7 +351,7 @@
         <div><div class="k">🚶 Weggelopen</div><div class="v" id="liveWalk" style="color:var(--bad)">0</div></div>
         <div><div class="k">💶 In de kassa</div><div class="v" id="liveRev">€ 0,00</div></div>
       </div>
-      <div class="live-queue" id="liveQueue"></div>
+      <div class="plein" id="plein"></div>
       <div class="live-full" id="liveFull"></div>
     </div>
   </div>
@@ -734,6 +784,7 @@ function closeModal(){
 function showModal(html, voork){
   $('modal').classList.toggle('voork', !!voork);
   $('modal').innerHTML = html;
+  $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop');
   $('overlay').classList.remove('hidden');
   $('modal').scrollTop = 0;
 }
@@ -864,7 +915,7 @@ function beginDay(){
 
 function wholesaleIntro(){
   showModal(`<div class="tag">🚚 Bezoek</div><h2>De groothandel komt langs</h2>
-    <p>Je vaste leverancier van aardappelen, olie en bakjes wil weten hoe goed jij je zaken kent. Wie verstand van zaken heeft, krijgt korting.</p>
+    ${say('henk', 'Ik ben je vaste leverancier van aardappelen, olie en bakjes. Ik wil weten hoe goed jij je zaken kent. Wie verstand van zaken heeft, krijgt korting!')}
     <p class="small muted">Eerst even je voorkennis opfrissen.</p>
     <button class="cta" onclick="closeModal()">Verder</button>`);
 }
@@ -872,17 +923,18 @@ function rainIntro(){
   const s = setup();
   showModal(`<div class="tag">🌧️ Regendag</div><h2>Je kraam blijft dicht</h2>
     <p>Het regent zo hard dat niemand naar buiten komt. Je verkoopt vandaag niets. Maar let op: je <b>vaste kosten</b> (${eur(s.costs.reduce((a, c) => a + c[1], 0))}) betaal je gewoon!</p>
-    <p>Je gebruikt de dag voor een <b>ondernemerscursus</b> over de markt.</p>
+    ${say('bakker', 'Je kunt toch niet open. Kom naar mijn <b>ondernemerscursus</b> over de markt!')}
     <button class="cta" onclick="closeModal()">Naar de cursus</button>`);
 }
 function kvkIntro(){
   showModal(`<div class="tag">🏢 Kamer van Koophandel</div><h2>Workshop: macht op de markt</h2>
-    <p>Sinds SnackPoint er is, moet je opletten. De Kamer van Koophandel geeft een workshop over marktvormen en over hoe je je kunt onderscheiden van de concurrent.</p>
+    ${say('ilse', 'Sinds SnackPoint er is, moet je opletten. Vanavond geef ik een workshop over marktvormen en over hoe je je kunt onderscheiden van de concurrent.')}
     <button class="cta" onclick="closeModal()">Naar de workshop</button>`);
 }
 function competitorModal(){
   showModal(`<div class="tag">⚠️ Concurrentie</div><h2>🌭 SnackPoint opent aan de overkant!</h2>
-    <p>SnackPoint verkoopt precies dezelfde patat, voor maar <b>${eur(COMPETITOR_PRICE)}</b> (consumentenprijs). Iedereen kan beide prijsborden zien.</p>
+    ${say('rocco', `Hoi buurman! Vanaf vandaag verkoop ik ook patat. Precies dezelfde patat, voor maar <b>${eur(COMPETITOR_PRICE)}</b>. Succes ermee!`)}
+    <p>Iedereen kan beide prijsborden zien.</p>
     <p>Hoe hoger jouw prijs boven die van SnackPoint, hoe meer klanten overstappen. Moet je je prijs aanpassen?</p>
     <button class="cta" onclick="closeModal()">Ik ga het bekijken</button>`);
 }
@@ -925,7 +977,7 @@ function investModal(){
 }
 function envModal(){
   showModal(`<div class="tag">🗑️ Afval op het schoolplein</div><h2>De conciërge is boos</h2>
-    <p>Na elke pauze liggen er lege plastic bakjes en vorkjes van jouw kraam op het plein en in de bosjes. De conciërge moet het elke dag opruimen.</p>
+    ${say('ger', 'Na elke pauze liggen er lege plastic bakjes en vorkjes van jouw kraam op het plein en in de bosjes. En wie mag het elke dag opruimen? Ik!')}
     <p>De school vraagt je er iets aan te doen, en de <b>gemeente</b> laat weten dat ze kramen met veel zwerfafval een afvalheffing kan opleggen. Wat doe jij?</p>
     <div class="options" id="envOpts">${optionButtons(ENV_OPTIONS)}</div>
     <button class="cta" id="envConfirm" disabled>Bevestig mijn keuze</button>`);
@@ -941,7 +993,7 @@ function envModal(){
 }
 function cartelModal(){
   showModal(`<div class="tag">🤝 Een geheim voorstel</div><h2>SnackPoint wil een afspraak maken</h2>
-    <p>De eigenaar van SnackPoint fluistert: <i>"Die prijsoorlog kost ons allebei geld. Zullen we vandaag <b>allebei ${eur(CARTEL_PRICE)}</b> vragen? Dan kunnen de leerlingen nergens goedkoper terecht en verdienen we allebei meer. Niemand hoeft het te weten…"</i></p>
+    ${say('rocco', `<i>"Die prijsoorlog kost ons allebei geld. Zullen we vandaag <b>allebei ${eur(CARTEL_PRICE)}</b> vragen? Dan kunnen de leerlingen nergens goedkoper terecht en verdienen we allebei meer. Niemand hoeft het te weten…"</i>`, true)}
     <div class="options" id="cartOpts">
       <button class="option" data-k="join"><b>🤝 Afgesproken!</b><span class="small">Vandaag vragen jullie allebei ${eur(CARTEL_PRICE)}. Je prijs ligt vast.</span></button>
       <button class="option" data-k="refuse"><b>✋ Nee, dat doe ik niet</b><span class="small">Je bepaalt zelf je prijs, net als altijd.</span></button>
@@ -1061,6 +1113,7 @@ function reportModal(h){
       <div class="kpi"><div class="k">Porties verkocht (afzet)</div><div class="v">${h.sold}</div></div></div>`}
     <div class="calc">${calc}</div>${kp}${parts.join('')}
     <button class="cta" id="nextBtn">${d >= DAYS ? 'Afsluiten 🏁' : 'Volgende dag ➡️'}</button>`);
+  celebrateDay(h);
   const nb = $('nextBtn'), label = nb.textContent;
   let left = REPORT_READ_SECONDS;
   nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je dagrapport… ${left}`;
@@ -1081,7 +1134,7 @@ function mergerModal(){
   teach(['fusie'], 'n');
   queueModal(() => {
     showModal(`<div class="tag">🤝 Na sluitingstijd</div><h2>SnackPoint stelt een fusie voor</h2>
-      <p>De eigenaar van SnackPoint komt langs: <i>"We zitten elkaar alleen maar in de weg. Zullen we samen één bedrijf worden?"</i></p>
+      ${say('rocco', '"We zitten elkaar alleen maar in de weg. Zullen we samen één bedrijf worden?"')}
       <p>Als jullie fuseren, is er nog maar <b>één aanbieder</b> op het schoolplein.</p>
       <div class="options" id="mergOpts">
         <button class="option" data-k="yes"><b>🤝 Ja, we fuseren</b><span class="small">Samen sterker, en geen concurrent meer.</span></button>
@@ -1105,10 +1158,10 @@ function mergerModal(){
 
 // ---------- DEEL 2: VERLOOP ----------
 function beginDay2(d){
-  if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => simpleModal('🏢 Kamer van Koophandel', 'Je schrijft je bedrijf in', '<p>Elk bedrijf in Nederland moet ingeschreven staan bij de Kamer van Koophandel. Bij de inschrijving kies je een <b>ondernemingsvorm</b> en krijg je advies over je verzekering en administratie.</p>', 'Naar de inschrijving'));
+  if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => simpleModal('🏢 Kamer van Koophandel', 'Je schrijft je bedrijf in', say('ilse', 'Welkom terug! Elk bedrijf in Nederland moet bij ons ingeschreven staan. Bij de inschrijving kies je een <b>ondernemingsvorm</b> en geef ik je advies over je verzekering en administratie.'), 'Naar de inschrijving'));
   if(d === D2.VACANCY) queueModal(vacancyModal);
-  if(d === D2.RAIN2 && !state.quiz.course2) queueModal(() => simpleModal('🌧️ Regendag', 'Je kraam blijft weer dicht', `<p>Het regent pijpenstelen. Je verkoopt niets, maar je vaste kosten (${eur(setup().costs.reduce((a, c) => a + c[1], 0))}) betaal je wel.</p><p>Je gebruikt de dag voor een <b>werkgeverscursus</b> over de arbeidsmarkt. Wie het goed doet, krijgt via het UWV extra sollicitanten.</p>`, 'Naar de cursus'));
-  if(d === D2.INSPECTION && !state.quiz.inspection) queueModal(() => simpleModal('🦺 Arbeidsinspectie', 'Onverwacht bezoek!', '<p>Een inspecteur van de Nederlandse Arbeidsinspectie komt langs. Als werkgever moet je de regels kennen over veilig werken, werktijden en loon.</p>', 'Laat maar komen'));
+  if(d === D2.RAIN2 && !state.quiz.course2) queueModal(() => simpleModal('🌧️ Regendag', 'Je kraam blijft weer dicht', `<p>Het regent pijpenstelen. Je verkoopt niets, maar je vaste kosten (${eur(setup().costs.reduce((a, c) => a + c[1], 0))}) betaal je wel.</p>${say('bakker', 'Kom naar mijn <b>werkgeverscursus</b> over de arbeidsmarkt! Wie het goed doet, krijgt via het UWV extra sollicitanten.')}`, 'Naar de cursus'));
+  if(d === D2.INSPECTION && !state.quiz.inspection) queueModal(() => simpleModal('🦺 Arbeidsinspectie', 'Onverwacht bezoek!', say('inspecteur', 'Goedemiddag, Nederlandse Arbeidsinspectie. Als werkgever moet u de regels kennen over veilig werken, werktijden en loon. Ik heb een paar vragen voor u.'), 'Laat maar komen'));
   teachDay(d);
   if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => runQuiz('kvkreg', c => {
     state.adminCost = Math.max(0, ADMIN_BASE - c + (4 - c));
@@ -1143,8 +1196,8 @@ function interviewModal(){
   let step = 0;
   const answers = {};
   function card(c){
-    return `<div class="calc" style="margin:10px 0"><b>${c.icon} ${c.name} (${c.age} jaar)</b><br>
-      <span class="small">${c.story}</span><br><span class="small"><b>Waarom wil ${c.name} werken?</b> ${c.motive}</span><br>
+    return `<div class="calc cand" style="margin:10px 0"><div class="cand-head">${faceSvg(c.id, 58)}<div><b>${c.name} (${c.age} jaar)</b><br><span class="small">${c.story}</span></div></div>
+      ${say(c.id, c.motive)}
       <span class="small"><b>Opleiding:</b> ${c.diploma}</span><br>
       <span class="small"><b>Loon volgens cao:</b> ${eur(c.wage)} per dag${c.age >= 21 ? ' (minimaal het minimumloon)' : ' (jeugdloon)'}</span></div>`;
   }
@@ -1167,7 +1220,7 @@ function interviewModal(){
     state.idAnswers = answers;
     showModal(`<div class="tag">👥 Keuze</div><h2>Wie neem je aan?</h2>
       <p class="small">Met een medewerker erbij kun je meer porties maken, maar je betaalt wel loon. Je kunt ook niemand aannemen.</p>
-      <div class="options" id="candOpts">${list.map(c => `<button class="option" data-k="${c.id}"><b>${c.icon} ${c.name} (${c.age})</b><span class="small">${eur(c.wage)} per dag · ${c.diploma}</span></button>`).join('')}
+      <div class="options" id="candOpts">${list.map(c => `<button class="option opt-face" data-k="${c.id}">${faceSvg(c.id, 40)}<b>${c.name} (${c.age})</b><span class="small">${eur(c.wage)} per dag · ${c.diploma}</span></button>`).join('')}
         <button class="option" data-k="none"><b>🙅 Niemand</b><span class="small">Je blijft alleen in je kraam (zzp'er).</span></button></div>
       <div id="reasonBox"></div>`);
     document.querySelectorAll('#candOpts .option').forEach(b => b.onclick = () => {
@@ -1224,7 +1277,8 @@ function kioskModal(){
   const w = state.worker;
   const hasWorker = w && !state.kiosk;
   showModal(`<div class="tag">🤖 Technologische ontwikkeling</div><h2>Een bestelzuil?</h2>
-    <p>Een leverancier biedt je een <b>bestelzuil</b> aan: klanten bestellen en betalen zelf op een scherm. Kosten: <b>${eur0(KIOSK.price)}</b>, gaat ${KIOSK.life} dagen mee (afschrijving ${eur(KIOSK.price / KIOSK.life)} per dag).</p>
+    ${say('tim', 'Met mijn bestelzuil bestellen en betalen klanten zelf op een scherm. Echt de toekomst!')}
+    <p>Tim biedt je een <b>bestelzuil</b> aan: klanten bestellen en betalen zelf op een scherm. Kosten: <b>${eur0(KIOSK.price)}</b>, gaat ${KIOSK.life} dagen mee (afschrijving ${eur(KIOSK.price / KIOSK.life)} per dag).</p>
     <p>Met de zuil hoef je niet meer zelf af te rekenen: je productiecapaciteit wordt <b>${Math.round(setup({ noWorker:true }).fryerCap * KIOSK.factor)}</b> porties per dag.${hasWorker ? ` Maar dan heb je ${w.name} niet meer nodig…` : ''}</p>
     <div class="options" id="kioskOpts">
       <button class="option" data-k="kiosk" ${state.money < KIOSK.price ? 'disabled' : ''}><b>🤖 Koop de bestelzuil</b><span class="small">${hasWorker ? `${w.name} raakt de baan kwijt.` : 'Geen loon, wel afschrijving.'}${state.money < KIOSK.price ? ' (Te weinig geld in kas.)' : ''}</span></button>
@@ -1285,7 +1339,10 @@ function endReport2(){
     </tbody></table>
     ${w ? `<p class="small">💡 Let op de arbeidsproductiviteit: samen maken jullie méér porties, maar per persoon minder dan jij alleen. Een extra medewerker loont alleen als de extra omzet hoger is dan het loon.</p>` : ''}
     <p class="small muted">Je resultaten zijn opgeslagen. Goed gedaan: je hebt hoofdstuk 3 én 4 doorlopen!</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu2">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport2);
+  if(stars) confetti(40 * stars);
   $('endMenu2').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1310,7 +1367,7 @@ function runDayClock(h, done){
   const ov = $('clockOverlay'), face = $('clockFace');
   ov.classList.add('show'); ov.classList.toggle('rain', h.closed); ov.setAttribute('aria-hidden', 'false');
   $('liveServed').textContent = '0'; $('liveWalk').textContent = '0'; $('liveRev').textContent = eur(0);
-  $('liveQueue').innerHTML = h.closed ? '<span>🌧️</span><span>🌧️</span><span>🌧️</span>' : ''; $('liveFull').textContent = h.closed ? 'Kraam dicht vanwege de regen.' : '';
+  pleinInit(h); $('liveFull').textContent = h.closed ? 'Kraam dicht vanwege de regen.' : '';
   let shownServed = 0, shownWalk = 0;
   const start = performance.now();
   const phases = h.closed ? [
@@ -1334,10 +1391,8 @@ function runDayClock(h, done){
     ov.style.background = ph[1]; face.className = 'clock-face ' + ph[2];
     $('clockText').textContent = ph[3]; $('clockSub').textContent = ph[4];
     if(!h.closed){
-      const arrived = Math.round(h.want * customerShare(t)), served = Math.min(arrived, h.sold), walk = arrived - served, q = $('liveQueue');
-      while(shownServed < served){ shownServed++; q.insertAdjacentHTML('afterbegin', `<span>${CUSTOMER_ICONS[shownServed % CUSTOMER_ICONS.length]}</span>`); }
-      while(shownWalk < walk){ shownWalk++; q.insertAdjacentHTML('afterbegin', '<span title="weggelopen">🚶</span>'); }
-      while(q.children.length > 24) q.lastElementChild.remove();
+      const arrived = Math.round(h.want * customerShare(t)), served = Math.min(arrived, h.sold), walk = arrived - served;
+      pleinUpdate(t, served, walk);
       $('liveServed').textContent = served; $('liveWalk').textContent = walk; $('liveRev').textContent = eur(served * h.price);
       if(walk > 0) $('liveFull').textContent = `⚠️ Je kraam zit vol! Je productiecapaciteit is ${h.cap} porties per dag.`;
     }
@@ -1405,7 +1460,10 @@ function endReport(){
     <div class="small muted">Totaal nettoresultaat als je elke dag de best mogelijke prijs had gekozen (met jouw quizresultaten, zonder kartel):</div>
     <table><tbody>${cmp}</tbody></table>
     <p class="small muted" style="margin-top:10px">Je resultaten zijn opgeslagen. In <b>deel 2</b> ga je verder met deze kraam, zodra je docent dat openzet.</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport);
+  if(stars) confetti(40 * stars);
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1505,6 +1563,7 @@ function render(){
     : '<span class="small muted">Nog geen begrippen.</span>';
   document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
   renderChart();
+  renderStall(); applyMood();
 }
 function renderChart(){
   const W = 420, H = 210, pad = { l:44, r:10, t:12, b:26 };
@@ -1714,6 +1773,273 @@ function teacherTest(n, inv){
     history: [{ day:1, net:550, closed:true, want:0, sold:0, price:0, walkaways:0 }] });
   try{ localStorage.setItem(LOCAL_KEY + GAME_KEY, JSON.stringify(sample)); }catch(e){}
   startDeel2(null, sample);
+}
+
+
+// =====================================================================
+// BEELD: kraam, schoolplein, gezichten, feest, oorkonde, weer
+// (alleen weergave – verandert niets aan de spelregels of de opslag)
+// =====================================================================
+const SKIN = ['#ffdbac','#f1c27d','#e0ac69','#c68642','#a0663c','#8d5524'];
+const SHIRTS = ['#2563eb','#16a34a','#db2777','#7c3aed','#ea580c','#0891b2','#ca8a04','#dc2626'];
+
+// ---------- een poppetje (voor kraam en plein) ----------
+function personSvg(x, y, s, o = {}){
+  const skin = o.skin || '#f1c27d', shirt = o.shirt || '#2563eb', hair = o.hair || '#3f2a1d';
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <rect x="-9" y="2" width="18" height="22" rx="8" fill="${shirt}"/>
+    ${o.apron ? '<rect x="-6" y="8" width="12" height="15" rx="3" fill="#fff" opacity=".9"/>' : ''}
+    <circle cx="0" cy="-6" r="9" fill="${skin}"/>
+    <path d="M-9,-7 C-9,-17 9,-17 9,-7 C6,-12 -6,-12 -9,-7 Z" fill="${hair}"/>
+    ${o.cap ? `<path d="M-9,-10 C-9,-19 9,-19 9,-10 Z" fill="${o.cap}"/><rect x="2" y="-11" width="11" height="3" rx="1.5" fill="${o.cap}"/>` : ''}
+    <circle cx="-3" cy="-6" r="1.2" fill="#2b2118"/><circle cx="3" cy="-6" r="1.2" fill="#2b2118"/>
+    <path d="M-3,-2 Q0,1 3,-2" stroke="#2b2118" stroke-width="1.2" fill="none"/>
+  </g>`;
+}
+
+// ---------- de kraam ----------
+function stallCore(x, y, o){
+  // x,y = linksonder van de toonbank; breedte 200
+  const stripes = Array.from({ length:10 }, (_, i) => `<rect x="${x - 10 + i * 22}" y="${y - 118}" width="22" height="30" fill="${i % 2 ? '#fff7ed' : '#f97316'}"/>`).join('');
+  const scallop = Array.from({ length:10 }, (_, i) => `<path d="M${x - 10 + i * 22},${y - 88} q11,14 22,0" fill="${i % 2 ? '#fff7ed' : '#f97316'}"/>`).join('');
+  let fryer = '';
+  if(o.fryer === 'modern') fryer = `<rect x="${x + 112}" y="${y - 52}" width="64" height="34" rx="5" fill="#cbd5e1" stroke="#64748b"/><rect x="${x + 118}" y="${y - 47}" width="52" height="8" rx="2" fill="#0f172a"/><text x="${x + 144}" y="${y - 41}" font-size="6" fill="#4ade80" text-anchor="middle">PRO 75</text>
+      <path d="M${x + 126},${y - 56} q-4,-8 0,-14 M${x + 144},${y - 56} q-4,-8 0,-14 M${x + 162},${y - 56} q-4,-8 0,-14" stroke="#e2e8f0" stroke-width="2.5" fill="none" class="steam"/>`;
+  else if(o.fryer === 'used') fryer = `<rect x="${x + 118}" y="${y - 46}" width="50" height="28" rx="4" fill="#9ca3af" stroke="#6b7280"/><circle cx="${x + 130}" cy="${y - 38}" r="3" fill="#dc2626"/>
+      <path d="M${x + 132},${y - 50} q-4,-8 0,-12 M${x + 152},${y - 50} q-4,-8 0,-12" stroke="#e5e7eb" stroke-width="2" fill="none" class="steam"/>`;
+  else fryer = `<rect x="${x + 124}" y="${y - 38}" width="38" height="20" rx="3" fill="#78716c"/><rect x="${x + 158}" y="${y - 34}" width="16" height="3" fill="#57534e"/>`;
+  const owner = o.noOwner ? '' : personSvg(x + 60, y - 40, 1.25, { skin:o.skin || '#f1c27d', shirt:'#d97706', hair:'#3f2a1d', apron:true, cap:'#b45309' });
+  const worker = o.worker ? personSvg(x + 92, y - 38, 1.1, { skin:o.worker.skin, shirt:'#0d9488', hair:o.worker.hair, apron:true }) : '';
+  const sauce = o.sauce ? `<rect x="${x + 18}" y="${y - 22}" width="10" height="20" rx="3" fill="#dc2626"/><rect x="${x + 20}" y="${y - 26}" width="6" height="5" fill="#fbbf24"/><text x="${x + 23}" y="${y - 9}" font-size="5" fill="#fff" text-anchor="middle">SAUS</text>` : '';
+  const priceTag = o.price != null ? `<rect x="${x + 150}" y="${y + 10}" width="44" height="22" rx="4" fill="#1f2937"/><text x="${x + 172}" y="${y + 25}" font-size="11" font-weight="700" fill="#fde68a" text-anchor="middle">${eur(o.price)}</text>` : '';
+  return `
+    <rect x="${x - 4}" y="${y - 88}" width="6" height="90" fill="#92400e"/><rect x="${x + 198}" y="${y - 88}" width="6" height="90" fill="#92400e"/>
+    <rect x="${x}" y="${y - 88}" width="200" height="72" fill="#fef3c7" opacity=".55"/>
+    ${fryer}${owner}${worker}
+    ${stripes}${scallop}
+    <rect x="${x + 40}" y="${y - 136}" width="120" height="22" rx="6" fill="#7c2d12"/><text x="${x + 100}" y="${y - 120}" font-size="13" font-weight="800" fill="#fde68a" text-anchor="middle" letter-spacing="1">🍟 PATAT</text>
+    <rect x="${x - 6}" y="${y - 20}" width="212" height="12" rx="3" fill="#b45309"/>
+    <rect x="${x}" y="${y - 8}" width="200" height="48" fill="#ea580c"/><rect x="${x}" y="${y - 8}" width="200" height="48" fill="url(#woodLines)"/>
+    ${sauce}${priceTag}`;
+}
+function stallSceneSvg(){
+  if(!state) return '';
+  const d = state.day, closed = isClosedDay() && !state.finished, cold = part === 2 && d === D2.COLD;
+  const w = part === 2 && state.worker && !state.kiosk && workerWorks() ? workerLook(state.worker.id) : null;
+  const sky = closed ? ['#94a3b8','#cbd5e1'] : cold ? ['#bfdbfe','#eff6ff'] : ['#7dd3fc','#e0f2fe'];
+  let weather = '';
+  if(closed) weather = `<g class="rain">${Array.from({ length:40 }, (_, i) => `<line x1="${(i * 53) % 640}" y1="${(i * 37) % 120}" x2="${(i * 53) % 640 - 4}" y2="${(i * 37) % 120 + 10}" stroke="#64748b" stroke-width="1.5"/>`).join('')}</g>
+      <ellipse cx="120" cy="30" rx="70" ry="20" fill="#94a3b8"/><ellipse cx="480" cy="26" rx="90" ry="22" fill="#94a3b8"/>`;
+  else if(cold) weather = `<g class="snow">${Array.from({ length:28 }, (_, i) => `<circle cx="${(i * 71) % 640}" cy="${(i * 29) % 150}" r="2.2" fill="#fff"/>`).join('')}</g>`;
+  else weather = `<circle cx="580" cy="36" r="20" fill="#fde047"/><ellipse cx="140" cy="34" rx="44" ry="13" fill="#fff" opacity=".9"/><ellipse cx="380" cy="24" rx="34" ry="10" fill="#fff" opacity=".8"/>`;
+  const litter = state.env === 'none' && d >= DAY.ENV ? Array.from({ length:9 }, (_, i) => `<rect x="${60 + (i * 67) % 520}" y="${206 + (i * 13) % 18}" width="9" height="5" rx="1" fill="#fff" stroke="#d6d3d1" transform="rotate(${i * 23} ${64 + (i * 67) % 520} ${208 + (i * 13) % 18})"/>`).join('') : '';
+  const bins = state.env === 'bins' ? `<rect x="118" y="168" width="22" height="34" rx="3" fill="#15803d"/><rect x="115" y="164" width="28" height="6" rx="2" fill="#166534"/><text x="129" y="190" font-size="12" text-anchor="middle">♻️</text>` : '';
+  const paper = state.env === 'paper' ? '<rect x="404" y="128" width="64" height="26" rx="4" fill="#fff" stroke="#16a34a"/><text x="436" y="139" font-size="7.5" text-anchor="middle" fill="#166534">♻️ papieren</text><text x="436" y="149" font-size="7.5" text-anchor="middle" fill="#166534">bakjes</text>' : '';
+  const kiosk = part === 2 && state.kiosk ? '<rect x="412" y="118" width="34" height="84" rx="6" fill="#1f2937"/><rect x="417" y="124" width="24" height="34" rx="3" fill="#38bdf8"/><text x="429" y="145" font-size="12" text-anchor="middle">🍟</text><rect x="422" y="166" width="14" height="4" rx="2" fill="#4b5563"/>' : '';
+  const comp = state.competitor ? `<g transform="translate(500,120) scale(.55)">
+      <rect x="-4" y="-88" width="6" height="90" fill="#7f1d1d"/><rect x="198" y="-88" width="6" height="90" fill="#7f1d1d"/>
+      ${Array.from({ length:10 }, (_, i) => `<rect x="${-10 + i * 22}" y="-118" width="22" height="30" fill="${i % 2 ? '#fff' : '#dc2626'}"/>`).join('')}
+      <rect x="40" y="-140" width="130" height="24" rx="6" fill="#991b1b"/><text x="105" y="-123" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">SnackPoint</text>
+      ${personSvg(100, -40, 1.25, { skin:'#e0ac69', shirt:'#dc2626', hair:'#111', apron:true })}
+      <rect x="-6" y="-20" width="212" height="12" rx="3" fill="#7f1d1d"/><rect x="0" y="-8" width="200" height="48" fill="#b91c1c"/>
+      <rect x="140" y="10" width="54" height="24" rx="4" fill="#1f2937"/><text x="167" y="27" font-size="13" font-weight="700" fill="#fde68a" text-anchor="middle">${eur(state.day === DAY.CARTEL && state.cartel === 'join' ? CARTEL_PRICE : COMPETITOR_PRICE)}</text>
+    </g>` : '';
+  const queue = closed ? '' : [0, 1, 2].map(i => personSvg(300 - i * 34 + (i % 2) * 4, 200, 1.05, { skin:SKIN[(d + i * 2) % SKIN.length], shirt:SHIRTS[(d * 3 + i) % SHIRTS.length], hair:i % 2 ? '#111' : '#7c4a1e' })).join('');
+  return `<svg viewBox="0 0 640 240" class="scene-svg" role="img" aria-label="Jouw snackkraam op het schoolplein">
+    <defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient>
+      <pattern id="woodLines" width="200" height="12" patternUnits="userSpaceOnUse"><line x1="0" y1="11" x2="200" y2="11" stroke="#c2410c" stroke-width="1"/></pattern>
+      <pattern id="tiles" width="32" height="16" patternUnits="userSpaceOnUse"><rect width="32" height="16" fill="${cold ? '#e2e8f0' : '#d6d3d1'}"/><path d="M0,0 H32 M0,8 H32 M16,0 V8 M0,8 V16" stroke="#a8a29e" stroke-width=".6"/></pattern></defs>
+    <rect width="640" height="240" fill="url(#skyG)"/>${weather}
+    <rect x="0" y="40" width="110" height="140" fill="#b45309" opacity=".35"/><rect x="0" y="60" width="110" height="6" fill="#92400e" opacity=".3"/>
+    ${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${10 + c * 32}" y="${72 + r * 34}" width="20" height="22" fill="#e0f2fe" opacity=".7"/>`).join('')).join('')}
+    <text x="55" y="54" font-size="10" text-anchor="middle" fill="#7c2d12" font-weight="700">SCHOOL</text>
+    <rect x="0" y="180" width="640" height="60" fill="url(#tiles)"/>
+    ${stallCore(200, 196, { fryer: state.investment, worker: closed ? null : w, sauce: state.sauce > 0, price: closed ? null : state.price, noOwner: closed })}
+    ${bins}${paper}${kiosk}${comp}${litter}${queue}
+    ${closed ? '<rect x="240" y="130" width="120" height="30" rx="6" fill="#1f2937" opacity=".85"/><text x="300" y="150" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">GESLOTEN</text>' : ''}
+  </svg>`;
+}
+function workerLook(id){
+  const L = { daan:{ skin:'#f1c27d', hair:'#facc15' }, lotte:{ skin:'#ffe0bd', hair:'#7c4a1e' }, samira:{ skin:'#c68642', hair:'#1c1917' }, peter:{ skin:'#ffdbac', hair:'#9ca3af' }, ahmed:{ skin:'#a0663c', hair:'#111' } };
+  return L[id] || { skin:'#f1c27d', hair:'#3f2a1d' };
+}
+function renderStall(){
+  const el = $('stallScene'); if(!el) return;
+  el.innerHTML = stallSceneSvg();
+  const cap = [];
+  if(state.investment) cap.push(INVESTMENTS[state.investment].name.replace(/^\S+ /, ''));
+  if(part === 2 && state.worker && !state.kiosk) cap.push(`${state.worker.name} ${workerWorks() ? 'werkt mee' : 'is vandaag vrij'}`);
+  if(part === 2 && state.kiosk) cap.push('bestelzuil');
+  if(state.sauce) cap.push('eigen saus');
+  $('stallCaption').textContent = cap.length ? cap.join(' · ') : 'Je begint klein: een oude pan en jij achter de toonbank.';
+}
+
+// ---------- gezichten en tekstballonnen ----------
+const CHARS = {
+  henk:{ name:'Henk van de groothandel', skin:'#f1c27d', hair:'#9ca3af', shirt:'#1d4ed8', cap:'#1e3a8a', mustache:true },
+  rocco:{ name:'Rocco van SnackPoint', skin:'#e0ac69', hair:'#111', shirt:'#dc2626', bandana:'#b91c1c' },
+  ger:{ name:'Ger, de conciërge', skin:'#ffdbac', hair:'#d1d5db', shirt:'#1e40af', glasses:true, bald:true },
+  ilse:{ name:'Ilse van de Kamer van Koophandel', skin:'#f5d0b0', hair:'#eab308', shirt:'#334155', glasses:true, bun:true },
+  bakker:{ name:'Mevrouw Bakker, cursusleider', skin:'#8d5524', hair:'#1c1917', shirt:'#7c3aed', curls:true },
+  inspecteur:{ name:'De inspecteur', skin:'#c68642', hair:'#111', shirt:'#f97316', helmet:'#facc15' },
+  tim:{ name:'Tim van TechKassa', skin:'#ffdbac', hair:'#7c4a1e', shirt:'#0f172a', glasses:true },
+  daan:{ name:'Daan', skin:'#f1c27d', hair:'#facc15', shirt:'#0ea5e9' },
+  lotte:{ name:'Lotte', skin:'#ffe0bd', hair:'#7c4a1e', shirt:'#db2777', ponytail:true },
+  samira:{ name:'Samira', skin:'#c68642', hair:'#1c1917', shirt:'#16a34a', long:true },
+  peter:{ name:'Peter', skin:'#ffdbac', hair:'#9ca3af', shirt:'#475569', tie:true },
+  ahmed:{ name:'Ahmed', skin:'#a0663c', hair:'#111', shirt:'#ca8a04', beard:true }
+};
+function faceSvg(k, size = 64){
+  const c = CHARS[k] || CHARS.henk;
+  const hair = c.bald ? `<path d="M14,30 C14,22 18,18 22,18 M50,30 C50,22 46,18 42,18" stroke="${c.hair}" stroke-width="4" fill="none"/>`
+    : c.curls ? `<circle cx="20" cy="20" r="8" fill="${c.hair}"/><circle cx="32" cy="14" r="9" fill="${c.hair}"/><circle cx="44" cy="20" r="8" fill="${c.hair}"/>`
+    : c.long ? `<path d="M12,30 C10,10 54,10 52,30 L54,52 L46,52 L46,30 L18,30 L18,52 L10,52 Z" fill="${c.hair}"/>`
+    : `<path d="M14,28 C14,10 50,10 50,28 C44,20 20,20 14,28 Z" fill="${c.hair}"/>`;
+  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true">
+    <circle cx="32" cy="32" r="31" fill="#fef3c7"/>
+    <path d="M10,64 C10,48 54,48 54,64 Z" fill="${c.shirt}"/>
+    ${c.tie ? '<path d="M32,50 l-3,6 l3,8 l3,-8 Z" fill="#b91c1c"/>' : ''}
+    ${c.long ? hair : ''}
+    <circle cx="32" cy="31" r="16" fill="${c.skin}"/>
+    ${c.long ? '<path d="M16,28 C16,14 48,14 48,28 C42,21 22,21 16,28 Z" fill="' + c.hair + '"/>' : hair}
+    ${c.bun ? `<circle cx="32" cy="12" r="6" fill="${c.hair}"/>` : ''}
+    ${c.ponytail ? `<path d="M46,22 q10,6 6,20 q-4,-10 -8,-14 Z" fill="${c.hair}"/>` : ''}
+    ${c.cap ? `<path d="M15,24 C15,10 49,10 49,24 Z" fill="${c.cap}"/><rect x="38" y="21" width="16" height="4" rx="2" fill="${c.cap}"/>` : ''}
+    ${c.helmet ? `<path d="M14,26 C14,8 50,8 50,26 Z" fill="${c.helmet}"/><rect x="12" y="24" width="40" height="4" rx="2" fill="${c.helmet}"/>` : ''}
+    ${c.bandana ? `<path d="M15,22 C18,13 46,13 49,22 L49,25 L15,25 Z" fill="${c.bandana}"/>` : ''}
+    <circle cx="26" cy="31" r="2" fill="#1f2937"/><circle cx="38" cy="31" r="2" fill="#1f2937"/>
+    ${c.glasses ? '<circle cx="26" cy="31" r="5" fill="none" stroke="#1f2937" stroke-width="1.5"/><circle cx="38" cy="31" r="5" fill="none" stroke="#1f2937" stroke-width="1.5"/><line x1="31" y1="31" x2="33" y2="31" stroke="#1f2937" stroke-width="1.5"/>' : ''}
+    ${c.mustache ? '<path d="M24,38 q8,-4 16,0 q-8,3 -16,0 Z" fill="#6b7280"/>' : ''}
+    ${c.beard ? `<path d="M17,33 C18,48 46,48 47,33 C44,42 20,42 17,33 Z" fill="${c.hair}"/>` : ''}
+    <path d="M27,40 Q32,44 37,40" stroke="#7c2d12" stroke-width="1.8" fill="none"/>
+  </svg>`;
+}
+function say(k, html, whisper){
+  const c = CHARS[k] || CHARS.henk;
+  return `<div class="say ${whisper ? 'whisper' : ''}"><div class="say-face">${faceSvg(k)}</div><div class="say-bubble"><div class="say-name">${c.name}</div>${html}</div></div>`;
+}
+
+// ---------- schoolplein tijdens de klok ----------
+let plein = null;
+function pleinInit(h){
+  const box = $('plein'); if(!box) return;
+  const closed = h.closed;
+  box.innerHTML = `<svg viewBox="0 0 480 150" class="plein-svg" aria-hidden="true">
+    <rect width="480" height="150" fill="${closed ? '#94a3b8' : '#bae6fd'}" id="pleinSky"/>
+    <rect x="0" y="100" width="480" height="50" fill="#d6d3d1"/>
+    <rect x="0" y="22" width="92" height="86" fill="#c2410c" opacity=".55"/><rect x="58" y="72" width="22" height="34" fill="#7c2d12"/>
+    ${[0, 1].map(r => [0, 1].map(c => `<rect x="${10 + c * 24}" y="${34 + r * 24}" width="16" height="16" fill="#e0f2fe" opacity=".8"/>`).join('')).join('')}
+    <text x="46" y="18" font-size="9" text-anchor="middle" fill="#7c2d12" font-weight="700">SCHOOL</text>
+    <g transform="translate(250,122) scale(.42)">${stallCore(0, 0, { fryer: state.investment, worker: part === 2 && h.workerWorked ? workerLook(state.worker.id) : null, sauce: state.sauce > 0, price: null })}</g>
+    ${state.competitor ? `<g transform="translate(400,122) scale(.3)">${Array.from({ length:10 }, (_, i) => `<rect x="${-10 + i * 22}" y="-118" width="22" height="30" fill="${i % 2 ? '#fff' : '#dc2626'}"/>`).join('')}<rect x="0" y="-88" width="200" height="72" fill="#fee2e2"/><rect x="0" y="-8" width="200" height="48" fill="#b91c1c"/><text x="100" y="22" font-size="26" fill="#fff" text-anchor="middle" font-weight="800">SnackPoint</text></g>` : ''}
+    ${closed ? Array.from({ length:36 }, (_, i) => `<line x1="${(i * 37) % 480}" y1="${(i * 23) % 100}" x2="${(i * 37) % 480 - 3}" y2="${(i * 23) % 100 + 9}" stroke="#475569" stroke-width="1.3" class="drop"/>`).join('') : ''}
+    <g id="pleinPeople"></g>
+  </svg>`;
+  const k = Math.max(1, Math.ceil(((h.want || 0) + (h.compSold || 0)) / 36));
+  plein = { people:[], served:0, walk:0, comp:0, k, compTarget: h.compSold || 0, last: performance.now(), want: h.want || 1, layer: $('pleinPeople'),
+    speed: 200 / Math.max(.6, CLOCK_DURATION * .1 / 1000) };
+}
+function pleinSpawn(kind){
+  if(!plein) return;
+  const id = plein.people.length, skin = SKIN[id % SKIN.length], shirt = SHIRTS[(id * 3) % SHIRTS.length];
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.innerHTML = personSvg(0, 0, .62, { skin, shirt, hair: id % 3 ? '#3f2a1d' : '#111' }) + (kind === 'walk' ? '<text x="6" y="-12" font-size="9" class="mood" opacity="0">😤</text>' : '') + '<text x="7" y="2" font-size="9" class="fries" opacity="0">🍟</text>';
+  plein.layer.appendChild(g);
+  const lane = 118 + (id % 4) * 6;
+  const p = { g, kind, x: 70, y: lane, phase: 'go', t: 0, speed: plein.speed * (.85 + (id % 5) * .08) };
+  p.tx = kind === 'comp' ? 412 + (id % 3) * 10 : kind === 'walk' ? 215 - (id % 4) * 10 : 262 + (id % 4) * 14;
+  plein.people.push(p);
+}
+function pleinUpdate(t, served, walk){
+  if(!plein) return;
+  const now = performance.now(), dt = Math.min(.05, (now - plein.last) / 1000); plein.last = now;
+  let budget = 3;
+  const K = plein.k; served = Math.floor(served / K); walk = Math.ceil(walk / K);
+  while(plein.served < served && budget-- > 0){ plein.served++; pleinSpawn('serve'); }
+  while(plein.walk < walk && budget-- > 0){ plein.walk++; pleinSpawn('walk'); }
+  const compNow = Math.floor(plein.compTarget * customerShare(t) / K);
+  while(plein.comp < compNow && budget-- > 0){ plein.comp++; pleinSpawn('comp'); }
+  plein.people.forEach(p => {
+    if(p.phase === 'gone') return;
+    if(p.phase === 'go'){
+      const dx = p.tx - p.x; p.x += Math.sign(dx) * Math.min(Math.abs(dx), p.speed * dt);
+      if(Math.abs(dx) < 1){ p.phase = 'wait'; p.t = 0; }
+    } else if(p.phase === 'wait'){
+      p.t += dt;
+      if(p.kind === 'walk'){ const m = p.g.querySelector('.mood'); if(m) m.setAttribute('opacity', '1'); }
+      else { const f = p.g.querySelector('.fries'); if(f) f.setAttribute('opacity', '1'); }
+      if(p.t > CLOCK_DURATION / 14000) p.phase = 'leave';
+    } else if(p.phase === 'leave'){
+      p.x += (p.kind === 'walk' ? -1 : 1) * p.speed * 1.2 * dt; p.y += (p.kind === 'walk' ? 0 : 6 * dt);
+      if(p.x > 500 || p.x < -20){ p.phase = 'gone'; p.g.remove(); }
+    }
+    p.g.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+  });
+  const sky = $('pleinSky');
+  if(sky && !plein.closedSky) sky.setAttribute('fill', t < .375 ? '#fde68a' : t < .625 ? '#7dd3fc' : t < .875 ? '#fdba74' : '#1e3a5f');
+}
+
+// ---------- feest: confetti en munten ----------
+function confetti(n = 120, emoji){
+  let cv = $('confetti');
+  if(!cv){ cv = document.createElement('canvas'); cv.id = 'confetti'; document.body.appendChild(cv); }
+  const ctx = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const cols = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#fde047'];
+  const ps = Array.from({ length:n }, () => ({ x: Math.random() * W, y: -20 - Math.random() * H * .4, vx: (Math.random() - .5) * 2.4, vy: 2 + Math.random() * 3, r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, s: 5 + Math.random() * 6, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const start = performance.now();
+  (function tick(now){
+    ctx.clearRect(0, 0, W, H);
+    ps.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += .04; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      if(emoji){ ctx.font = (p.s * 2.4) + 'px serif'; ctx.fillText(emoji, -p.s, p.s); }
+      else { ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); }
+      ctx.restore();
+    });
+    if(now - start < 2600) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+  })(start);
+}
+function toast(text){
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = text; document.body.appendChild(t);
+  setTimeout(() => t.classList.add('out'), 2400); setTimeout(() => t.remove(), 3000);
+}
+function celebrateDay(h){
+  const after = totalNet(), before = after - h.net;
+  const sb = starsFor(before), sa = starsFor(after);
+  if(sa > sb){ confetti(160); toast(`${'⭐'.repeat(sa)} Je haalde ster ${sa}!`); return; }
+  const open = state.history.filter(x => !x.closed && x !== h);
+  if(!h.closed && h.net > 0 && open.length && h.net > Math.max(...open.map(x => x.net))){ confetti(60, '🪙'); toast('🏆 Je beste dag tot nu toe!'); }
+}
+
+// ---------- oorkonde ----------
+function certificateModal(back){
+  const net = totalNet(), stars = starsFor(net), name = session.student ? escapeHtml(session.student.name) : 'Jij';
+  const today = new Date().toLocaleDateString('nl-NL', { day:'numeric', month:'long', year:'numeric' });
+  const title = part === 1 ? 'Ben jij ondernemend?' : 'Werk aan de winkel!';
+  const line = part === 1 ? 'heeft 12 dagen met succes een snackkraam gerund op het schoolplein: prijzen gekozen, geïnvesteerd en het opgenomen tegen de concurrentie.'
+    : 'heeft als werkgever personeel aangenomen, een contract getekend en de kraam 12 dagen draaiende gehouden.';
+  showModal(`<div class="cert" id="cert">
+      <div class="cert-in">
+        <div class="cert-top">🍟 SNACK EMPIRE · GAME 2</div>
+        <h2>Oorkonde</h2>
+        <div class="cert-sub">${title}</div>
+        <p class="cert-name">${name}</p>
+        <p>${line}</p>
+        <div class="cert-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+        <p><b>Nettoresultaat: ${eur(net)}</b> · ${state.quizCorrect} van de ${state.quizTotal} vragen goed</p>
+        <div class="cert-foot"><span>${today}</span><span class="cert-sign">Snack Empire<br><small>Kamer van Snackhandel</small></span></div>
+      </div>
+    </div>
+    <div class="noprint" style="display:flex;gap:8px;margin-top:10px"><button class="ghost" style="flex:1" id="certBack">⬅ Terug</button><button class="cta" style="flex:1;margin-top:0" onclick="window.print()">🖨️ Printen</button></div>`);
+  $('certBack').onclick = back;
+  confetti(120);
+}
+
+// ---------- weer en stemming ----------
+function applyMood(){
+  if(!state) { document.body.className = ''; return; }
+  const closed = isClosedDay() && !state.finished, cold = part === 2 && state.day === D2.COLD && !state.finished;
+  document.body.classList.toggle('w-rain', closed); document.body.classList.toggle('w-cold', cold); document.body.classList.toggle('w-sun', !closed && !cold);
 }
 
 // ---------- START ----------
