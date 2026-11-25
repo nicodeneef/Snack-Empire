@@ -156,6 +156,7 @@
   .cal-day.vak.passed{background:#bfdbfe;color:#1e3a8a;text-decoration:none}
   .cal-day.free{background:#ede9fe;color:#5b21b6;text-decoration:none;transform:scale(1.04)}
   .cal-ico{font-size:16px;line-height:1}
+  .diploma{background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;line-height:1.5}
   .cal-day.vak.free{background:#bfdbfe}
   .spend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}
   .spend button{text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 11px;font-family:inherit;font-size:14px;display:flex;flex-direction:column;gap:2px}
@@ -485,7 +486,7 @@ const TITLES = {
   2:{ 1:'een budgetplan', 2:'nu kopen, later betalen?', 3:'naar de bank', 4:'december en pech', 5:'de ECB verhoogt de rente', 6:'het Nibud op bezoek', 7:'beursnieuws', 8:'genoeg voor je kraam?' }
 };
 const NEWS = {
-  1:{ 1:'Gefeliciteerd met je mbo-diploma! Je werkt vier dagen per week in de keuken van cateraar FrisFood. Je woont thuis en betaalt kostgeld.',
+  1:{ 1:'Gefeliciteerd met je mbo-diploma (met een 9,2 voor economie)! Je werkt vier dagen per week in de keuken van cateraar FrisFood. Je woont thuis en betaalt kostgeld.',
       2:'Je telefoon valt van het aanrecht. Het scherm is gebarsten…', 3:'Op je tijdlijn verschijnen steeds dezelfde sneakers. Zelfs je vrienden hebben het erover.',
       4:'Het festivalseizoen begint! Je vrienden hebben al kaartjes.', 5:'In mei krijg je vakantiegeld. En FrisFood organiseert een workshop over geldzaken.',
       6:'Ome Willem werkt bij het CBS en is jarig. Op het feestje gaat het natuurlijk over cijfers…', 7:'Het nieuws meldt: de prijzen stijgen hard. Je krijgt wel 3% loonsverhoging. Is dat genoeg?',
@@ -1660,7 +1661,8 @@ function startPart(n, saved, d1){
 }
 function intro1(){
   showModal(`<div class="tag">Snack Empire · Game 1 · Deel 1</div><h2>💼 Inkomen en welvaart</h2>
-    <p>Je bent 18 en hebt net je mbo-diploma. Je droom: later een <b>eigen snackkraam</b>. Daarvoor heb je <b>${eur0(KRAAM_PRICE)}</b> startkapitaal nodig.</p>
+    <div class="diploma">🎓 <b>Geslaagd!</b> Je bent 18 en hebt net je mbo-examen gehaald. En voor economie had je een <b>9,2</b>, het hoogste cijfer van je klas. Je docent zei het al: "Jij wordt later ondernemer."</div>
+    <p>Je droom: een <b>eigen snackkraam</b>. Daarvoor heb je <b>${eur0(KRAAM_PRICE)}</b> startkapitaal nodig.</p>
     <p>Je begint bij cateraar <b>FrisFood</b> en woont nog thuis. Elke beurt is een maand: je verdient, je betaalt je vaste kosten en je kiest wat je uitgeeft. Je hebt <b>${eur0(START.money1)}</b> van je diploma-cadeaus.</p>
     <p>Let op twee meters: <b>💰 spaargeld</b> (welvaart) en <b>😊 geluk</b> (brede welvaart). Alleen sparen maakt je ongelukkig. Alleen uitgeven brengt je kraam niet dichterbij.</p>
     <div class="msg warn"><b>🎯 Doel eind augustus:</b><br>${starText()}</div>
