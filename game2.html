@@ -1739,12 +1739,13 @@ async function teacherPanel(){
           <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
             <select id="tTestInv" style="flex:1;min-width:180px;padding:8px;border-radius:10px;border:1px solid var(--line);font-family:inherit">
               <option value="modern">met moderne frituur</option><option value="used">met tweedehands frituur</option><option value="none">zonder nieuwe frituur</option></select>
+            <label class="small" style="display:flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="tTestMerger"> 🤝 na een fusie in deel 1</label>
             <button class="ghost" id="tTest2">Start deel 2 ▶️</button>
           </div></div>
       </div>
       <button class="ghost" style="width:100%;margin-top:12px" id="tClose">Sluiten</button>`);
     $('tTest1').onclick = () => teacherTest(1);
-    $('tTest2').onclick = () => teacherTest(2, $('tTestInv').value);
+    $('tTest2').onclick = () => teacherTest(2, $('tTestInv').value, $('tTestMerger').checked);
     document.querySelectorAll('.toggle').forEach(b => b.onclick = async () => {
       b.disabled = true;
       const { error } = await sb.rpc('game_set_unlock', { p_teacher_key: teacherKey, p_class: b.dataset.c, p_game: DEEL2_KEY, p_unlocked: !b.classList.contains('on') });
@@ -1759,7 +1760,7 @@ async function teacherPanel(){
 }
 
 // docent: testen zonder inloggen en zonder deel 1 af te ronden
-function teacherTest(n, inv){
+function teacherTest(n, inv, merged){
   modalQueue = []; $('overlay').classList.add('hidden');
   session.trial = true; session.teacherTest = true;
   session.student = { id:null, name:'Docent (test)', class:'TEST' };
@@ -1769,6 +1770,7 @@ function teacherTest(n, inv){
   Object.assign(sample, { day:12, finished:true, investment:inv || 'modern', env:'paper', purchaseAdj:-0.04, placeBonus:4, sauce:0.25,
     money: inv === 'none' ? 640 : inv === 'used' ? 580 : 520,
     concepts: Object.keys(CONCEPTS).filter(k => +Object.keys(SCHEDULE).find(d => SCHEDULE[d].v.concat(SCHEDULE[d].n).includes(k)) <= 12).concat(inv && inv !== 'none' ? ['afschrijving'] : []),
+    merger: merged ? 'yes' : 'no',
     history: [{ day:1, net:550, closed:true, want:0, sold:0, price:0, walkaways:0 }] });
   try{ localStorage.setItem(LOCAL_KEY + GAME_KEY, JSON.stringify(sample)); }catch(e){}
   startDeel2(null, sample);
