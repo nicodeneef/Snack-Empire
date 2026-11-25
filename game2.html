@@ -152,24 +152,24 @@
   .clock-text,.clock-subtext{background:rgba(20,14,8,.45);border-radius:12px;padding:4px 12px}
   .clock-text:empty,.clock-subtext:empty{background:none;padding:0}
 
-  /* ===== beeld (game 2 verfraaid) ===== */
+  /* ===== beeld in HD-2D ===== */
   body{transition:background-color .8s ease}
   body.w-rain{background:#e4e8ee}
   body.w-cold{background:#eaf2fa}
-  .scene{margin:4px 0 12px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#e0f2fe}
-  .scene-svg{display:block;width:100%;height:auto}
+  .scene{margin:4px 0 12px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#1d1822}
   .scene-cap{padding:5px 10px;background:var(--panel);border-top:1px solid var(--line)}
-  .scene-svg .steam{animation:steam 1.8s ease-in-out infinite}
-  @keyframes steam{0%{opacity:0;transform:translateY(4px)}50%{opacity:.9}100%{opacity:0;transform:translateY(-8px)}}
-  .scene-svg .rain line,.plein-svg .drop{animation:drop .7s linear infinite}
-  @keyframes drop{from{transform:translateY(-12px)}to{transform:translateY(12px)}}
-  .scene-svg .snow circle{animation:snow 3s linear infinite}
-  @keyframes snow{from{transform:translateY(-10px)}to{transform:translateY(14px)}}
-  .clock-zoom{zoom:.62}
+  .hd{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#1d1822}
+  .hd canvas{position:absolute;left:-3%;top:-3%;width:106%;height:106%;image-rendering:pixelated;image-rendering:crisp-edges}
+  .hd .hd-bg{filter:blur(1.2px) saturate(1.05)}
+  .hd .hd-fg{filter:blur(2.6px)}
+  .hd .hd-fx{image-rendering:auto;mix-blend-mode:screen}
+  .hd-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 55%,rgba(0,0,0,.5) 100%),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,0) 22%,rgba(0,0,0,0) 80%,rgba(0,0,0,.2))}
+  .clock-zoom{zoom:.55}
+  .clock-shell{max-width:640px}
   .plein{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
-  .plein-svg{display:block;width:100%;height:auto}
+  .portrait{display:block;border-radius:12px;image-rendering:pixelated;box-shadow:0 3px 10px rgba(0,0,0,.25)}
   .say{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
-  .say-face{flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+  .say-face{flex:none}
   .say-bubble{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px;flex:1;font-size:15px;line-height:1.45}
   .say-bubble:before{content:"";position:absolute;left:-8px;top:18px;border:8px solid transparent;border-right-color:#fff;border-left:0}
   .say-name{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:2px}
@@ -177,12 +177,12 @@
   .say.whisper .say-bubble:before{border-right-color:#f5f3ff}
   .cand-head{display:flex;gap:10px;align-items:center}
   .opt-face{display:flex!important;gap:10px;align-items:center;flex-wrap:wrap}
-  .opt-face svg{flex:none}
+  .opt-face img{flex:none}
   .modal.pop{animation:pop .28s ease-out}
   @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
-  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200}
-  .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 18px;border-radius:99px;font-weight:700;z-index:210;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:pop .3s ease-out;transition:opacity .5s}
-  .toast.out{opacity:0}
+  .celebrate{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;animation:pop .4s ease-out}
+  .cel-icon{font-size:28px;flex:none}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;image-rendering:pixelated}
   .cert{border:10px double #d97706;border-radius:18px;padding:6px;background:#fffbeb}
   .cert-in{border:2px solid #fcd34d;border-radius:12px;padding:20px 18px;text-align:center}
   .cert-top{font-size:12px;letter-spacing:2px;font-weight:800;color:#b45309}
@@ -193,13 +193,8 @@
   .cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;font-size:13px;color:#78350f}
   .cert-sign{font-family:'Brush Script MT',cursive;font-size:22px;text-align:right;line-height:1}
   .cert-sign small{font-family:inherit;font-size:11px}
-  @media print{
-    body *{visibility:hidden}
-    #cert,#cert *{visibility:visible}
-    #cert{position:fixed;left:0;top:0;width:100%}
-    .noprint{display:none}
-  }
-  @media (max-width:520px){ .say-face svg{width:48px;height:48px} .clock-zoom{zoom:.5} .cert h2{font-size:26px} .cert-name{font-size:22px} }
+  @media print{ body *{visibility:hidden} #cert,#cert *{visibility:visible} #cert{position:fixed;left:0;top:0;width:100%} .noprint{display:none} }
+  @media (max-width:520px){ .say-face img{width:48px;height:48px} .clock-zoom{zoom:.42} .cert h2{font-size:26px} .cert-name{font-size:22px} }
   @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
   @media (max-width:520px){
     .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
@@ -327,7 +322,7 @@
         <div id="envInfo"></div>
       </section>
       <section class="panel hidden" id="competitorPanel">
-        <h2>🌭 Concurrent: SnackPoint</h2>
+        <h2>🌭 Concurrent: Cees Patat</h2>
         <div id="compInfo"></div>
       </section>
       <div class="center"><button class="linkbtn" id="toMenuBtn">⬅ Terug naar het menu (je voortgang is bewaard)</button></div>
@@ -439,7 +434,7 @@ const CONCEPTS = {
   oligopolie:{ t:'n', title:'Oligopolie', text:'Een <b>oligopolie</b> is een marktvorm met een klein aantal aanbieders. Ze kunnen homogene of heterogene goederen aanbieden.' },
   homogenegoederen:{ t:'n', title:'Homogene goederen', text:'<b>Homogene goederen</b> zijn producten die voor klanten niet van elkaar verschillen. Patat is patat: klanten kiezen dan vooral op prijs.' },
   marktaandeel:{ t:'n', title:'Marktaandeel', text:'Het <b>marktaandeel</b> is de afzet (of omzet) van een bedrijf in procenten van de totale afzet (of omzet) op de markt.', formula:'Marktaandeel = jouw afzet ÷ totale afzet × 100%' },
-  heterogenegoederen:{ t:'n', title:'Heterogene goederen', text:'<b>Heterogene goederen</b> zijn producten waarbij het voor een klant verschil maakt wie het levert of van welk merk het is. Met een eigen saus wordt jouw patat anders dan die van SnackPoint.' },
+  heterogenegoederen:{ t:'n', title:'Heterogene goederen', text:'<b>Heterogene goederen</b> zijn producten waarbij het voor een klant verschil maakt wie het levert of van welk merk het is. Met een eigen saus wordt jouw patat anders dan die van Cees Patat.' },
   volkomenconcurrentie:{ t:'n', title:'Volkomen concurrentie', text:'<b>Volkomen concurrentie</b> is een marktvorm met veel aanbieders van homogene goederen, zoals duizenden aardappelboeren die precies dezelfde aardappelen verkopen.' },
   monopolistischeconcurrentie:{ t:'n', title:'Monopolistische concurrentie', text:'<b>Monopolistische concurrentie</b> is een marktvorm met veel aanbieders van heterogene goederen, zoals alle kappers in een stad: veel aanbieders, maar elk een eigen stijl.' },
   monopolie:{ t:'n', title:'Monopolie', text:'Een <b>monopolie</b> is een marktvorm met maar één aanbieder. Klanten kunnen nergens anders heen.' },
@@ -470,9 +465,9 @@ const DAY_NEWS = {
   6:'Van een rauwe aardappel maak jij een portie patat. Hoeveel waarde voeg jij toe?',
   7:'Er liggen steeds meer lege patatbakjes op het schoolplein…',
   8:'🌧️ Het regent pijpenstelen. Niemand komt naar buiten: je kraam blijft vandaag dicht.',
-  9:'Slecht nieuws: aan de overkant van het schoolplein is SnackPoint geopend!',
+  9:'Slecht nieuws: aan de overkant van het schoolplein is Cees Patat geopend!',
   10:'Vanochtend was je bij een workshop van de Kamer van Koophandel.',
-  11:'De eigenaar van SnackPoint wil je iets vragen…',
+  11:'De eigenaar van Cees Patat wil je iets vragen…',
   12:'Laatste dag van deel 1! Haal er nog alles uit.'
 };
 
@@ -502,14 +497,14 @@ const QUIZZES = {
       { k:'redeneren', q:'De prijs ligt bóven de evenwichtsprijs. Wat gebeurt er?', o:['Er wordt meer gevraagd dan aangeboden','Er wordt meer aangeboden dan gevraagd','Vraag en aanbod zijn gelijk','De btw stijgt'], a:1, e:'Bij een hoge prijs willen producenten veel verkopen, maar willen klanten weinig kopen. Het aanbod is groter dan de vraag.' }
     ]},
   kvk: {
-    title:'🏢 Workshop Kamer van Koophandel', intro:'Thema: macht op de markt. Heb je 3 of 4 vragen goed, dan ontwikkel je een <b>eigen saus</b>. Je patat wordt dan anders dan die van SnackPoint, en er stappen minder klanten over. Bij 2 of meer fouten: geen saus.',
+    title:'🏢 Workshop Kamer van Koophandel', intro:'Thema: macht op de markt. Heb je 3 of 4 vragen goed, dan ontwikkel je een <b>eigen saus</b>. Je patat wordt dan anders dan die van Cees Patat, en er stappen minder klanten over. Bij 2 of meer fouten: geen saus.',
     fixed:[], pool:[
       { k:'herkennen', q:'Op het schoolplein staan nu 2 patatkramen met precies dezelfde patat. Welke marktvorm is dit?', o:['Volkomen concurrentie','Monopolistische concurrentie','Oligopolie','Monopolie'], a:2, e:'Een klein aantal aanbieders: een oligopolie. Hier met homogene goederen.' },
-      { k:'redeneren', q:'Waarom maakt een eigen saus je minder gevoelig voor de lage prijs van SnackPoint?', o:['Omdat saus goedkoop is','Omdat je patat dan heterogeen wordt: klanten kiezen ook op smaak','Omdat je dan een monopolie hebt','Omdat je dan minder btw betaalt'], a:1, e:'Met een eigen saus maakt het voor klanten uit wie de patat levert: een heterogeen product. Ze letten dan niet alleen op de prijs.' },
+      { k:'redeneren', q:'Waarom maakt een eigen saus je minder gevoelig voor de lage prijs van Cees Patat?', o:['Omdat saus goedkoop is','Omdat je patat dan heterogeen wordt: klanten kiezen ook op smaak','Omdat je dan een monopolie hebt','Omdat je dan minder btw betaalt'], a:1, e:'Met een eigen saus maakt het voor klanten uit wie de patat levert: een heterogeen product. Ze letten dan niet alleen op de prijs.' },
       { k:'herkennen', q:'Op het hoofdspoornet in Nederland rijdt maar één bedrijf personentreinen. Welke marktvorm is dat?', o:['Oligopolie','Monopolie','Volkomen concurrentie','Monopolistische concurrentie'], a:1, e:'Maar één aanbieder: een monopolie.' },
       { k:'herkennen', q:'Duizenden aardappelboeren verkopen precies dezelfde aardappelen. Welke marktvorm is dat?', o:['Volkomen concurrentie','Oligopolie','Monopolie','Monopolistische concurrentie'], a:0, e:'Veel aanbieders van homogene goederen: volkomen concurrentie.' },
       { k:'herkennen', q:'In jouw stad zitten 60 kappers, en elke kapper heeft een eigen stijl. Welke marktvorm is dat?', o:['Volkomen concurrentie','Monopolistische concurrentie','Oligopolie','Monopolie'], a:1, e:'Veel aanbieders van heterogene goederen: monopolistische concurrentie.' },
-      { k:'rekenen', q:'Jij verkocht gisteren 45 porties, SnackPoint 30. Wat was jouw marktaandeel?', o:['45%','60%','40%','75%'], a:1, e:'Totale afzet = 45 + 30 = 75. Jouw marktaandeel = 45 ÷ 75 × 100% = 60%.' }
+      { k:'rekenen', q:'Jij verkocht gisteren 45 porties, Cees Patat 30. Wat was jouw marktaandeel?', o:['45%','60%','40%','75%'], a:1, e:'Totale afzet = 45 + 30 = 75. Jouw marktaandeel = 45 ÷ 75 × 100% = 60%.' }
     ]}
 };
 
@@ -904,7 +899,7 @@ function beginDay(){
   }));
   if(d === DAY.KVK && !state.quiz.kvk) queueModal(() => runQuiz('kvk', c => {
     state.sauce = c === 4 ? 0.35 : c === 3 ? 0.25 : 0;
-    return state.sauce ? `Je ontwikkelt de <b>Snackbaas-saus</b>! Je patat is nu een heterogeen product: ${pct(state.sauce)} minder klanten stapt over naar SnackPoint.`
+    return state.sauce ? `Je ontwikkelt de <b>Snackbaas-saus</b>! Je patat is nu een heterogeen product: ${pct(state.sauce)} minder klanten stapt over naar Cees Patat.`
       : 'Het lukt nog niet om een eigen saus te bedenken. Je patat blijft een homogeen product: klanten kiezen vooral op prijs.';
   }));
   if(d === DAY.INVEST && !state.investment) queueModal(investModal);
@@ -915,7 +910,7 @@ function beginDay(){
 
 function wholesaleIntro(){
   showModal(`<div class="tag">🚚 Bezoek</div><h2>De groothandel komt langs</h2>
-    ${say('henk', 'Ik ben je vaste leverancier van aardappelen, olie en bakjes. Ik wil weten hoe goed jij je zaken kent. Wie verstand van zaken heeft, krijgt korting!')}
+    ${say('chrik', 'Ik ben je vaste leverancier van aardappelen, olie en bakjes. Ik wil weten hoe goed jij je zaken kent. Wie verstand van zaken heeft, krijgt korting!')}
     <p class="small muted">Eerst even je voorkennis opfrissen.</p>
     <button class="cta" onclick="closeModal()">Verder</button>`);
 }
@@ -923,19 +918,19 @@ function rainIntro(){
   const s = setup();
   showModal(`<div class="tag">🌧️ Regendag</div><h2>Je kraam blijft dicht</h2>
     <p>Het regent zo hard dat niemand naar buiten komt. Je verkoopt vandaag niets. Maar let op: je <b>vaste kosten</b> (${eur(s.costs.reduce((a, c) => a + c[1], 0))}) betaal je gewoon!</p>
-    ${say('bakker', 'Je kunt toch niet open. Kom naar mijn <b>ondernemerscursus</b> over de markt!')}
+    ${say('wenny', 'Je kunt toch niet open. Kom naar mijn <b>ondernemerscursus</b> over de markt!')}
     <button class="cta" onclick="closeModal()">Naar de cursus</button>`);
 }
 function kvkIntro(){
   showModal(`<div class="tag">🏢 Kamer van Koophandel</div><h2>Workshop: macht op de markt</h2>
-    ${say('ilse', 'Sinds SnackPoint er is, moet je opletten. Vanavond geef ik een workshop over marktvormen en over hoe je je kunt onderscheiden van de concurrent.')}
+    ${say('karin', 'Sinds Cees Patat er is, moet je opletten. Vanavond geef ik een workshop over marktvormen en over hoe je je kunt onderscheiden van de concurrent.')}
     <button class="cta" onclick="closeModal()">Naar de workshop</button>`);
 }
 function competitorModal(){
-  showModal(`<div class="tag">⚠️ Concurrentie</div><h2>🌭 SnackPoint opent aan de overkant!</h2>
-    ${say('rocco', `Hoi buurman! Vanaf vandaag verkoop ik ook patat. Precies dezelfde patat, voor maar <b>${eur(COMPETITOR_PRICE)}</b>. Succes ermee!`)}
+  showModal(`<div class="tag">⚠️ Concurrentie</div><h2>🌭 Cees Patat opent aan de overkant!</h2>
+    ${say('cees', `Hoi buurman! Vanaf vandaag verkoop ik ook patat. Precies dezelfde patat, voor maar <b>${eur(COMPETITOR_PRICE)}</b>. Succes ermee!`)}
     <p>Iedereen kan beide prijsborden zien.</p>
-    <p>Hoe hoger jouw prijs boven die van SnackPoint, hoe meer klanten overstappen. Moet je je prijs aanpassen?</p>
+    <p>Hoe hoger jouw prijs boven die van Cees Patat, hoe meer klanten overstappen. Moet je je prijs aanpassen?</p>
     <button class="cta" onclick="closeModal()">Ik ga het bekijken</button>`);
 }
 function optionButtons(options, disabledFn){
@@ -977,7 +972,7 @@ function investModal(){
 }
 function envModal(){
   showModal(`<div class="tag">🗑️ Afval op het schoolplein</div><h2>De conciërge is boos</h2>
-    ${say('ger', 'Na elke pauze liggen er lege plastic bakjes en vorkjes van jouw kraam op het plein en in de bosjes. En wie mag het elke dag opruimen? Ik!')}
+    ${say('steef', 'Na elke pauze liggen er lege plastic bakjes en vorkjes van jouw kraam op het plein en in de bosjes. En wie mag het elke dag opruimen? Ik!')}
     <p>De school vraagt je er iets aan te doen, en de <b>gemeente</b> laat weten dat ze kramen met veel zwerfafval een afvalheffing kan opleggen. Wat doe jij?</p>
     <div class="options" id="envOpts">${optionButtons(ENV_OPTIONS)}</div>
     <button class="cta" id="envConfirm" disabled>Bevestig mijn keuze</button>`);
@@ -992,8 +987,8 @@ function envModal(){
   });
 }
 function cartelModal(){
-  showModal(`<div class="tag">🤝 Een geheim voorstel</div><h2>SnackPoint wil een afspraak maken</h2>
-    ${say('rocco', `<i>"Die prijsoorlog kost ons allebei geld. Zullen we vandaag <b>allebei ${eur(CARTEL_PRICE)}</b> vragen? Dan kunnen de leerlingen nergens goedkoper terecht en verdienen we allebei meer. Niemand hoeft het te weten…"</i>`, true)}
+  showModal(`<div class="tag">🤝 Een geheim voorstel</div><h2>Cees Patat wil een afspraak maken</h2>
+    ${say('cees', `<i>"Die prijsoorlog kost ons allebei geld. Zullen we vandaag <b>allebei ${eur(CARTEL_PRICE)}</b> vragen? Dan kunnen de leerlingen nergens goedkoper terecht en verdienen we allebei meer. Niemand hoeft het te weten…"</i>`, true)}
     <div class="options" id="cartOpts">
       <button class="option" data-k="join"><b>🤝 Afgesproken!</b><span class="small">Vandaag vragen jullie allebei ${eur(CARTEL_PRICE)}. Je prijs ligt vast.</span></button>
       <button class="option" data-k="refuse"><b>✋ Nee, dat doe ik niet</b><span class="small">Je bepaalt zelf je prijs, net als altijd.</span></button>
@@ -1004,7 +999,7 @@ function cartelModal(){
     if(k === 'join'){ state.price = CARTEL_PRICE; }
     save();
     showModal(`<div class="tag">🤝 Jouw keuze</div><h2>${k === 'join' ? 'Je doet mee aan de afspraak' : 'Je weigert'}</h2>
-      <p>${k === 'join' ? `Je prijs staat vandaag vast op <b>${eur(CARTEL_PRICE)}</b>. Benieuwd hoe de dag verloopt…` : 'SnackPoint kijkt teleurgesteld, maar jij blijft eerlijk concurreren. Je kiest zelf je prijs.'}</p>
+      <p>${k === 'join' ? `Je prijs staat vandaag vast op <b>${eur(CARTEL_PRICE)}</b>. Benieuwd hoe de dag verloopt…` : 'Cees Patat kijkt teleurgesteld, maar jij blijft eerlijk concurreren. Je kiest zelf je prijs.'}</p>
       <button class="cta" onclick="closeModal()">Verder</button>`);
   });
 }
@@ -1065,7 +1060,7 @@ function reportModal(h){
     let why = h.price > pr.prevPrice ? `Je prijs ging omhoog (${eur(pr.prevPrice)} → ${eur(h.price)}). Bij een hogere prijs willen minder klanten kopen.`
       : h.price < pr.prevPrice ? `Je prijs ging omlaag (${eur(pr.prevPrice)} → ${eur(h.price)}). Bij een lagere prijs willen meer klanten kopen.`
       : 'Je prijs bleef gelijk, dus de vraag bleef ongeveer hetzelfde.';
-    if(d === DAY.COMPETITOR) why += ' Maar vandaag opende ook SnackPoint, en die trekt klanten weg!';
+    if(d === DAY.COMPETITOR) why += ' Maar vandaag opende ook Cees Patat, en die trekt klanten weg!';
     if(d === DAY.ENV && state.env === 'none') why += ' Bovendien bleven er een paar leerlingen weg vanwege het afval.';
     if(d === DAY.RAIN + 1 && state.placeBonus) why += ` Je nieuwe plek op het plein trok ${state.placeBonus} extra klanten.`;
     if(d === D2.COLD) why += ' Maar door het koude weer bleven veel leerlingen binnen.';
@@ -1075,7 +1070,7 @@ function reportModal(h){
   }
   if(h.walkaways > 0) parts.push(`<div class="msg bad">🚶 <b>${h.walkaways} klanten liepen weg!</b> Er wilden ${h.want} mensen patat, maar je <b>productiecapaciteit</b> is ${h.cap} porties per dag.</div>`);
   if(state.env === 'none' && d >= DAY.ENV && !h.closed) parts.push(`<div class="msg warn">🗑️ Door het zwerfafval kochten ongeveer ${h.envLost} leerlingen hun patat ergens anders.</div>`);
-  if(state.competitor && !h.closed) parts.push(`<div class="msg warn">🌭 SnackPoint verkocht vandaag ongeveer ${h.compSold} porties. Jouw <b>marktaandeel</b>: <b>${h.share}%</b>${state.sauce ? ` (je saus hield klanten bij jou)` : ''}.</div>`);
+  if(state.competitor && !h.closed) parts.push(`<div class="msg warn">🌭 Cees Patat verkocht vandaag ongeveer ${h.compSold} porties. Jouw <b>marktaandeel</b>: <b>${h.share}%</b>${state.sauce ? ` (je saus hield klanten bij jou)` : ''}.</div>`);
   if(d === DAY.CARTEL && state.cartel === 'join'){
     const gain = h.net + CARTEL_FINE - h.fairBest;
     parts.push(`<div class="msg bad">⚖️ <b>Betrapt!</b> Een leerling vertelde het aan de toezichthouder <b>ACM</b>. Prijsafspraken zijn verboden: dit is een <b>kartel</b>. Je krijgt een boete van <b>${eur(CARTEL_FINE)}</b>.<br>Door de afspraak verdiende je ${gain >= 0 ? `ongeveer ${eur(gain)} meer` : 'niet eens meer'} dan bij eerlijke concurrentie. Na de boete hield je dus minder over. En de leerlingen? Die betaalden te veel.</div>`);
@@ -1107,13 +1102,14 @@ function reportModal(h){
   const kp = (known('kostprijs') && h.sold) ? `<div class="msg info">🧮 <b>Kostprijs per portie</b> vandaag: (${eur(h.purchaseValue)} + ${eur(h.totalCosts)}) ÷ ${h.sold} = <b>${eur(h.costPrice)}</b>. Je verkocht voor ${eur(h.pEx)} (excl. btw).</div>` : '';
   const title = h.closed ? `Dag ${d}: kraam dicht, verlies ${eur(-h.net)}` : known('brutowinst') ? `Dag ${d}: nettoresultaat ${eur(h.net)}` : `Dag ${d}: je hield ${eur(h.net)} over`;
 
-  showModal(`<div class="tag">📊 Dagrapport</div><h2>${title}</h2>
+  const cel = celebration(h);
+  showModal(`<div class="tag">📊 Dagrapport</div><h2>${title}</h2>${cel.html}
     ${h.closed ? '' : `<div class="report-grid">
       <div class="kpi"><div class="k">Klanten die patat wilden (vraag)</div><div class="v">${h.want}</div></div>
       <div class="kpi"><div class="k">Porties verkocht (afzet)</div><div class="v">${h.sold}</div></div></div>`}
     <div class="calc">${calc}</div>${kp}${parts.join('')}
     <button class="cta" id="nextBtn">${d >= DAYS ? 'Afsluiten 🏁' : 'Volgende dag ➡️'}</button>`);
-  celebrateDay(h);
+  celebrateDay(cel);
   const nb = $('nextBtn'), label = nb.textContent;
   let left = REPORT_READ_SECONDS;
   nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je dagrapport… ${left}`;
@@ -1133,8 +1129,8 @@ function reportModal(h){
 function mergerModal(){
   teach(['fusie'], 'n');
   queueModal(() => {
-    showModal(`<div class="tag">🤝 Na sluitingstijd</div><h2>SnackPoint stelt een fusie voor</h2>
-      ${say('rocco', '"We zitten elkaar alleen maar in de weg. Zullen we samen één bedrijf worden?"')}
+    showModal(`<div class="tag">🤝 Na sluitingstijd</div><h2>Cees Patat stelt een fusie voor</h2>
+      ${say('cees', '"We zitten elkaar alleen maar in de weg. Zullen we samen één bedrijf worden?"')}
       <p>Als jullie fuseren, is er nog maar <b>één aanbieder</b> op het schoolplein.</p>
       <div class="options" id="mergOpts">
         <button class="option" data-k="yes"><b>🤝 Ja, we fuseren</b><span class="small">Samen sterker, en geen concurrent meer.</span></button>
@@ -1158,10 +1154,10 @@ function mergerModal(){
 
 // ---------- DEEL 2: VERLOOP ----------
 function beginDay2(d){
-  if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => simpleModal('🏢 Kamer van Koophandel', 'Je schrijft je bedrijf in', say('ilse', 'Welkom terug! Elk bedrijf in Nederland moet bij ons ingeschreven staan. Bij de inschrijving kies je een <b>ondernemingsvorm</b> en geef ik je advies over je verzekering en administratie.'), 'Naar de inschrijving'));
+  if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => simpleModal('🏢 Kamer van Koophandel', 'Je schrijft je bedrijf in', say('karin', 'Welkom terug! Elk bedrijf in Nederland moet bij ons ingeschreven staan. Bij de inschrijving kies je een <b>ondernemingsvorm</b> en geef ik je advies over je verzekering en administratie.'), 'Naar de inschrijving'));
   if(d === D2.VACANCY) queueModal(vacancyModal);
-  if(d === D2.RAIN2 && !state.quiz.course2) queueModal(() => simpleModal('🌧️ Regendag', 'Je kraam blijft weer dicht', `<p>Het regent pijpenstelen. Je verkoopt niets, maar je vaste kosten (${eur(setup().costs.reduce((a, c) => a + c[1], 0))}) betaal je wel.</p>${say('bakker', 'Kom naar mijn <b>werkgeverscursus</b> over de arbeidsmarkt! Wie het goed doet, krijgt via het UWV extra sollicitanten.')}`, 'Naar de cursus'));
-  if(d === D2.INSPECTION && !state.quiz.inspection) queueModal(() => simpleModal('🦺 Arbeidsinspectie', 'Onverwacht bezoek!', say('inspecteur', 'Goedemiddag, Nederlandse Arbeidsinspectie. Als werkgever moet u de regels kennen over veilig werken, werktijden en loon. Ik heb een paar vragen voor u.'), 'Laat maar komen'));
+  if(d === D2.RAIN2 && !state.quiz.course2) queueModal(() => simpleModal('🌧️ Regendag', 'Je kraam blijft weer dicht', `<p>Het regent pijpenstelen. Je verkoopt niets, maar je vaste kosten (${eur(setup().costs.reduce((a, c) => a + c[1], 0))}) betaal je wel.</p>${say('wenny', 'Kom naar mijn <b>werkgeverscursus</b> over de arbeidsmarkt! Wie het goed doet, krijgt via het UWV extra sollicitanten.')}`, 'Naar de cursus'));
+  if(d === D2.INSPECTION && !state.quiz.inspection) queueModal(() => simpleModal('🦺 Arbeidsinspectie', 'Onverwacht bezoek!', say('ben', 'Goedemiddag, Nederlandse Arbeidsinspectie. Als werkgever moet u de regels kennen over veilig werken, werktijden en loon. Ik heb een paar vragen voor u.'), 'Laat maar komen'));
   teachDay(d);
   if(d === D2.KVKREG && !state.quiz.kvkreg) queueModal(() => runQuiz('kvkreg', c => {
     state.adminCost = Math.max(0, ADMIN_BASE - c + (4 - c));
@@ -1277,8 +1273,8 @@ function kioskModal(){
   const w = state.worker;
   const hasWorker = w && !state.kiosk;
   showModal(`<div class="tag">🤖 Technologische ontwikkeling</div><h2>Een bestelzuil?</h2>
-    ${say('tim', 'Met mijn bestelzuil bestellen en betalen klanten zelf op een scherm. Echt de toekomst!')}
-    <p>Tim biedt je een <b>bestelzuil</b> aan: klanten bestellen en betalen zelf op een scherm. Kosten: <b>${eur0(KIOSK.price)}</b>, gaat ${KIOSK.life} dagen mee (afschrijving ${eur(KIOSK.price / KIOSK.life)} per dag).</p>
+    ${say('jeremias', 'Met mijn bestelzuil bestellen en betalen klanten zelf op een scherm. Echt de toekomst!')}
+    <p>Jeremias biedt je een <b>bestelzuil</b> aan: klanten bestellen en betalen zelf op een scherm. Kosten: <b>${eur0(KIOSK.price)}</b>, gaat ${KIOSK.life} dagen mee (afschrijving ${eur(KIOSK.price / KIOSK.life)} per dag).</p>
     <p>Met de zuil hoef je niet meer zelf af te rekenen: je productiecapaciteit wordt <b>${Math.round(setup({ noWorker:true }).fryerCap * KIOSK.factor)}</b> porties per dag.${hasWorker ? ` Maar dan heb je ${w.name} niet meer nodig…` : ''}</p>
     <div class="options" id="kioskOpts">
       <button class="option" data-k="kiosk" ${state.money < KIOSK.price ? 'disabled' : ''}><b>🤖 Koop de bestelzuil</b><span class="small">${hasWorker ? `${w.name} raakt de baan kwijt.` : 'Geen loon, wel afschrijving.'}${state.money < KIOSK.price ? ' (Te weinig geld in kas.)' : ''}</span></button>
@@ -1320,7 +1316,7 @@ function endReport2(){
   const fryer = INVESTMENTS[state.investment || 'none'].capacity;
   showModal(`<div class="tag">🏁 Eindrapport deel 2${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div>
     <h2>Werk aan de winkel!</h2>
-    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>${starsBanner(stars)}
     <div class="report-grid">
       <div class="kpi"><div class="k">Nettoresultaat deel 2</div><div class="v">${eur(net)}</div></div>
       <div class="kpi"><div class="k">Deel 1 + deel 2 samen</div><div class="v">${eur(net + (state.deel1Net || 0))}</div></div>
@@ -1342,7 +1338,7 @@ function endReport2(){
     <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu2">Terug naar het menu</button>`);
   $('certBtn').onclick = () => certificateModal(endReport2);
-  if(stars) confetti(40 * stars);
+  if(stars) celebrateDay({ kind:'star' });
   $('endMenu2').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1390,6 +1386,7 @@ function runDayClock(h, done){
     const ph = phases.find(p => t < p[0]);
     ov.style.background = ph[1]; face.className = 'clock-face ' + ph[2];
     $('clockText').textContent = ph[3]; $('clockSub').textContent = ph[4];
+    pleinTime(t);
     if(!h.closed){
       const arrived = Math.round(h.want * customerShare(t)), served = Math.min(arrived, h.sold), walk = arrived - served;
       pleinUpdate(t, served, walk);
@@ -1397,7 +1394,7 @@ function runDayClock(h, done){
       if(walk > 0) $('liveFull').textContent = `⚠️ Je kraam zit vol! Je productiecapaciteit is ${h.cap} porties per dag.`;
     }
     if(t < 1) requestAnimationFrame(frame);
-    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; done(); }, 600);
+    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; pleinStop(); done(); }, 600);
   }
   requestAnimationFrame(frame);
 }
@@ -1440,7 +1437,7 @@ function endReport(){
   const q = id => state.quiz[id] ? `${state.quiz[id].correct}/4` : '–';
   showModal(`<div class="tag">🏁 Eindrapport deel 1${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div>
     <h2>Ben jij ondernemend?</h2>
-    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>${starsBanner(stars)}
     <div class="report-grid">
       <div class="kpi"><div class="k">Totaal nettoresultaat</div><div class="v">${eur(net)}</div></div>
       <div class="kpi"><div class="k">In kas</div><div class="v">${eur(state.money)}</div></div>
@@ -1463,7 +1460,7 @@ function endReport(){
     <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
   $('certBtn').onclick = () => certificateModal(endReport);
-  if(stars) confetti(40 * stars);
+  if(stars) celebrateDay({ kind:'star' });
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1506,7 +1503,7 @@ function render(){
   const ready = !state.finished && (closed || (p !== null && (!needPred || state.prediction)));
   $('playBtn').disabled = !ready && !state.finished;
   $('playBtn').textContent = state.finished ? 'Bekijk eindrapport 🏁' : closed ? `Sluit dag ${state.day} af 🌧️` : `Open de kraam – dag ${state.day} 🍟`;
-  $('playHint').textContent = state.finished || closed ? '' : cartelLocked ? `Door de afspraak met SnackPoint ligt je prijs vast op ${eur(CARTEL_PRICE)}.` : p === null ? 'Kies eerst een prijs.' : (needPred && !state.prediction) ? 'Maak eerst je voorspelling.' : '';
+  $('playHint').textContent = state.finished || closed ? '' : cartelLocked ? `Door de afspraak met Cees Patat ligt je prijs vast op ${eur(CARTEL_PRICE)}.` : p === null ? 'Kies eerst een prijs.' : (needPred && !state.prediction) ? 'Maak eerst je voorspelling.' : '';
 
   // productie
   $('investPanel').classList.toggle('hidden', !state.investment);
@@ -1548,7 +1545,7 @@ function render(){
   if(state.competitor){
     const lastC = [...state.history].reverse().find(h => h.day >= DAY.COMPETITOR && !h.closed);
     const cp = cartelLocked ? CARTEL_PRICE : COMPETITOR_PRICE;
-    $('compInfo').innerHTML = `<p class="small" style="margin:0">SnackPoint vraagt <b>${eur(cp)}</b>${cartelLocked ? ' (afspraak)' : ''}.${p !== null && !cartelLocked ? (p > cp ? ` Jij bent <b>${eur(p - cp)} duurder</b>: extra klanten stappen over.` : p < cp ? ' Jij bent goedkoper.' : ' Jullie vragen dezelfde prijs.') : ''}</p>
+    $('compInfo').innerHTML = `<p class="small" style="margin:0">Cees Patat vraagt <b>${eur(cp)}</b>${cartelLocked ? ' (afspraak)' : ''}.${p !== null && !cartelLocked ? (p > cp ? ` Jij bent <b>${eur(p - cp)} duurder</b>: extra klanten stappen over.` : p < cp ? ' Jij bent goedkoper.' : ' Jullie vragen dezelfde prijs.') : ''}</p>
       ${lastC ? `<p class="small" style="margin:6px 0 0">Dag ${lastC.day}: jouw marktaandeel was <b>${lastC.share}%</b>.</p>` : ''}`;
   }
   // logboek
@@ -1587,7 +1584,7 @@ function renderChart(){
     const x = pad.l + (d - FIRST) * bw; svg += `<text x="${x + bw / 2}" y="${pad.t + 10}" font-size="11" text-anchor="middle">${icon}</text>`;
   });
   $('chart').innerHTML = svg + '</svg><div class="small muted" style="margin-top:4px">' + (part === 1
-    ? '🚚 groothandel · 🛠️ investering · 🗑️ afval · 🌧️ regendag · 🌭 SnackPoint · 🤝 kartel'
+    ? '🚚 groothandel · 🛠️ investering · 🗑️ afval · 🌧️ regendag · 🌭 Cees Patat · 🤝 kartel'
     : '🏢 KvK · 🌧️ regendag · 👥 sollicitaties · 🦺 inspectie · 🤖 bestelzuil · 🥶 koude dag') + '</div>';
 }
 function renderStaff(s){
@@ -1777,95 +1774,217 @@ function teacherTest(n, inv){
 
 
 // =====================================================================
-// BEELD: kraam, schoolplein, gezichten, feest, oorkonde, weer
+// BEELD in HD-2D: pixel-art met diepte en licht
 // (alleen weergave – verandert niets aan de spelregels of de opslag)
 // =====================================================================
-const SKIN = ['#ffdbac','#f1c27d','#e0ac69','#c68642','#a0663c','#8d5524'];
-const SHIRTS = ['#2563eb','#16a34a','#db2777','#7c3aed','#ea580c','#0891b2','#ca8a04','#dc2626'];
+const VW = 320, VH = 180, VS = 2;
 
-// ---------- een poppetje (voor kraam en plein) ----------
-function personSvg(x, y, s, o = {}){
-  const skin = o.skin || '#f1c27d', shirt = o.shirt || '#2563eb', hair = o.hair || '#3f2a1d';
-  return `<g transform="translate(${x},${y}) scale(${s})">
-    <rect x="-9" y="2" width="18" height="22" rx="8" fill="${shirt}"/>
-    ${o.apron ? '<rect x="-6" y="8" width="12" height="15" rx="3" fill="#fff" opacity=".9"/>' : ''}
-    <circle cx="0" cy="-6" r="9" fill="${skin}"/>
-    <path d="M-9,-7 C-9,-17 9,-17 9,-7 C6,-12 -6,-12 -9,-7 Z" fill="${hair}"/>
-    ${o.cap ? `<path d="M-9,-10 C-9,-19 9,-19 9,-10 Z" fill="${o.cap}"/><rect x="2" y="-11" width="11" height="3" rx="1.5" fill="${o.cap}"/>` : ''}
-    <circle cx="-3" cy="-6" r="1.2" fill="#2b2118"/><circle cx="3" cy="-6" r="1.2" fill="#2b2118"/>
-    <path d="M-3,-2 Q0,1 3,-2" stroke="#2b2118" stroke-width="1.2" fill="none"/>
-  </g>`;
+// ---------- kleuren en hulpjes ----------
+function hexToRgb(h){ const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function rgbToHex(r, g, b){ return '#' + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1); }
+function mixHex(a, b, f){ const x = hexToRgb(a), y = hexToRgb(b); return rgbToHex(x[0] + (y[0] - x[0]) * f, x[1] + (y[1] - x[1]) * f, x[2] + (y[2] - x[2]) * f); }
+function shade(hex, f){ return mixHex(hex, f < 0 ? '#000000' : '#ffffff', Math.abs(f)); }
+function px(c, x, y, w, h, col){ c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); }
+function sprite(c, rows, pal, x, y, flip){
+  rows.forEach((r, j) => { for(let i = 0; i < r.length; i++){ const ch = r[flip ? r.length - 1 - i : i]; if(ch !== '.' && pal[ch]) px(c, x + i, y + j, 1, 1, pal[ch]); } });
+}
+const FONT = { P:['111','101','111','100','100'], A:['010','101','111','101','101'], T:['111','010','010','010','010'], C:['011','100','100','100','011'], E:['111','100','110','100','111'],
+  S:['011','100','010','001','110'], G:['011','100','101','101','011'], L:['100','100','100','100','111'], O:['010','101','101','101','010'], N:['101','111','111','111','101'],
+  '0':['111','101','101','101','111'], '1':['010','110','010','010','111'], '2':['111','001','111','100','111'], '3':['111','001','011','001','111'], '4':['101','101','111','001','001'],
+  '5':['111','100','111','001','111'], '6':['111','100','111','101','111'], '7':['111','001','010','010','010'], '8':['111','101','111','101','111'], '9':['111','101','111','001','111'],
+  ',':['000','000','000','010','100'], '€':['011','100','111','100','011'], ' ':['000','000','000','000','000'] };
+function ptext(c, s, x, y, col){ let cx = x; for(const ch of s){ const g = FONT[ch]; if(g) g.forEach((r, j) => [...r].forEach((b, i) => { if(b === '1') px(c, cx + i, y + j, 1, 1, col); })); cx += 4; } }
+const priceLabel = p => '€' + p.toFixed(2).replace('.', ',');
+
+// ---------- poppetjes ----------
+const PERSON = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.cccccc.','cCccccCc','cCccccCc','sCccccCs','.cccccc.','.pppppp.','.pp..pp.','.pp..pp.','.bb..bb.'];
+const PERSON_WALK = [...PERSON.slice(0, 12), '.pp.pp..', 'pp...pp.', 'bb....bb'];
+const BUST = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.aawwaa.','aawwwwaa','aawwwwaa'];
+const CAP = ['.kkkkkk.','kkkkkkkkk'];
+const CROWD = [
+  { h:'#3b2618', s:'#e9b98b', c:'#2f6fb3', C:'#245a93', p:'#2b2f3a' }, { h:'#151515', s:'#8d5a3b', c:'#c0453a', C:'#9c3530', p:'#3a3a46' },
+  { h:'#c89b3c', s:'#f2c9a0', c:'#2f9e6b', C:'#227a52', p:'#2d3442' }, { h:'#5a2f1b', s:'#c98d5c', c:'#8b55c7', C:'#6c40a0', p:'#2b2f3a' },
+  { h:'#1d1d1d', s:'#f0c39a', c:'#e0a12b', C:'#b98317', p:'#353a48' }, { h:'#7a3b1b', s:'#a8714a', c:'#d9536b', C:'#b23f55', p:'#2b2f3a' },
+  { h:'#2a1a10', s:'#e3a77a', c:'#3aa3a3', C:'#2a8080', p:'#3a3a46' }, { h:'#d7b46a', s:'#f6d2b0', c:'#e76f51', C:'#c3563c', p:'#2d3442' }
+];
+const WORKER_LOOK = { daan:{ h:'#e3c25a', s:'#f1c27d' }, lotte:{ h:'#7c4a1e', s:'#ffe0bd' }, samira:{ h:'#1c1917', s:'#c68642' }, peter:{ h:'#a3a3a3', s:'#ffdbac' }, ahmed:{ h:'#151515', s:'#a0663c' } };
+const palOf = p => ({ h:p.h, s:p.s, e:'#1b1410', D:shade(p.s, -.18), c:p.c, C:p.C, p:p.p, b:'#1a1512' });
+
+// ---------- licht door de dag ----------
+const LIGHT_KEYS = [
+  { t:0,   sky0:'#2b3a67', sky1:'#f3a46b', sun:[18, 96], sunA:.6, light:[255,170,110], shadow:[2.2,.5], lamp:.55, ground:'#a99887', win:1 },
+  { t:.3,  sky0:'#f3b27a', sky1:'#fde2bd', sun:[60, 42], sunA:1, light:[255,195,120], shadow:[1.6,.6], lamp:.25, ground:'#c9b7a2', win:0 },
+  { t:.5,  sky0:'#5fb4ea', sky1:'#d6eefb', sun:[165, 18], sunA:1, light:[255,245,205], shadow:[.2,.35], lamp:.15, ground:'#cfc6ba', win:0 },
+  { t:.78, sky0:'#c4607a', sky1:'#f6b36b', sun:[290, 70], sunA:1, light:[255,140,85], shadow:[-1.9,.55], lamp:.45, ground:'#b9a08f', win:1 },
+  { t:1,   sky0:'#0f1a33', sky1:'#2d3c66', sun:[318, 110], sunA:0, light:[170,190,255], shadow:[0,.2], lamp:.85, ground:'#5d6070', win:1 }
+];
+function lightAt(t, weather){
+  let a = LIGHT_KEYS[0], b = LIGHT_KEYS[LIGHT_KEYS.length - 1];
+  for(let i = 1; i < LIGHT_KEYS.length; i++) if(t <= LIGHT_KEYS[i].t){ a = LIGHT_KEYS[i - 1]; b = LIGHT_KEYS[i]; break; }
+  const f = b.t === a.t ? 0 : (t - a.t) / (b.t - a.t), m = (x, y) => x + (y - x) * f;
+  const L = { sky0: mixHex(a.sky0, b.sky0, f), sky1: mixHex(a.sky1, b.sky1, f), sun: [m(a.sun[0], b.sun[0]), m(a.sun[1], b.sun[1])], sunA: m(a.sunA, b.sunA),
+    light: a.light.map((v, i) => m(v, b.light[i])), shadow: [m(a.shadow[0], b.shadow[0]), m(a.shadow[1], b.shadow[1])], lamp: m(a.lamp, b.lamp), ground: mixHex(a.ground, b.ground, f), win: m(a.win, b.win), weather };
+  if(weather === 'rain'){ Object.assign(L, { sky0: mixHex('#4f5966', L.sky0, .15), sky1: mixHex('#8f99a5', L.sky1, .15), sunA: 0, light:[200,215,235], shadow:[0,.2], lamp: Math.max(.5, L.lamp), ground: mixHex('#7f868d', L.ground, .2), win: 1 }); }
+  if(weather === 'cold'){ Object.assign(L, { sky0: mixHex('#a9c7e4', L.sky0, .25), sky1: mixHex('#eef5fb', L.sky1, .25), sunA: L.sunA * .5, light:[220,235,255], ground: mixHex('#e4e9ee', L.ground, .2), lamp: Math.max(.4, L.lamp) }); }
+  return L;
+}
+const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+
+// ---------- een scène (kraam op het plein) ----------
+function createScene(root){
+  root.innerHTML = `<div class="hd"><canvas class="hd-bg" width="${VW}" height="${VH}"></canvas><canvas class="hd-mid" width="${VW}" height="${VH}"></canvas><canvas class="hd-fx" width="${VW * VS}" height="${VH * VS}"></canvas><canvas class="hd-fg" width="${VW}" height="${VH}"></canvas><div class="hd-vig"></div></div>`;
+  const el = root.querySelector('.hd'), [cb, cm, cf, cg] = ['bg', 'mid', 'fx', 'fg'].map(k => root.querySelector('.hd-' + k));
+  const bg = cb.getContext('2d'), mid = cm.getContext('2d'), fx = cf.getContext('2d'), fg = cg.getContext('2d');
+  [bg, mid, fg].forEach(c => c.imageSmoothingEnabled = false);
+  const S = { el, t:.45, weather:null, people:[], running:false, raf:0, last:0, steam:[], motes: Array.from({ length:30 }, () => ({ x: Math.random() * VW, y: Math.random() * 130, v: .5 + Math.random(), p: Math.random() * 6.28 })),
+    flakes: Array.from({ length:120 }, () => ({ x: Math.random() * VW, y: Math.random() * VH, v: 140 + Math.random() * 90 })), px:0, py:0, cx:0, cy:0, opts:{} };
+  el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); S.px = (e.clientX - r.left) / r.width - .5; S.py = (e.clientY - r.top) / r.height - .5; });
+  el.addEventListener('pointerleave', () => { S.px = 0; S.py = 0; });
+
+  function drawBg(L, time){
+    const g = bg.createLinearGradient(0, 0, 0, 120); g.addColorStop(0, L.sky0); g.addColorStop(1, L.sky1); bg.fillStyle = g; bg.fillRect(0, 0, VW, VH);
+    if(L.sunA > .02){ bg.globalAlpha = L.sunA; const [sx, sy] = L.sun, sc = rgbToHex(...L.light.map(v => Math.min(255, v + 20)));
+      for(let r = 10; r > 0; r--){ bg.fillStyle = r > 8 ? shade(sc, -.05) : sc; bg.beginPath(); bg.arc(sx, sy, r, 0, 7); bg.fill(); } bg.globalAlpha = 1; }
+    if(L.win > .6 && L.weather !== 'rain') for(let i = 0; i < 30; i++){ px(bg, (i * 53) % VW, (i * 29) % 60, 1, 1, `rgba(255,255,255,${(L.win - .6) * 1.5})`); }
+    const cloud = L.weather === 'rain' ? '#6f7a86' : mixHex('#ffffff', L.sky0, .25);
+    [[30, 22, 26], [150, 14, 34], [230, 34, 22]].forEach(([x, y, w], i) => { const xx = ((x + time * (2 + i)) % (VW + 60)) - 30;
+      px(bg, xx, y, w, 5, cloud); px(bg, xx + 5, y - 4, w - 10, 4, cloud); px(bg, xx + 3, y + 5, w - 6, 2, shade(cloud, -.08)); });
+    const tree = mixHex(L.weather === 'cold' ? '#5f7f6a' : '#3f7a4a', L.sky0, .25);
+    for(let x = 0; x < VW; x += 6){ const hh = 10 + Math.round(Math.sin(x * .19) * 4 + Math.sin(x * .07) * 5); px(bg, x, 118 - hh, 6, hh + 10, tree); px(bg, x, 118 - hh, 6, 2, L.weather === 'cold' ? '#f3f6f9' : shade(tree, .18)); }
+    const brick = mixHex('#a85a3f', L.sky0, .2);
+    px(bg, 6, 56, 92, 74, brick); px(bg, 4, 52, 96, 5, shade(brick, -.25));
+    for(let y = 60; y < 128; y += 4) for(let x = 6 + ((y / 4) % 2) * 3; x < 98; x += 7) px(bg, x, y, 1, 1, shade(brick, -.12));
+    const lit = L.win > .5;
+    for(let r = 0; r < 3; r++) for(let c = 0; c < 4; c++){ const wx = 13 + c * 21, wy = 64 + r * 20; px(bg, wx, wy, 12, 12, '#2c3e50'); px(bg, wx + 1, wy + 1, 10, 10, lit && (r + c) % 3 ? '#f8d58a' : mixHex('#bfe3f3', L.sky0, .3)); px(bg, wx + 6, wy + 1, 1, 10, '#2c3e50'); px(bg, wx + 1, wy + 6, 10, 1, '#2c3e50'); }
+    px(bg, 42, 110, 16, 20, '#4b2a1d'); px(bg, 43, 111, 14, 1, '#6b3e2a');
+  }
+  function stall(L, o){
+    const wood = '#6b3b22';
+    px(mid, 128, 72, 3, 78, wood); px(mid, 205, 72, 3, 78, wood); px(mid, 129, 72, 1, 78, '#8a5131');
+    px(mid, 131, 86, 74, 34, '#6b3f26'); px(mid, 131, 86, 74, 2, '#4e2c1a'); for(let y = 92; y < 118; y += 5) px(mid, 131, y, 74, 1, '#5c341f');
+    px(mid, 136, 90, 16, 6, '#f3dfb4'); px(mid, 137, 91, 14, 1, '#c62828'); px(mid, 137, 93, 10, 1, '#3b1d10');
+    if(o.owner) { sprite(mid, BUST, { h:'#3b2618', s:'#e9b98b', e:'#1b1410', D:'#cf9c70', a:'#d66a1f', w:'#f3efe6' }, 142, 105); sprite(mid, CAP, { k:'#b33b2a' }, 142, 103); }
+    if(o.worker){ const w = WORKER_LOOK[o.worker] || WORKER_LOOK.daan; sprite(mid, BUST, { h:w.h, s:w.s, e:'#1b1410', D:shade(w.s, -.18), a:'#0f8a7e', w:'#f3efe6' }, 160, 106); }
+    if(o.fryer === 'modern'){ px(mid, 176, 104, 24, 15, '#a9b4bd'); px(mid, 176, 104, 24, 2, '#e1e7ec'); px(mid, 178, 107, 20, 3, '#1f2328'); px(mid, 180, 108, 6, 1, '#4ade80'); px(mid, 196, 114, 2, 2, '#4ade80'); }
+    else if(o.fryer === 'used'){ px(mid, 178, 107, 20, 12, '#8f9aa3'); px(mid, 178, 107, 20, 1, '#b8c1c8'); px(mid, 180, 110, 16, 3, '#2a2f35'); px(mid, 194, 115, 2, 2, '#e24a3b'); }
+    else { px(mid, 182, 112, 14, 6, '#4b4f55'); px(mid, 182, 112, 14, 1, '#6b7078'); px(mid, 196, 114, 6, 1, '#3a3d42'); }
+    px(mid, 125, 118, 86, 4, '#4a2617'); px(mid, 125, 118, 86, 1, '#7a4429');
+    px(mid, 127, 122, 82, 28, '#d9581f'); for(let y = 128; y < 150; y += 6) px(mid, 127, y, 82, 1, '#b8461a'); px(mid, 127, 122, 82, 1, '#ef7a3c');
+    for(let i = 0; i < 14; i++){ const x = 124 + i * 6, col = i % 2 ? '#f6ead5' : '#ef6c2c';
+      px(mid, x, 66, 6, 12, col); px(mid, x, 66, 6, 1, shade(col, .2)); px(mid, x, 76, 6, 2, shade(col, -.15)); if(i % 2 === 0) px(mid, x + 1, 78, 4, 2, shade(col, -.1)); }
+    px(mid, 146, 54, 46, 11, '#3b1d10'); px(mid, 146, 54, 46, 1, '#5a2d18'); px(mid, 150, 65, 2, 2, wood); px(mid, 186, 65, 2, 2, wood);
+    ptext(mid, 'PATAT', 159, 57, '#fcd34d');
+    if(o.price != null){ px(mid, 186, 130, 26, 11, '#1f2328'); ptext(mid, priceLabel(o.price), 188, 133, '#fde68a'); }
+    if(o.sauce){ px(mid, 134, 111, 4, 7, '#c62828'); px(mid, 135, 109, 2, 2, '#f2c94c'); }
+    if(o.paper){ px(mid, 140, 112, 8, 6, '#f3efe6'); px(mid, 141, 113, 6, 1, '#16a34a'); px(mid, 141, 115, 4, 1, '#16a34a'); }
+    if(o.closed){ px(mid, 132, 96, 72, 15, '#1f2328'); px(mid, 132, 96, 72, 1, '#3a3f46'); ptext(mid, 'GESLOTEN', 152, 101, '#f87171'); }
+  }
+  function compStall(o){
+    const x0 = 250, wood = '#5a2a1c';
+    px(mid, x0, 92, 2, 58, wood); px(mid, x0 + 56, 92, 2, 58, wood);
+    px(mid, x0 + 2, 102, 54, 22, '#5d3a2a');
+    if(o.compOwner) sprite(mid, BUST, { h:'#4a3020', s:'#eab28c', e:'#1b1410', D:'#c98f68', a:'#c0262d', w:'#f3efe6' }, x0 + 22, 114);
+    px(mid, x0 - 2, 122, 62, 3, '#3b1a12'); px(mid, x0, 125, 58, 25, '#b91c1c'); for(let y = 131; y < 150; y += 6) px(mid, x0, y, 58, 1, '#991b1b'); px(mid, x0, 125, 58, 1, '#e04848');
+    for(let i = 0; i < 10; i++){ const col = i % 2 ? '#f8f1e7' : '#d72631'; px(mid, x0 - 2 + i * 6, 86, 6, 9, col); px(mid, x0 - 2 + i * 6, 93, 6, 2, shade(col, -.15)); }
+    px(mid, x0 + 4, 74, 50, 10, '#2a0f0b'); ptext(mid, 'CEES PATAT', x0 + 9, 76, '#fde68a');
+    px(mid, x0 + 30, 134, 26, 11, '#1f2328'); ptext(mid, priceLabel(o.compPrice), x0 + 32, 137, '#fde68a');
+  }
+  function person(L, x, y, p, flip, time, walking, extra){
+    const [sdx, sdy] = L.shadow;
+    mid.fillStyle = 'rgba(25,18,14,.3)'; mid.beginPath(); mid.ellipse(x + 4 + sdx * 4, y + 15 + sdy * 2, 4 + Math.abs(sdx) * 3, 2, 0, 0, 7); mid.fill();
+    const step = walking && Math.floor(time * 7 + x * .05) % 2;
+    sprite(mid, step ? PERSON_WALK : PERSON, palOf(p), Math.round(x), y - (step ? 1 : 0), flip);
+    if(extra === 'fries'){ px(mid, x + (flip ? -1 : 7), y + 8, 3, 3, '#d9581f'); px(mid, x + (flip ? -1 : 7), y + 6, 3, 2, '#fcd34d'); }
+    if(extra === 'angry'){ px(mid, x + 3, y - 6, 2, 3, '#ef4444'); px(mid, x + 3, y - 2, 2, 1, '#ef4444'); }
+  }
+  function drawMid(L, time, dt){
+    const o = S.opts;
+    mid.clearRect(0, 0, VW, VH);
+    const tile = shade(L.ground, -.08);
+    px(mid, 0, 128, VW, 52, L.ground);
+    for(let y = 128; y < VH; y += 7){ px(mid, 0, y, VW, 1, tile); for(let x = ((y / 7) % 2) * 6; x < VW; x += 12) px(mid, x, y, 1, 7, tile); }
+    if(L.weather === 'rain') for(let i = 0; i < 9; i++){ const x = (i * 41 + 13) % VW, y = 140 + (i * 17) % 34; px(mid, x, y, 14, 2, shade(L.ground, .18)); px(mid, x + 3, y + 2, 8, 1, shade(L.ground, .3)); }
+    if(L.weather === 'cold') for(let i = 0; i < 14; i++){ const x = (i * 29 + 7) % VW, y = 132 + (i * 11) % 44; px(mid, x, y, 6 + (i % 3) * 3, 2, '#f8fbff'); }
+    const [sdx, sdy] = L.shadow;
+    mid.fillStyle = 'rgba(25,18,14,.26)'; mid.beginPath(); mid.moveTo(124, 150); mid.lineTo(212, 150); mid.lineTo(212 + 60 * sdx, 150 + 22 * sdy); mid.lineTo(124 + 60 * sdx, 150 + 22 * sdy); mid.closePath(); mid.fill();
+    if(o.competitor){ mid.beginPath(); mid.moveTo(248, 150); mid.lineTo(308, 150); mid.lineTo(308 + 40 * sdx, 150 + 16 * sdy); mid.lineTo(248 + 40 * sdx, 150 + 16 * sdy); mid.closePath(); mid.fill(); compStall(o); }
+    stall(L, o);
+    if(o.kiosk){ px(mid, 213, 116, 10, 34, '#1f2328'); px(mid, 214, 117, 8, 1, '#3a3f46'); px(mid, 215, 119, 6, 9, '#38bdf8'); px(mid, 216, 122, 4, 2, '#fcd34d'); px(mid, 216, 131, 4, 1, '#4b5563'); }
+    if(o.bins){ px(mid, 109, 134, 9, 15, '#2f6b45'); px(mid, 108, 132, 11, 3, '#24563a'); px(mid, 111, 137, 1, 10, '#3f8a5a'); }
+    if(o.litter) for(let i = 0; i < 12; i++){ const x = (i * 47 + 30) % 300 + 6, y = 152 + (i * 13) % 24; px(mid, x, y, 3, 2, '#f5f5f4'); px(mid, x + 1, y + 2, 1, 1, '#d6d3d1'); }
+    if(o.queue) [[90, 0], [76, 1], [62, 2]].forEach(([x, i]) => person(L, x, 136 + (i % 2), CROWD[(o.seed + i) % CROWD.length], false, time, false));
+    S.people.forEach(p => { if(!p.gone) person(L, p.x, p.y, CROWD[p.look % CROWD.length], p.dir < 0, time, p.phase !== 'wait', p.extra); });
+  }
+  function drawFx(L, time, dt){
+    const W = VW * VS, H = VH * VS, o = S.opts;
+    fx.clearRect(0, 0, W, H);
+    if(L.sunA > .02){
+      const [sx, sy] = L.sun, g = fx.createRadialGradient(sx * VS, sy * VS, 0, sx * VS, sy * VS, 160 * VS);
+      g.addColorStop(0, rgba(L.light, .5 * L.sunA)); g.addColorStop(.3, rgba(L.light, .14 * L.sunA)); g.addColorStop(1, rgba(L.light, 0));
+      fx.fillStyle = g; fx.fillRect(0, 0, W, H);
+      fx.save(); fx.globalAlpha = (.09 + Math.sin(time * .6) * .03) * L.sunA;
+      const base = Math.atan2(140 - sy, 168 - sx);
+      for(let i = 0; i < 5; i++){ const a = base + (i - 2) * .14 + Math.sin(time * .2 + i) * .02;
+        fx.beginPath(); fx.moveTo(sx * VS, sy * VS); fx.lineTo((sx + Math.cos(a - .03) * 420) * VS, (sy + Math.sin(a - .03) * 420) * VS); fx.lineTo((sx + Math.cos(a + .03) * 420) * VS, (sy + Math.sin(a + .03) * 420) * VS); fx.closePath(); fx.fillStyle = rgba(L.light, 1); fx.fill(); }
+      fx.restore();
+    }
+    const lg = fx.createRadialGradient(168 * VS, 100 * VS, 0, 168 * VS, 100 * VS, 55 * VS);
+    lg.addColorStop(0, `rgba(255,190,100,${L.lamp})`); lg.addColorStop(1, 'rgba(255,170,80,0)'); fx.fillStyle = lg; fx.fillRect(0, 0, W, H);
+    if(o.competitor){ const cg = fx.createRadialGradient(279 * VS, 112 * VS, 0, 279 * VS, 112 * VS, 30 * VS); cg.addColorStop(0, `rgba(255,160,120,${L.lamp * .6})`); cg.addColorStop(1, 'rgba(255,160,120,0)'); fx.fillStyle = cg; fx.fillRect(0, 0, W, H); }
+    if(!o.closed){ const rate = o.fryer === 'modern' ? .7 : o.fryer === 'used' ? .45 : .25; if(Math.random() < rate) S.steam.push({ x: 182 + Math.random() * 14, y: 104, r: 2 + Math.random() * 2, life: 1 }); }
+    for(let i = S.steam.length - 1; i >= 0; i--){ const s = S.steam[i]; s.y -= 9 * dt; s.x += Math.sin(time * 2 + s.y) * 3 * dt; s.r += 3 * dt; s.life -= .45 * dt;
+      if(s.life <= 0){ S.steam.splice(i, 1); continue; } fx.fillStyle = `rgba(255,250,240,${s.life * .2})`; fx.beginPath(); fx.arc(s.x * VS, s.y * VS, s.r * VS, 0, 7); fx.fill(); }
+    if(!L.weather && L.sunA > .3) S.motes.forEach(m => { m.y -= m.v * dt * 2; m.x += Math.sin(time + m.p) * dt * 3; if(m.y < 0){ m.y = 130; m.x = Math.random() * VW; }
+      fx.fillStyle = rgba(L.light, Math.max(0, .25 + Math.sin(time * 2 + m.p) * .2)); fx.fillRect(m.x * VS, m.y * VS, VS * .9, VS * .9); });
+    if(L.weather === 'rain'){ fx.strokeStyle = 'rgba(200,215,235,.35)'; fx.lineWidth = 1;
+      S.flakes.forEach(r => { r.y += r.v * dt; r.x -= r.v * dt * .15; if(r.y > VH){ r.y = -5; r.x = Math.random() * (VW + 30); } fx.beginPath(); fx.moveTo(r.x * VS, r.y * VS); fx.lineTo((r.x + 1.5) * VS, (r.y - 6) * VS); fx.stroke(); });
+      for(let i = 0; i < 6; i++){ const x = (i * 53 + 20) % VW, y = 145 + (i * 13) % 28, rr = ((time * 1.3 + i * .37) % 1) * 7;
+        fx.strokeStyle = `rgba(210,225,240,${.4 * (1 - rr / 7)})`; fx.beginPath(); fx.ellipse(x * VS, y * VS, rr * VS, rr * .35 * VS, 0, 0, 7); fx.stroke(); } }
+    if(L.weather === 'cold'){ fx.fillStyle = 'rgba(255,255,255,.85)';
+      S.flakes.forEach((r, i) => { r.y += r.v * dt * .12; r.x += Math.sin(time + i) * dt * 6; if(r.y > VH){ r.y = -3; r.x = Math.random() * VW; } fx.fillRect(r.x * VS, r.y * VS, VS * (i % 3 ? .9 : 1.6), VS * (i % 3 ? .9 : 1.6)); }); }
+  }
+  function drawFg(L){
+    fg.clearRect(0, 0, VW, VH);
+    const leaf = mixHex(L.weather === 'cold' ? '#4f6b58' : '#2e5a36', L.sky0, .15), leafL = shade(leaf, L.weather === 'cold' ? .6 : .15);
+    for(let i = 0; i < 9; i++){ const x = -8 + i * 9, y = 160 + Math.round(Math.sin(i) * 4); fg.fillStyle = leaf; fg.beginPath(); fg.arc(x, y, 12, 0, 7); fg.fill(); fg.fillStyle = leafL; fg.beginPath(); fg.arc(x - 3, y - 4, 5, 0, 7); fg.fill(); }
+    for(let i = 0; i < 6; i++){ const x = 272 + i * 10, y = 166 + Math.round(Math.cos(i) * 4); fg.fillStyle = leaf; fg.beginPath(); fg.arc(x, y, 12, 0, 7); fg.fill(); fg.fillStyle = leafL; fg.beginPath(); fg.arc(x - 3, y - 5, 5, 0, 7); fg.fill(); }
+  }
+  let fgKey = '';
+  function frame(now){
+    if(!S.running) return;
+    const dt = Math.min(.05, (now - S.last) / 1000 || 0), time = now / 1000; S.last = now;
+    if(S.onFrame) S.onFrame(dt);
+    const L = lightAt(S.t, S.weather);
+    S.cx += (S.px - S.cx) * .06; S.cy += (S.py - S.cy) * .06;
+    [[cb, 5], [cm, 10], [cf, 10], [cg, 22]].forEach(([c, d]) => c.style.transform = `translate(${(-S.cx * d).toFixed(2)}px,${(-S.cy * d * .6).toFixed(2)}px)`);
+    drawBg(L, time); drawMid(L, time, dt); drawFx(L, time, dt);
+    const k = L.sky0 + L.weather; if(k !== fgKey){ fgKey = k; drawFg(L); }
+    S.raf = requestAnimationFrame(frame);
+  }
+  S.start = () => { if(S.running) return; S.running = true; S.last = performance.now(); S.raf = requestAnimationFrame(frame); };
+  S.stop = () => { S.running = false; cancelAnimationFrame(S.raf); };
+  return S;
 }
 
-// ---------- de kraam ----------
-function stallCore(x, y, o){
-  // x,y = linksonder van de toonbank; breedte 200
-  const stripes = Array.from({ length:10 }, (_, i) => `<rect x="${x - 10 + i * 22}" y="${y - 118}" width="22" height="30" fill="${i % 2 ? '#fff7ed' : '#f97316'}"/>`).join('');
-  const scallop = Array.from({ length:10 }, (_, i) => `<path d="M${x - 10 + i * 22},${y - 88} q11,14 22,0" fill="${i % 2 ? '#fff7ed' : '#f97316'}"/>`).join('');
-  let fryer = '';
-  if(o.fryer === 'modern') fryer = `<rect x="${x + 112}" y="${y - 52}" width="64" height="34" rx="5" fill="#cbd5e1" stroke="#64748b"/><rect x="${x + 118}" y="${y - 47}" width="52" height="8" rx="2" fill="#0f172a"/><text x="${x + 144}" y="${y - 41}" font-size="6" fill="#4ade80" text-anchor="middle">PRO 75</text>
-      <path d="M${x + 126},${y - 56} q-4,-8 0,-14 M${x + 144},${y - 56} q-4,-8 0,-14 M${x + 162},${y - 56} q-4,-8 0,-14" stroke="#e2e8f0" stroke-width="2.5" fill="none" class="steam"/>`;
-  else if(o.fryer === 'used') fryer = `<rect x="${x + 118}" y="${y - 46}" width="50" height="28" rx="4" fill="#9ca3af" stroke="#6b7280"/><circle cx="${x + 130}" cy="${y - 38}" r="3" fill="#dc2626"/>
-      <path d="M${x + 132},${y - 50} q-4,-8 0,-12 M${x + 152},${y - 50} q-4,-8 0,-12" stroke="#e5e7eb" stroke-width="2" fill="none" class="steam"/>`;
-  else fryer = `<rect x="${x + 124}" y="${y - 38}" width="38" height="20" rx="3" fill="#78716c"/><rect x="${x + 158}" y="${y - 34}" width="16" height="3" fill="#57534e"/>`;
-  const owner = o.noOwner ? '' : personSvg(x + 60, y - 40, 1.25, { skin:o.skin || '#f1c27d', shirt:'#d97706', hair:'#3f2a1d', apron:true, cap:'#b45309' });
-  const worker = o.worker ? personSvg(x + 92, y - 38, 1.1, { skin:o.worker.skin, shirt:'#0d9488', hair:o.worker.hair, apron:true }) : '';
-  const sauce = o.sauce ? `<rect x="${x + 18}" y="${y - 22}" width="10" height="20" rx="3" fill="#dc2626"/><rect x="${x + 20}" y="${y - 26}" width="6" height="5" fill="#fbbf24"/><text x="${x + 23}" y="${y - 9}" font-size="5" fill="#fff" text-anchor="middle">SAUS</text>` : '';
-  const priceTag = o.price != null ? `<rect x="${x + 150}" y="${y + 10}" width="44" height="22" rx="4" fill="#1f2937"/><text x="${x + 172}" y="${y + 25}" font-size="11" font-weight="700" fill="#fde68a" text-anchor="middle">${eur(o.price)}</text>` : '';
-  return `
-    <rect x="${x - 4}" y="${y - 88}" width="6" height="90" fill="#92400e"/><rect x="${x + 198}" y="${y - 88}" width="6" height="90" fill="#92400e"/>
-    <rect x="${x}" y="${y - 88}" width="200" height="72" fill="#fef3c7" opacity=".55"/>
-    ${fryer}${owner}${worker}
-    ${stripes}${scallop}
-    <rect x="${x + 40}" y="${y - 136}" width="120" height="22" rx="6" fill="#7c2d12"/><text x="${x + 100}" y="${y - 120}" font-size="13" font-weight="800" fill="#fde68a" text-anchor="middle" letter-spacing="1">🍟 PATAT</text>
-    <rect x="${x - 6}" y="${y - 20}" width="212" height="12" rx="3" fill="#b45309"/>
-    <rect x="${x}" y="${y - 8}" width="200" height="48" fill="#ea580c"/><rect x="${x}" y="${y - 8}" width="200" height="48" fill="url(#woodLines)"/>
-    ${sauce}${priceTag}`;
+// ---------- de kraam in het speelscherm ----------
+let mainScene = null;
+function sceneOpts(extra = {}){
+  const closed = isClosedDay() && !state.finished;
+  const workerId = part === 2 && state.worker && !state.kiosk && workerWorks() ? state.worker.id : null;
+  return Object.assign({ owner: !closed, worker: closed ? null : workerId, fryer: state.investment, sauce: state.sauce > 0, price: closed ? null : state.price, closed,
+    competitor: state.competitor, compOwner: !closed, compPrice: state.day === DAY.CARTEL && state.cartel === 'join' ? CARTEL_PRICE : COMPETITOR_PRICE,
+    kiosk: part === 2 && state.kiosk, bins: state.env === 'bins', paper: state.env === 'paper', litter: state.env === 'none' && state.day >= DAY.ENV,
+    queue: !closed, seed: state.day }, extra);
 }
-function stallSceneSvg(){
-  if(!state) return '';
-  const d = state.day, closed = isClosedDay() && !state.finished, cold = part === 2 && d === D2.COLD;
-  const w = part === 2 && state.worker && !state.kiosk && workerWorks() ? workerLook(state.worker.id) : null;
-  const sky = closed ? ['#94a3b8','#cbd5e1'] : cold ? ['#bfdbfe','#eff6ff'] : ['#7dd3fc','#e0f2fe'];
-  let weather = '';
-  if(closed) weather = `<g class="rain">${Array.from({ length:40 }, (_, i) => `<line x1="${(i * 53) % 640}" y1="${(i * 37) % 120}" x2="${(i * 53) % 640 - 4}" y2="${(i * 37) % 120 + 10}" stroke="#64748b" stroke-width="1.5"/>`).join('')}</g>
-      <ellipse cx="120" cy="30" rx="70" ry="20" fill="#94a3b8"/><ellipse cx="480" cy="26" rx="90" ry="22" fill="#94a3b8"/>`;
-  else if(cold) weather = `<g class="snow">${Array.from({ length:28 }, (_, i) => `<circle cx="${(i * 71) % 640}" cy="${(i * 29) % 150}" r="2.2" fill="#fff"/>`).join('')}</g>`;
-  else weather = `<circle cx="580" cy="36" r="20" fill="#fde047"/><ellipse cx="140" cy="34" rx="44" ry="13" fill="#fff" opacity=".9"/><ellipse cx="380" cy="24" rx="34" ry="10" fill="#fff" opacity=".8"/>`;
-  const litter = state.env === 'none' && d >= DAY.ENV ? Array.from({ length:9 }, (_, i) => `<rect x="${60 + (i * 67) % 520}" y="${206 + (i * 13) % 18}" width="9" height="5" rx="1" fill="#fff" stroke="#d6d3d1" transform="rotate(${i * 23} ${64 + (i * 67) % 520} ${208 + (i * 13) % 18})"/>`).join('') : '';
-  const bins = state.env === 'bins' ? `<rect x="118" y="168" width="22" height="34" rx="3" fill="#15803d"/><rect x="115" y="164" width="28" height="6" rx="2" fill="#166534"/><text x="129" y="190" font-size="12" text-anchor="middle">♻️</text>` : '';
-  const paper = state.env === 'paper' ? '<rect x="404" y="128" width="64" height="26" rx="4" fill="#fff" stroke="#16a34a"/><text x="436" y="139" font-size="7.5" text-anchor="middle" fill="#166534">♻️ papieren</text><text x="436" y="149" font-size="7.5" text-anchor="middle" fill="#166534">bakjes</text>' : '';
-  const kiosk = part === 2 && state.kiosk ? '<rect x="412" y="118" width="34" height="84" rx="6" fill="#1f2937"/><rect x="417" y="124" width="24" height="34" rx="3" fill="#38bdf8"/><text x="429" y="145" font-size="12" text-anchor="middle">🍟</text><rect x="422" y="166" width="14" height="4" rx="2" fill="#4b5563"/>' : '';
-  const comp = state.competitor ? `<g transform="translate(500,120) scale(.55)">
-      <rect x="-4" y="-88" width="6" height="90" fill="#7f1d1d"/><rect x="198" y="-88" width="6" height="90" fill="#7f1d1d"/>
-      ${Array.from({ length:10 }, (_, i) => `<rect x="${-10 + i * 22}" y="-118" width="22" height="30" fill="${i % 2 ? '#fff' : '#dc2626'}"/>`).join('')}
-      <rect x="40" y="-140" width="130" height="24" rx="6" fill="#991b1b"/><text x="105" y="-123" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">SnackPoint</text>
-      ${personSvg(100, -40, 1.25, { skin:'#e0ac69', shirt:'#dc2626', hair:'#111', apron:true })}
-      <rect x="-6" y="-20" width="212" height="12" rx="3" fill="#7f1d1d"/><rect x="0" y="-8" width="200" height="48" fill="#b91c1c"/>
-      <rect x="140" y="10" width="54" height="24" rx="4" fill="#1f2937"/><text x="167" y="27" font-size="13" font-weight="700" fill="#fde68a" text-anchor="middle">${eur(state.day === DAY.CARTEL && state.cartel === 'join' ? CARTEL_PRICE : COMPETITOR_PRICE)}</text>
-    </g>` : '';
-  const queue = closed ? '' : [0, 1, 2].map(i => personSvg(300 - i * 34 + (i % 2) * 4, 200, 1.05, { skin:SKIN[(d + i * 2) % SKIN.length], shirt:SHIRTS[(d * 3 + i) % SHIRTS.length], hair:i % 2 ? '#111' : '#7c4a1e' })).join('');
-  return `<svg viewBox="0 0 640 240" class="scene-svg" role="img" aria-label="Jouw snackkraam op het schoolplein">
-    <defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient>
-      <pattern id="woodLines" width="200" height="12" patternUnits="userSpaceOnUse"><line x1="0" y1="11" x2="200" y2="11" stroke="#c2410c" stroke-width="1"/></pattern>
-      <pattern id="tiles" width="32" height="16" patternUnits="userSpaceOnUse"><rect width="32" height="16" fill="${cold ? '#e2e8f0' : '#d6d3d1'}"/><path d="M0,0 H32 M0,8 H32 M16,0 V8 M0,8 V16" stroke="#a8a29e" stroke-width=".6"/></pattern></defs>
-    <rect width="640" height="240" fill="url(#skyG)"/>${weather}
-    <rect x="0" y="40" width="110" height="140" fill="#b45309" opacity=".35"/><rect x="0" y="60" width="110" height="6" fill="#92400e" opacity=".3"/>
-    ${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${10 + c * 32}" y="${72 + r * 34}" width="20" height="22" fill="#e0f2fe" opacity=".7"/>`).join('')).join('')}
-    <text x="55" y="54" font-size="10" text-anchor="middle" fill="#7c2d12" font-weight="700">SCHOOL</text>
-    <rect x="0" y="180" width="640" height="60" fill="url(#tiles)"/>
-    ${stallCore(200, 196, { fryer: state.investment, worker: closed ? null : w, sauce: state.sauce > 0, price: closed ? null : state.price, noOwner: closed })}
-    ${bins}${paper}${kiosk}${comp}${litter}${queue}
-    ${closed ? '<rect x="240" y="130" width="120" height="30" rx="6" fill="#1f2937" opacity=".85"/><text x="300" y="150" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">GESLOTEN</text>' : ''}
-  </svg>`;
-}
-function workerLook(id){
-  const L = { daan:{ skin:'#f1c27d', hair:'#facc15' }, lotte:{ skin:'#ffe0bd', hair:'#7c4a1e' }, samira:{ skin:'#c68642', hair:'#1c1917' }, peter:{ skin:'#ffdbac', hair:'#9ca3af' }, ahmed:{ skin:'#a0663c', hair:'#111' } };
-  return L[id] || { skin:'#f1c27d', hair:'#3f2a1d' };
-}
+function weatherNow(){ return (isClosedDay() && !state.finished) ? 'rain' : (part === 2 && state.day === D2.COLD && !state.finished) ? 'cold' : null; }
 function renderStall(){
-  const el = $('stallScene'); if(!el) return;
-  el.innerHTML = stallSceneSvg();
+  const box = $('stallScene'); if(!box) return;
+  if(!mainScene || !box.contains(mainScene.el)) mainScene = createScene(box);
+  mainScene.opts = sceneOpts(); mainScene.weather = weatherNow(); mainScene.t = .42;
+  if(!mainScene.walkers){ mainScene.walkers = true; mainScene.people = [{ x:-10, y:152, dir:1, look:3, phase:'go', sp:14 }, { x:330, y:158, dir:-1, look:5, phase:'go', sp:11 }];
+    mainScene.onFrame = dt => { const rain = mainScene.weather === 'rain';
+      mainScene.people.forEach(p => { p.gone = rain; p.x += p.dir * p.sp * dt; if(p.x > 340) p.x = -14; if(p.x < -20) p.x = 336; }); }; }
+  if(!$('gameScreen').classList.contains('hidden') && !clockRunning) mainScene.start(); else mainScene.stop();
   const cap = [];
   if(state.investment) cap.push(INVESTMENTS[state.investment].name.replace(/^\S+ /, ''));
   if(part === 2 && state.worker && !state.kiosk) cap.push(`${state.worker.name} ${workerWorks() ? 'werkt mee' : 'is vandaag vrij'}`);
@@ -1873,173 +1992,153 @@ function renderStall(){
   if(state.sauce) cap.push('eigen saus');
   $('stallCaption').textContent = cap.length ? cap.join(' · ') : 'Je begint klein: een oude pan en jij achter de toonbank.';
 }
-
-// ---------- gezichten en tekstballonnen ----------
-const CHARS = {
-  henk:{ name:'Henk van de groothandel', skin:'#f1c27d', hair:'#9ca3af', shirt:'#1d4ed8', cap:'#1e3a8a', mustache:true },
-  rocco:{ name:'Rocco van SnackPoint', skin:'#e0ac69', hair:'#111', shirt:'#dc2626', bandana:'#b91c1c' },
-  ger:{ name:'Ger, de conciërge', skin:'#ffdbac', hair:'#d1d5db', shirt:'#1e40af', glasses:true, bald:true },
-  ilse:{ name:'Ilse van de Kamer van Koophandel', skin:'#f5d0b0', hair:'#eab308', shirt:'#334155', glasses:true, bun:true },
-  bakker:{ name:'Mevrouw Bakker, cursusleider', skin:'#8d5524', hair:'#1c1917', shirt:'#7c3aed', curls:true },
-  inspecteur:{ name:'De inspecteur', skin:'#c68642', hair:'#111', shirt:'#f97316', helmet:'#facc15' },
-  tim:{ name:'Tim van TechKassa', skin:'#ffdbac', hair:'#7c4a1e', shirt:'#0f172a', glasses:true },
-  daan:{ name:'Daan', skin:'#f1c27d', hair:'#facc15', shirt:'#0ea5e9' },
-  lotte:{ name:'Lotte', skin:'#ffe0bd', hair:'#7c4a1e', shirt:'#db2777', ponytail:true },
-  samira:{ name:'Samira', skin:'#c68642', hair:'#1c1917', shirt:'#16a34a', long:true },
-  peter:{ name:'Peter', skin:'#ffdbac', hair:'#9ca3af', shirt:'#475569', tie:true },
-  ahmed:{ name:'Ahmed', skin:'#a0663c', hair:'#111', shirt:'#ca8a04', beard:true }
-};
-function faceSvg(k, size = 64){
-  const c = CHARS[k] || CHARS.henk;
-  const hair = c.bald ? `<path d="M14,30 C14,22 18,18 22,18 M50,30 C50,22 46,18 42,18" stroke="${c.hair}" stroke-width="4" fill="none"/>`
-    : c.curls ? `<circle cx="20" cy="20" r="8" fill="${c.hair}"/><circle cx="32" cy="14" r="9" fill="${c.hair}"/><circle cx="44" cy="20" r="8" fill="${c.hair}"/>`
-    : c.long ? `<path d="M12,30 C10,10 54,10 52,30 L54,52 L46,52 L46,30 L18,30 L18,52 L10,52 Z" fill="${c.hair}"/>`
-    : `<path d="M14,28 C14,10 50,10 50,28 C44,20 20,20 14,28 Z" fill="${c.hair}"/>`;
-  return `<svg viewBox="0 0 64 64" width="${size}" height="${size}" aria-hidden="true">
-    <circle cx="32" cy="32" r="31" fill="#fef3c7"/>
-    <path d="M10,64 C10,48 54,48 54,64 Z" fill="${c.shirt}"/>
-    ${c.tie ? '<path d="M32,50 l-3,6 l3,8 l3,-8 Z" fill="#b91c1c"/>' : ''}
-    ${c.long ? hair : ''}
-    <circle cx="32" cy="31" r="16" fill="${c.skin}"/>
-    ${c.long ? '<path d="M16,28 C16,14 48,14 48,28 C42,21 22,21 16,28 Z" fill="' + c.hair + '"/>' : hair}
-    ${c.bun ? `<circle cx="32" cy="12" r="6" fill="${c.hair}"/>` : ''}
-    ${c.ponytail ? `<path d="M46,22 q10,6 6,20 q-4,-10 -8,-14 Z" fill="${c.hair}"/>` : ''}
-    ${c.cap ? `<path d="M15,24 C15,10 49,10 49,24 Z" fill="${c.cap}"/><rect x="38" y="21" width="16" height="4" rx="2" fill="${c.cap}"/>` : ''}
-    ${c.helmet ? `<path d="M14,26 C14,8 50,8 50,26 Z" fill="${c.helmet}"/><rect x="12" y="24" width="40" height="4" rx="2" fill="${c.helmet}"/>` : ''}
-    ${c.bandana ? `<path d="M15,22 C18,13 46,13 49,22 L49,25 L15,25 Z" fill="${c.bandana}"/>` : ''}
-    <circle cx="26" cy="31" r="2" fill="#1f2937"/><circle cx="38" cy="31" r="2" fill="#1f2937"/>
-    ${c.glasses ? '<circle cx="26" cy="31" r="5" fill="none" stroke="#1f2937" stroke-width="1.5"/><circle cx="38" cy="31" r="5" fill="none" stroke="#1f2937" stroke-width="1.5"/><line x1="31" y1="31" x2="33" y2="31" stroke="#1f2937" stroke-width="1.5"/>' : ''}
-    ${c.mustache ? '<path d="M24,38 q8,-4 16,0 q-8,3 -16,0 Z" fill="#6b7280"/>' : ''}
-    ${c.beard ? `<path d="M17,33 C18,48 46,48 47,33 C44,42 20,42 17,33 Z" fill="${c.hair}"/>` : ''}
-    <path d="M27,40 Q32,44 37,40" stroke="#7c2d12" stroke-width="1.8" fill="none"/>
-  </svg>`;
-}
-function say(k, html, whisper){
-  const c = CHARS[k] || CHARS.henk;
-  return `<div class="say ${whisper ? 'whisper' : ''}"><div class="say-face">${faceSvg(k)}</div><div class="say-bubble"><div class="say-name">${c.name}</div>${html}</div></div>`;
-}
+document.addEventListener('visibilitychange', () => { if(mainScene){ if(document.hidden) mainScene.stop(); else if(state && !$('gameScreen').classList.contains('hidden') && !clockRunning) mainScene.start(); } });
 
 // ---------- schoolplein tijdens de klok ----------
-let plein = null;
+let plein = null, pleinScene = null;
 function pleinInit(h){
   const box = $('plein'); if(!box) return;
+  if(mainScene) mainScene.stop();
+  if(!pleinScene || !box.contains(pleinScene.el)) pleinScene = createScene(box);
   const closed = h.closed;
-  box.innerHTML = `<svg viewBox="0 0 480 150" class="plein-svg" aria-hidden="true">
-    <rect width="480" height="150" fill="${closed ? '#94a3b8' : '#bae6fd'}" id="pleinSky"/>
-    <rect x="0" y="100" width="480" height="50" fill="#d6d3d1"/>
-    <rect x="0" y="22" width="92" height="86" fill="#c2410c" opacity=".55"/><rect x="58" y="72" width="22" height="34" fill="#7c2d12"/>
-    ${[0, 1].map(r => [0, 1].map(c => `<rect x="${10 + c * 24}" y="${34 + r * 24}" width="16" height="16" fill="#e0f2fe" opacity=".8"/>`).join('')).join('')}
-    <text x="46" y="18" font-size="9" text-anchor="middle" fill="#7c2d12" font-weight="700">SCHOOL</text>
-    <g transform="translate(250,122) scale(.42)">${stallCore(0, 0, { fryer: state.investment, worker: part === 2 && h.workerWorked ? workerLook(state.worker.id) : null, sauce: state.sauce > 0, price: null })}</g>
-    ${state.competitor ? `<g transform="translate(400,122) scale(.3)">${Array.from({ length:10 }, (_, i) => `<rect x="${-10 + i * 22}" y="-118" width="22" height="30" fill="${i % 2 ? '#fff' : '#dc2626'}"/>`).join('')}<rect x="0" y="-88" width="200" height="72" fill="#fee2e2"/><rect x="0" y="-8" width="200" height="48" fill="#b91c1c"/><text x="100" y="22" font-size="26" fill="#fff" text-anchor="middle" font-weight="800">SnackPoint</text></g>` : ''}
-    ${closed ? Array.from({ length:36 }, (_, i) => `<line x1="${(i * 37) % 480}" y1="${(i * 23) % 100}" x2="${(i * 37) % 480 - 3}" y2="${(i * 23) % 100 + 9}" stroke="#475569" stroke-width="1.3" class="drop"/>`).join('') : ''}
-    <g id="pleinPeople"></g>
-  </svg>`;
-  const k = Math.max(1, Math.ceil(((h.want || 0) + (h.compSold || 0)) / 36));
-  plein = { people:[], served:0, walk:0, comp:0, k, compTarget: h.compSold || 0, last: performance.now(), want: h.want || 1, layer: $('pleinPeople'),
-    speed: 200 / Math.max(.6, CLOCK_DURATION * .1 / 1000) };
+  pleinScene.opts = sceneOpts({ queue:false, price: closed ? null : h.price, owner: !closed, closed, worker: !closed && part === 2 && h.workerWorked ? state.worker.id : null });
+  pleinScene.weather = closed ? 'rain' : (part === 2 && h.day === D2.COLD) ? 'cold' : null;
+  pleinScene.people = []; pleinScene.t = 0; pleinScene.onFrame = null;
+  const k = Math.max(1, Math.ceil(((h.want || 0) + (h.compSold || 0)) / 30));
+  plein = { served:0, walk:0, comp:0, k, compTarget: h.compSold || 0, last: performance.now(), speed: 200 / Math.max(.6, CLOCK_DURATION * .1 / 1000), n:0 };
+  pleinScene.start();
 }
 function pleinSpawn(kind){
-  if(!plein) return;
-  const id = plein.people.length, skin = SKIN[id % SKIN.length], shirt = SHIRTS[(id * 3) % SHIRTS.length];
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  g.innerHTML = personSvg(0, 0, .62, { skin, shirt, hair: id % 3 ? '#3f2a1d' : '#111' }) + (kind === 'walk' ? '<text x="6" y="-12" font-size="9" class="mood" opacity="0">😤</text>' : '') + '<text x="7" y="2" font-size="9" class="fries" opacity="0">🍟</text>';
-  plein.layer.appendChild(g);
-  const lane = 118 + (id % 4) * 6;
-  const p = { g, kind, x: 70, y: lane, phase: 'go', t: 0, speed: plein.speed * (.85 + (id % 5) * .08) };
-  p.tx = kind === 'comp' ? 412 + (id % 3) * 10 : kind === 'walk' ? 215 - (id % 4) * 10 : 262 + (id % 4) * 14;
-  plein.people.push(p);
+  const id = plein.n++, lane = 140 + (id % 4) * 6;
+  pleinScene.people.push({ kind, x: 50, y: lane, dir: 1, look: id, phase: 'go', t: 0, sp: plein.speed * (.85 + (id % 5) * .08),
+    tx: kind === 'comp' ? 262 + (id % 3) * 10 : kind === 'walk' ? 100 - (id % 4) * 8 : 110 + (id % 4) * 6, extra: null });
 }
 function pleinUpdate(t, served, walk){
-  if(!plein) return;
+  if(!plein || !pleinScene) return;
+  pleinScene.t = Math.min(1, t);
   const now = performance.now(), dt = Math.min(.05, (now - plein.last) / 1000); plein.last = now;
-  let budget = 3;
   const K = plein.k; served = Math.floor(served / K); walk = Math.ceil(walk / K);
+  let budget = 3;
   while(plein.served < served && budget-- > 0){ plein.served++; pleinSpawn('serve'); }
   while(plein.walk < walk && budget-- > 0){ plein.walk++; pleinSpawn('walk'); }
   const compNow = Math.floor(plein.compTarget * customerShare(t) / K);
   while(plein.comp < compNow && budget-- > 0){ plein.comp++; pleinSpawn('comp'); }
-  plein.people.forEach(p => {
-    if(p.phase === 'gone') return;
-    if(p.phase === 'go'){
-      const dx = p.tx - p.x; p.x += Math.sign(dx) * Math.min(Math.abs(dx), p.speed * dt);
-      if(Math.abs(dx) < 1){ p.phase = 'wait'; p.t = 0; }
-    } else if(p.phase === 'wait'){
-      p.t += dt;
-      if(p.kind === 'walk'){ const m = p.g.querySelector('.mood'); if(m) m.setAttribute('opacity', '1'); }
-      else { const f = p.g.querySelector('.fries'); if(f) f.setAttribute('opacity', '1'); }
-      if(p.t > CLOCK_DURATION / 14000) p.phase = 'leave';
-    } else if(p.phase === 'leave'){
-      p.x += (p.kind === 'walk' ? -1 : 1) * p.speed * 1.2 * dt; p.y += (p.kind === 'walk' ? 0 : 6 * dt);
-      if(p.x > 500 || p.x < -20){ p.phase = 'gone'; p.g.remove(); }
-    }
-    p.g.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+  pleinScene.people.forEach(p => {
+    if(p.gone) return;
+    if(p.phase === 'go'){ const dx = p.tx - p.x; p.x += Math.sign(dx) * Math.min(Math.abs(dx), p.sp * dt); if(Math.abs(dx) < 1){ p.phase = 'wait'; p.t = 0; } }
+    else if(p.phase === 'wait'){ p.t += dt; p.extra = p.kind === 'walk' ? 'angry' : 'fries'; if(p.t > CLOCK_DURATION / 14000){ p.phase = 'leave'; p.dir = p.kind === 'walk' ? -1 : 1; } }
+    else { p.x += p.dir * p.sp * 1.2 * dt; p.y += (p.kind === 'walk' ? 0 : 8 * dt); if(p.x > 340 || p.x < -20) p.gone = true; }
   });
-  const sky = $('pleinSky');
-  if(sky && !plein.closedSky) sky.setAttribute('fill', t < .375 ? '#fde68a' : t < .625 ? '#7dd3fc' : t < .875 ? '#fdba74' : '#1e3a5f');
+}
+function pleinTime(t){ if(pleinScene) pleinScene.t = Math.min(1, t); }
+function pleinStop(){ if(pleinScene) pleinScene.stop(); if(mainScene && state && !$('gameScreen').classList.contains('hidden')) mainScene.start(); }
+
+// ---------- pixel-portretten ----------
+const CHARS = {
+  chrik:{ name:'Chrik van Beursen, groothandel', skin:'#f1c27d', hair:'#9ca3af', shirt:'#1d4ed8', cap:'#1e3a8a', mustache:true },
+  cees:{ name:'Cees van Cees Patat', skin:'#eab28c', hair:'#4a3020', shirt:'#f3efe6', apron:'#c0262d', bald:true, mustache:true },
+  steef:{ name:'Steef Engels, conciërge', skin:'#ffdbac', hair:'#9ca3af', shirt:'#1e40af', glasses:true, keys:true },
+  karin:{ name:'Karin Roekoestein, Kamer van Koophandel', skin:'#f5d0b0', hair:'#e2b13c', shirt:'#334155', glasses:true, bun:true, earrings:true },
+  wenny:{ name:'Wenny van Kruizer, cursusleider', skin:'#e8b48c', hair:'#6b3a1e', shirt:'#7c3aed', long:true },
+  ben:{ name:'Ben Diender, Arbeidsinspectie', skin:'#c68642', hair:'#1c1917', shirt:'#f97316', helmet:'#facc15' },
+  jeremias:{ name:'Jeremias Müller, leverancier', skin:'#ffdbac', hair:'#7c4a1e', shirt:'#0f172a', glasses:true, stubble:true },
+  daan:{ name:'Daan', skin:'#f1c27d', hair:'#e3c25a', shirt:'#0ea5e9' },
+  lotte:{ name:'Lotte', skin:'#ffe0bd', hair:'#7c4a1e', shirt:'#db2777', ponytail:true },
+  samira:{ name:'Samira', skin:'#c68642', hair:'#1c1917', shirt:'#16a34a', long:true },
+  peter:{ name:'Peter', skin:'#ffdbac', hair:'#a3a3a3', shirt:'#475569', tie:true },
+  ahmed:{ name:'Ahmed', skin:'#a0663c', hair:'#151515', shirt:'#ca8a04', beard:true }
+};
+const portraitCache = {};
+function portraitUrl(k){
+  if(portraitCache[k]) return portraitCache[k];
+  const c = CHARS[k] || CHARS.chrik, small = document.createElement('canvas'); small.width = 24; small.height = 24;
+  const g = small.getContext('2d'), P = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const sk = c.skin, skD = shade(sk, -.16), skL = shade(sk, .12), hr = c.hair, hrD = shade(hr, -.25), sh = c.shirt, shD = shade(sh, -.25);
+  for(let y = 0; y < 24; y++) P(0, y, 24, 1, mixHex('#3b3046', '#1d1822', y / 24));
+  if(c.long){ P(5, 6, 14, 16, hr); P(5, 18, 3, 6, hrD); P(16, 18, 3, 6, hrD); }
+  P(4, 19, 16, 5, sh); P(3, 21, 18, 3, sh); P(4, 22, 16, 2, shD);
+  if(c.apron){ P(8, 19, 8, 5, c.apron); P(7, 19, 1, 2, c.apron); P(16, 19, 1, 2, c.apron); }
+  if(c.tie) P(11, 19, 2, 5, '#b91c1c');
+  if(c.keys){ P(17, 21, 2, 2, '#d4d4d8'); P(18, 20, 1, 1, '#a1a1aa'); }
+  P(10, 17, 4, 3, skD);
+  P(7, 7, 10, 11, sk); P(6, 9, 1, 6, sk); P(17, 9, 1, 6, sk); P(8, 17, 8, 1, skD); P(16, 8, 1, 9, skD); P(8, 8, 3, 2, skL);
+  if(c.bald){ P(6, 8, 2, 4, hr); P(16, 8, 2, 4, hr); P(8, 6, 8, 1, skD); }
+  else if(c.helmet){ P(6, 3, 12, 5, c.helmet); P(5, 7, 14, 2, c.helmet); P(8, 4, 4, 1, shade(c.helmet, .4)); }
+  else { P(7, 4, 10, 4, hr); P(6, 5, 2, 6, hr); P(16, 5, 2, 5, hr); P(8, 3, 8, 1, hr); P(9, 4, 6, 1, shade(hr, .2)); P(6, 10, 1, 2, hrD); }
+  if(c.cap){ P(6, 3, 12, 4, c.cap); P(14, 6, 6, 2, c.cap); P(8, 4, 4, 1, shade(c.cap, .3)); }
+  if(c.bun) P(10, 1, 4, 3, hr);
+  if(c.ponytail){ P(17, 6, 3, 8, hr); P(18, 13, 2, 3, hrD); }
+  P(9, 11, 2, 2, '#1b1410'); P(13, 11, 2, 2, '#1b1410'); P(9, 11, 1, 1, '#ffffff'); P(13, 11, 1, 1, '#ffffff');
+  if(!c.helmet && !c.bald){ P(8, 10, 3, 1, hrD); P(13, 10, 3, 1, hrD); }
+  if(c.glasses){ P(8, 10, 4, 1, '#111'); P(12, 10, 4, 1, '#111'); P(8, 13, 4, 1, '#111'); P(12, 13, 4, 1, '#111'); P(8, 10, 1, 4, '#111'); P(15, 10, 1, 4, '#111'); P(11, 10, 1, 4, '#111'); P(12, 10, 1, 4, '#111'); }
+  P(11, 13, 2, 1, skD);
+  if(c.mustache) P(9, 15, 6, 1, c.bald ? hr : '#6b7280');
+  if(c.beard){ P(7, 15, 10, 3, hr); P(8, 18, 8, 1, hr); P(10, 16, 4, 1, '#7c2d12'); }
+  else if(c.stubble){ P(8, 16, 8, 2, mixHex(sk, hr, .35)); P(10, 16, 4, 1, '#7c2d12'); }
+  else P(10, 16, 4, 1, '#7c2d12');
+  if(c.earrings){ P(6, 14, 1, 1, '#fcd34d'); P(17, 14, 1, 1, '#fcd34d'); }
+  const big = document.createElement('canvas'); big.width = 96; big.height = 96;
+  const b = big.getContext('2d'); b.imageSmoothingEnabled = false; b.drawImage(small, 0, 0, 96, 96);
+  const rg = b.createRadialGradient(30, 22, 0, 30, 22, 70); rg.addColorStop(0, 'rgba(255,210,150,.35)'); rg.addColorStop(1, 'rgba(255,210,150,0)');
+  b.globalCompositeOperation = 'screen'; b.fillStyle = rg; b.fillRect(0, 0, 96, 96);
+  b.globalCompositeOperation = 'source-over'; const vg = b.createRadialGradient(48, 48, 30, 48, 48, 70); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); b.fillStyle = vg; b.fillRect(0, 0, 96, 96);
+  return (portraitCache[k] = big.toDataURL());
+}
+function faceSvg(k, size = 64){ return `<img class="portrait" src="${portraitUrl(k)}" width="${size}" height="${size}" alt="">`; }
+function say(k, html, whisper){
+  const c = CHARS[k] || CHARS.chrik;
+  return `<div class="say ${whisper ? 'whisper' : ''}"><div class="say-face">${faceSvg(k)}</div><div class="say-bubble"><div class="say-name">${c.name}</div>${html}</div></div>`;
 }
 
-// ---------- feest: confetti en munten ----------
-function confetti(n = 120, emoji){
+// ---------- feest: alleen met een duidelijke reden ----------
+function confettiFrom(el, n = 120){
   let cv = $('confetti');
   if(!cv){ cv = document.createElement('canvas'); cv.id = 'confetti'; document.body.appendChild(cv); }
   const ctx = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const r = el ? el.getBoundingClientRect() : { left: W / 2, top: H / 3, width: 0, height: 0 }, ox = r.left + r.width / 2, oy = r.top + r.height / 2;
   const cols = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#fde047'];
-  const ps = Array.from({ length:n }, () => ({ x: Math.random() * W, y: -20 - Math.random() * H * .4, vx: (Math.random() - .5) * 2.4, vy: 2 + Math.random() * 3, r: Math.random() * 6.28, vr: (Math.random() - .5) * .3, s: 5 + Math.random() * 6, c: cols[Math.floor(Math.random() * cols.length)] }));
+  const ps = Array.from({ length:n }, () => { const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 6; return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, s: 3 + Math.floor(Math.random() * 3), c: cols[Math.floor(Math.random() * cols.length)] }; });
   const start = performance.now();
   (function tick(now){
     ctx.clearRect(0, 0, W, H);
-    ps.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += .04; p.r += p.vr;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
-      if(emoji){ ctx.font = (p.s * 2.4) + 'px serif'; ctx.fillText(emoji, -p.s, p.s); }
-      else { ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); }
-      ctx.restore();
-    });
-    if(now - start < 2600) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .22; p.vx *= .99; ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); });
+    if(now - start < 2200) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
   })(start);
 }
-function toast(text){
-  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = text; document.body.appendChild(t);
-  setTimeout(() => t.classList.add('out'), 2400); setTimeout(() => t.remove(), 3000);
-}
-function celebrateDay(h){
-  const after = totalNet(), before = after - h.net;
-  const sb = starsFor(before), sa = starsFor(after);
-  if(sa > sb){ confetti(160); toast(`${'⭐'.repeat(sa)} Je haalde ster ${sa}!`); return; }
+function celebration(h){
+  const after = totalNet(), before = after - h.net, sb = starsFor(before), sa = starsFor(after);
+  if(sa > sb) return { kind:'star', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(sa)}</div><div><b>Ster ${sa} behaald!</b><br>Je totale nettoresultaat is nu <b>${eur(after)}</b>. Daarmee kom je boven het doel van ${eur(GOALS[sa - 1])}.${sa < 3 ? ` De volgende ster haal je bij ${eur(GOALS[sa])}.` : ' Je hebt alle drie de sterren!'}</div></div>` };
   const open = state.history.filter(x => !x.closed && x !== h);
-  if(!h.closed && h.net > 0 && open.length && h.net > Math.max(...open.map(x => x.net))){ confetti(60, '🪙'); toast('🏆 Je beste dag tot nu toe!'); }
+  if(!h.closed && h.net > 0 && open.length >= 2){ const rec = Math.max(...open.map(x => x.net));
+    if(h.net > rec) return { kind:'record', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">🏆</div><div><b>Je beste dag tot nu toe!</b><br>Nettoresultaat vandaag: <b>${eur(h.net)}</b>. Je vorige record was ${eur(rec)}.</div></div>` }; }
+  return { kind:null, html:'' };
 }
+function celebrateDay(cel){ if(cel && cel.kind) setTimeout(() => { const el = $('celebrate'); if(el) confettiFrom(el, cel.kind === 'star' ? 160 : 70); }, 350); }
+function starsBanner(stars){ return stars ? `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(stars)}</div><div><b>Gefeliciteerd: ${stars} ster${stars > 1 ? 'ren' : ''}!</b><br>Je totale nettoresultaat kwam boven ${eur(GOALS[stars - 1])}.</div></div>` : ''; }
 
 // ---------- oorkonde ----------
 function certificateModal(back){
   const net = totalNet(), stars = starsFor(net), name = session.student ? escapeHtml(session.student.name) : 'Jij';
   const today = new Date().toLocaleDateString('nl-NL', { day:'numeric', month:'long', year:'numeric' });
   const title = part === 1 ? 'Ben jij ondernemend?' : 'Werk aan de winkel!';
-  const line = part === 1 ? 'heeft 12 dagen met succes een snackkraam gerund op het schoolplein: prijzen gekozen, geïnvesteerd en het opgenomen tegen de concurrentie.'
+  const line = part === 1 ? 'heeft 12 dagen met succes een snackkraam gerund op het schoolplein: prijzen gekozen, geïnvesteerd en het opgenomen tegen Cees Patat.'
     : 'heeft als werkgever personeel aangenomen, een contract getekend en de kraam 12 dagen draaiende gehouden.';
-  showModal(`<div class="cert" id="cert">
-      <div class="cert-in">
-        <div class="cert-top">🍟 SNACK EMPIRE · GAME 2</div>
-        <h2>Oorkonde</h2>
-        <div class="cert-sub">${title}</div>
-        <p class="cert-name">${name}</p>
-        <p>${line}</p>
+  showModal(`<div class="cert" id="cert"><div class="cert-in">
+        <div class="cert-top">🍟 SNACK EMPIRE · GAME 2</div><h2>Oorkonde</h2><div class="cert-sub">${title}</div>
+        <p class="cert-name">${name}</p><p>${line}</p>
         <div class="cert-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
         <p><b>Nettoresultaat: ${eur(net)}</b> · ${state.quizCorrect} van de ${state.quizTotal} vragen goed</p>
-        <div class="cert-foot"><span>${today}</span><span class="cert-sign">Snack Empire<br><small>Kamer van Snackhandel</small></span></div>
-      </div>
-    </div>
+        <div class="cert-foot"><span>${today}</span><span class="cert-sign">Karin Roekoestein<br><small>Kamer van Koophandel</small></span></div>
+      </div></div>
     <div class="noprint" style="display:flex;gap:8px;margin-top:10px"><button class="ghost" style="flex:1" id="certBack">⬅ Terug</button><button class="cta" style="flex:1;margin-top:0" onclick="window.print()">🖨️ Printen</button></div>`);
   $('certBack').onclick = back;
-  confetti(120);
 }
 
 // ---------- weer en stemming ----------
 function applyMood(){
-  if(!state) { document.body.className = ''; return; }
-  const closed = isClosedDay() && !state.finished, cold = part === 2 && state.day === D2.COLD && !state.finished;
-  document.body.classList.toggle('w-rain', closed); document.body.classList.toggle('w-cold', cold); document.body.classList.toggle('w-sun', !closed && !cold);
+  if(!state) return;
+  const w = weatherNow();
+  document.body.classList.toggle('w-rain', w === 'rain'); document.body.classList.toggle('w-cold', w === 'cold'); document.body.classList.toggle('w-sun', !w);
 }
 
 // ---------- START ----------
