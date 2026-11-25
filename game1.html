@@ -154,6 +154,9 @@
 
   .cal-day.vak{background:#dbeafe;color:#1e3a8a}
   .cal-day.vak.passed{background:#bfdbfe;color:#1e3a8a;text-decoration:none}
+  .cal-day.free{background:#ede9fe;color:#5b21b6;text-decoration:none;transform:scale(1.04)}
+  .cal-ico{font-size:16px;line-height:1}
+  .cal-day.vak.free{background:#bfdbfe}
   .spend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0}
   .spend button{text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:9px 11px;font-family:inherit;font-size:14px;display:flex;flex-direction:column;gap:2px}
   .spend button.sel{border-color:var(--accent);background:#fff3dd}
@@ -1381,6 +1384,16 @@ function calendarDays(m){
   }
   return { offset, daysInMonth, work, vak, year, cm };
 }
+// wat doe je op je vrije dagen? de keuzes van deze maand verdeeld over vrijdag t/m zondag
+function freeIcon(d, cal, h){
+  const free = []; for(let x = 1; x <= cal.daysInMonth; x++) if(!cal.work.has(x) && !cal.vak.has(x)) free.push(x);
+  const i = free.indexOf(d); if(i < 0) return null;
+  const wd = (new Date(cal.year, cal.cm - 1, d).getDay() + 6) % 7;
+  if(h.extraShifts && wd === 4 && free.filter(x => (new Date(cal.year, cal.cm - 1, x).getDay() + 6) % 7 === 4).indexOf(d) < 2) return '💼';
+  const icons = h.chosen.map(c => c[0].split(' ')[0]);
+  if(!icons.length) return '🛋️';
+  return icons[(i + Math.floor((d - 1) / 7)) % icons.length];
+}
 function runCalendar(h, done){
   if(clockRunning) return;
   clockRunning = true;
@@ -1393,7 +1406,7 @@ function runCalendar(h, done){
   const workTotal = cal.work.size, earned = h.inc, spent = h.fix + h.day + h.cho + h.ext;
   $('liveServed').textContent = '0'; $('liveWalk').textContent = eur0(0); $('liveRev').textContent = eur0(0); $('liveFull').textContent = '';
   $('clockText').textContent = `📅 ${Mcap(h.month)}`;
-  $('clockSub').textContent = `${workTotal} werkdagen bij FrisFood${cal.vak.size ? ' · 2 weken vakantie 🏖️' : ''}`;
+  $('clockSub').textContent = `🟧 ${workTotal} werkdagen bij FrisFood · 🟪 vrije tijd${cal.vak.size ? ' · 🟦 2 weken vakantie' : ''}`;
   const start = performance.now();
   let shown = 0, doneDays = 0;
   function frame(now){
@@ -1401,7 +1414,11 @@ function runCalendar(h, done){
     while(shown < upto){
       shown++;
       const el = document.querySelector(`.cal-day[data-d="${shown}"]`);
-      if(el){ el.classList.add(cal.work.has(shown) ? 'done' : 'passed'); }
+      if(el){
+        if(cal.work.has(shown)) el.classList.add('done');
+        else if(cal.vak.has(shown)){ el.classList.add('free'); el.innerHTML = `<span class="cal-ico">${h.vacation === 'ibiza' ? '🏝️' : '⛺'}</span>`; }
+        else { const ico = freeIcon(shown, cal, h); if(ico){ el.classList.add('free'); el.innerHTML = `<span class="cal-ico">${ico}</span>`; } else el.classList.add('passed'); }
+      }
       if(cal.work.has(shown)) doneDays++;
       document.querySelectorAll('.cal-day.today').forEach(x => x.classList.remove('today'));
       if(el && shown < cal.daysInMonth) el.classList.add('today');
