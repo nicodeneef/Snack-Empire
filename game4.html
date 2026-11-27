@@ -894,10 +894,11 @@ function createWorld(root){
       for(let i = 0; i < nC; i++){ const c = i % 9, r = Math.floor(i / 9); px(mid, sx + 8 + c * 13, sy - 7 - r * 7, 12, 6, cols[(i * 7) % cols.length]); px(mid, sx + 8 + c * 13, sy - 7 - r * 7, 12, 1, 'rgba(255,255,255,.35)'); }
       lekkrSign(mid, sx + 62, sy + 5); }
     // vrachtwagens die vertrekken
-    (o.trucks || []).forEach((t, i) => { const per = 9 + i * 2, f = ((time + i * 3.1) % per) / per, x = -40 + f * 200, y = 150 + i * 9;
-      if(x > 155) return;
-      px(mid, x, y, 26, 10, t.col); px(mid, x + 26, y + 3, 9, 7, '#1f2937'); px(mid, x + 28, y + 4, 5, 3, '#93c5fd'); px(mid, x + 3, y + 10, 5, 3, '#111'); px(mid, x + 20, y + 10, 5, 3, '#111'); px(mid, x + 29, y + 10, 4, 3, '#111');
-      lekkrSign(mid, x + 3, y + 3); });
+    // vrachtwagens laden bij de pallets en rijden over de kade weg (naar links, het land in)
+    (o.trucks || []).forEach((t, i) => { const per = 9 + i * 2, f = ((time + i * 3.1) % per) / per, x = 112 - f * 170, y = 146 + i * 10;
+      if(x < -40) return;
+      px(mid, x + 9, y, 26, 10, t.col); px(mid, x, y + 3, 9, 7, '#1f2937'); px(mid, x + 2, y + 4, 5, 3, '#93c5fd'); px(mid, x + 1, y + 10, 4, 3, '#111'); px(mid, x + 12, y + 10, 5, 3, '#111'); px(mid, x + 28, y + 10, 5, 3, '#111');
+      lekkrSign(mid, x + 12, y + 3); });
     // meeuwen
     W.gulls.forEach(gl => { gl.x += gl.v * dt; if(gl.x > VW + 10) gl.x = -10; const wing = Math.floor(time * 4 + gl.x) % 2; px(mid, gl.x, gl.y, 2, 1, '#f8fafc'); px(mid, gl.x - 2, gl.y - wing, 2, 1, '#f8fafc'); px(mid, gl.x + 2, gl.y - wing, 2, 1, '#f8fafc'); });
     // vlaggen van je markten
