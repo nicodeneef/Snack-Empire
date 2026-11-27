@@ -193,6 +193,56 @@
   .news h3{margin:0 0 4px;font-size:18px}
   .speech{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;position:relative}
   .speech b{color:var(--accent)}
+  /* ===== beeld in HD-2D ===== */
+  body{transition:background-color .8s ease}
+  body.w-rain{background:#e4e8ee}
+  body.w-cold{background:#eaf2fa}
+  .scene{margin:4px 0 12px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#1d1822}
+  .scene-cap{padding:5px 10px;background:var(--panel);border-top:1px solid var(--line)}
+  .hd{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#1d1822}
+  .hd canvas{position:absolute;left:-3%;top:-3%;width:106%;height:106%;image-rendering:pixelated;image-rendering:crisp-edges}
+  .hd .hd-bg{filter:blur(1.2px) saturate(1.05)}
+  .hd .hd-fg{filter:blur(2.6px)}
+  .hd .hd-fx{image-rendering:auto;mix-blend-mode:screen}
+  .hd-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 55%,rgba(0,0,0,.5) 100%),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,0) 22%,rgba(0,0,0,0) 80%,rgba(0,0,0,.2))}
+  .clock-shell{max-width:640px}
+  .plein{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .portrait{display:block;border-radius:12px;image-rendering:pixelated;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+  .say{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+  .say-face{flex:none}
+  .say-bubble{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px;flex:1;font-size:15px;line-height:1.45}
+  .say-bubble:before{content:"";position:absolute;left:-8px;top:18px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+  .say-name{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:2px}
+  .say.whisper .say-bubble{background:#f5f3ff;border-style:dashed}
+  .say.whisper .say-bubble:before{border-right-color:#f5f3ff}
+  .cand-head{display:flex;gap:10px;align-items:center}
+  .opt-face{display:flex!important;gap:10px;align-items:center;flex-wrap:wrap}
+  .opt-face img{flex:none}
+  .modal.pop{animation:pop .28s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .scene-dock{position:sticky;top:96px;z-index:4}
+  .scene-dock:empty{display:none}
+  .scene-dock .scene{margin-top:0;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+  .rep-scene .scene{margin:6px auto 10px;max-width:440px}
+  .rep-scene:empty{display:none}
+  .celebrate{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;animation:pop .4s ease-out}
+  .cel-icon{font-size:28px;flex:none}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;image-rendering:pixelated}
+  .cert{border:10px double #d97706;border-radius:18px;padding:6px;background:#fffbeb}
+  .cert-in{border:2px solid #fcd34d;border-radius:12px;padding:20px 18px;text-align:center}
+  .cert-top{font-size:12px;letter-spacing:2px;font-weight:800;color:#b45309}
+  .cert h2{font-family:Georgia,serif;font-size:34px;margin:6px 0 0;color:#7c2d12}
+  .cert-sub{font-style:italic;color:#92400e;margin-bottom:10px}
+  .cert-name{font-family:Georgia,serif;font-size:28px;font-weight:700;margin:8px 0;border-bottom:2px solid #fcd34d;display:inline-block;padding:0 18px 4px}
+  .cert-stars{font-size:34px;margin:6px 0}
+  .cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;font-size:13px;color:#78350f}
+  .cert-sign{font-family:'Brush Script MT',cursive;font-size:22px;text-align:right;line-height:1}
+  .cert-sign small{font-family:inherit;font-size:11px}
+  @media print{ body *{visibility:hidden} #cert,#cert *{visibility:visible} #cert{position:fixed;left:0;top:0;width:100%} .noprint{display:none} }
+  @media (max-width:520px){ .say-face img{width:48px;height:48px} .cert h2{font-size:26px} .cert-name{font-size:22px} }
+  .pmap{position:relative;width:100%;aspect-ratio:320/165;border-radius:10px;overflow:hidden}
+  .pmap canvas{width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+  .pmap-labels span{position:absolute;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);white-space:nowrap;transform:translate(-50%,-50%)}
   @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
   @media (max-width:520px){
     .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
@@ -255,6 +305,7 @@
     <div>
       <section class="panel" id="playPanel">
         <h2>🏭 <span id="pDay">Januari</span> – <span id="pTitle"></span></h2>
+        <div id="sceneTop"><div class="scene" id="sceneBox"><div id="worldScene"></div><div class="small muted scene-cap" id="worldCaption"></div></div></div>
         <div id="dayNews" class="msg info"></div>
         <h3>1. Verdeel je pallets over de markten <span class="small muted">(1 pallet = 500 flessen)</span></h3>
         <div style="overflow-x:auto"><table>
@@ -284,6 +335,7 @@
       </section>
     </div>
     <div>
+      <div id="sceneDock" class="scene-dock"></div>
       <section class="panel chart"><h2>📊 Nettoresultaat per maand</h2><div id="chart"></div></section>
       <section class="panel">
         <h2>📘 Begrippen</h2>
@@ -416,7 +468,7 @@ const NEWS = {
 
 // ---------- QUIZZEN ----------
 const QUIZZES = {
-  kvk: { title:'🏢 Exportavond van de Kamer van Koophandel', intro:'Een transportbedrijf zoekt slimme klanten. Elk goed antwoord: <b>€ 5 per pallet korting</b> op vervoer naar België en Duitsland. Elk fout antwoord: <b>€ 5 per pallet duurder</b>.', fixed:[], pool:[
+  kvk: { who:'kvk', title:'🏢 Exportavond van de Kamer van Koophandel', intro:'Een transportbedrijf zoekt slimme klanten. Elk goed antwoord: <b>€ 5 per pallet korting</b> op vervoer naar België en Duitsland. Elk fout antwoord: <b>€ 5 per pallet duurder</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Een Rotterdamse handelaar koopt kruiden uit Indonesië en verkoopt ze onbewerkt door naar Duitsland. Hoe heet dat?', o:['Wederuitvoer','Import','Harmonisatie','Contingentering'], a:0, e:'Eerst invoeren, dan onbewerkt of na een korte bewerking doorverkopen aan het buitenland: wederuitvoer.' },
     { k:'rekenen', q:'Een land heeft een uitvoerwaarde van € 300 miljard en een nationaal inkomen van € 500 miljard. Wat is de exportquote?', o:['60%','167%','40%','800%'], a:0, e:'Exportquote = 300 ÷ 500 × 100% = 60%.' },
     { k:'redeneren', q:'Waarom heb je bij export naar België geen last van de wisselkoers?', o:['Omdat België ook de euro heeft (EMU)','Omdat België dichtbij ligt','Omdat er geen btw is','Omdat de WTO dat verbiedt'], a:0, e:'België en Nederland zitten allebei in de EMU: dezelfde munt, dus geen wisselkoers.' },
@@ -424,7 +476,7 @@ const QUIZZES = {
     { k:'herkennen', q:'Wat betekent de interne markt van de EU?', o:['Vrij verkeer van goederen, diensten, personen en kapitaal tussen de lidstaten','Iedereen betaalt met de euro','Alle bedrijven zijn van de overheid','Er zijn geen belastingen'], a:0, e:'Op de interne markt spelen de binnengrenzen geen rol: vrij verkeer van goederen, diensten, personen en kapitaal.' },
     { k:'redeneren', q:'Nederland heeft een hoge exportquote en een hoge importquote. Wat voor economie is dat?', o:['Een open economie','Een planeconomie','Een gesloten economie','Een monocultuur'], a:0, e:'Veel in- en uitvoer in verhouding tot het nationaal inkomen: een open economie.' }
   ]},
-  missie: { title:'✈️ Quiz van de minister in het vliegtuig', intro:`Minister ${'Vincent Pottermans'} test zijn handelsmissie. Hoe beter je antwoordt, hoe meer Canadese inkopers hij aan je voorstelt: <b>elk goed antwoord = 1 pallet per maand extra vraag</b> in Canada.`, fixed:[], pool:[
+  missie: { who:'minister', title:'✈️ Quiz van de minister in het vliegtuig', intro:`Minister ${'Vincent Pottermans'} test zijn handelsmissie. Hoe beter je antwoordt, hoe meer Canadese inkopers hij aan je voorstelt: <b>elk goed antwoord = 1 pallet per maand extra vraag</b> in Canada.`, fixed:[], pool:[
     { k:'herkennen', q:'De VS heffen 25% op Europees voedsel. Wat voor maatregel is dat?', o:['Een protectiemaatregel (invoerrechten)','Een handelsverdrag','Exportsubsidie','Harmonisatie'], a:0, e:'Invoerrechten beschermen de eigen producenten tegen buitenlandse concurrentie: protectie.' },
     { k:'herkennen', q:'Een land laat maximaal 1.000 ton buitenlandse kaas per jaar toe. Hoe heet dat?', o:['Contingentering','Invoerverbod','Exportverbod','Vrijhandel'], a:0, e:'Een maximum aan de invoer (importquotum): contingentering.' },
     { k:'herkennen', q:'Welke organisatie wil de wereldhandel eerlijker en vrijer maken?', o:['De WTO','De ECB','Het CBS','De EMU'], a:0, e:'De WTO, de Wereldhandelsorganisatie.' },
@@ -432,7 +484,7 @@ const QUIZZES = {
     { k:'redeneren', q:'Een land geeft zijn boeren geld zodat ze goedkoop kunnen exporteren. Waarom is dat een protectiemaatregel?', o:['Het is exportsubsidie: eigen bedrijven krijgen een oneerlijk voordeel','Het is een invoerverbod','Het verlaagt de wisselkoers','Het is harmonisatie'], a:0, e:'Exportsubsidie helpt de eigen bedrijven ten koste van buitenlandse concurrenten.' },
     { k:'rekenen', q:'Een fles LEKKR kost in de VS $ 3,00. Er komt 25% importheffing bij. Wat betaalt de Amerikaan?', o:['$ 3,75','$ 3,25','$ 2,25','$ 4,00'], a:0, e:'25 ÷ 100 × $ 3,00 = $ 0,75. Samen $ 3,75.' }
   ]},
-  bnr: { title:'📻 Interview op de radio', intro:'Een radioprogramma interviewt je over globalisering. Elk goed antwoord levert gratis reclame op: <b>+ € 150</b> aan extra bestellingen. Elk fout antwoord: je klinkt onzeker, <b>− € 50</b>.', fixed:[], pool:[
+  bnr: { who:'radio', title:'📻 Interview op de radio', intro:'Een radioprogramma interviewt je over globalisering. Elk goed antwoord levert gratis reclame op: <b>+ € 150</b> aan extra bestellingen. Elk fout antwoord: je klinkt onzeker, <b>− € 50</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Je saus wordt verkocht in Europa, Amerika en straks misschien Azië. Bedrijven raken over de hele wereld met elkaar verbonden. Hoe heet dat?', o:['Globalisering','Harmonisatie','Wederuitvoer','Monocultuur'], a:0, e:'Door de toename van wereldwijde contacten en handel raken bedrijven steeds meer verbonden: globalisering.' },
     { k:'redeneren', q:'Vietnam maakt saus goedkoper dan Nederland, Nederland is goed in machines. Wat gebeurt er bij internationale arbeidsverdeling?', o:['Elk land maakt en exporteert waar het het best en goedkoopst in is','Elk land maakt alles zelf','Nederland stopt met exporteren','Vietnam koopt geen machines meer'], a:0, e:'Landen specialiseren zich in wat ze het best en goedkoopst kunnen: internationale arbeidsverdeling.' },
     { k:'herkennen', q:'Hoe goed een land in staat is om beter of goedkoper te produceren dan andere landen, heet de…', o:['Internationale concurrentiepositie','Exportquote','Ruilvoet','Betalingsbalans'], a:0, e:'Dat is de internationale concurrentiepositie.' },
@@ -448,7 +500,7 @@ const QUIZZES = {
     { k:'herkennen', q:'Welk kenmerk hoort NIET bij een ontwikkelingsland?', o:['Een hoog inkomen per hoofd','Snelle bevolkingsgroei','Slechte infrastructuur','Veel mensen die niet kunnen lezen en schrijven'], a:0, e:'Ontwikkelingslanden hebben juist een laag inkomen per hoofd van de bevolking.' },
     { k:'redeneren', q:'Waarom zegt het inkomen per hoofd niet alles over de welvaart in een land?', o:['Het is een gemiddelde: het zegt niets over hoe de inkomens verdeeld zijn','Omdat het altijd hetzelfde is','Omdat het CBS het verzint','Omdat het in dollars is'], a:0, e:'Een gemiddelde verbergt ongelijkheid. Daarvoor kijk je naar de Lorenzcurve.' }
   ]},
-  minister: { title:'🏛️ De minister op bezoek', intro:`Minister ${'Vincent Pottermans'} wil weten of je de subsidie verdient. Elk goed antwoord: <b>€ 150 extra subsidie</b>. Elk fout antwoord: <b>− € 50</b> (je moet een adviseur inhuren).`, fixed:[], pool:[
+  minister: { who:'minister', title:'🏛️ De minister op bezoek', intro:`Minister ${'Vincent Pottermans'} wil weten of je de subsidie verdient. Elk goed antwoord: <b>€ 150 extra subsidie</b>. Elk fout antwoord: <b>− € 50</b> (je moet een adviseur inhuren).`, fixed:[], pool:[
     { k:'herkennen', q:'Grace krijgt een kleine lening voor haar pomp, omdat de grote bank haar niet wil helpen. Hoe heet dat?', o:['Microkrediet','Noodhulp','Exportsubsidie','Hypotheek'], a:0, e:'Een lening aan kleine ondernemers in ontwikkelingslanden: microkrediet.' },
     { k:'herkennen', q:'Boeren krijgen een gegarandeerde, betere prijs voor hun pinda\'s. Welke organisatie zorgt daarvoor?', o:['Fairtrade','De WTO','Het IMF','De ECB'], a:0, e:'Fairtrade steunt boeren met een gegarandeerde, betere prijs.' },
     { k:'redeneren', q:'Landen kopen pinda\'s op als de prijs laag is en verkopen ze als de prijs hoog is. Wat is het doel?', o:['De prijs stabiel houden (grondstoffenovereenkomst met buffervoorraden)','Zoveel mogelijk winst maken','De ruilvoet laten dalen','Monocultuur bevorderen'], a:0, e:'Met buffervoorraden houden landen de prijs van een grondstof stabiel: een grondstoffenovereenkomst.' },
@@ -584,7 +636,7 @@ function simulate(noise){
 let modalQueue = [];
 function queueModal(fn){ modalQueue.push(fn); if(modalQueue.length === 1) fn(); }
 function closeModal(){ modalQueue.shift(); if(modalQueue.length) modalQueue[0](); else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); } }
-function showModal(html, voork){ $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
+function showModal(html, voork){ { const sb = $('sceneBox'); if(sb && $('modal').contains(sb)) placeScene(); } $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop'); $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
 function simpleModal(tag, title, html, btn = 'Verder'){ showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">${btn}</button>`); }
 function conceptHtml(k){ const c = CONCEPTS[k]; return `<h2 style="margin-top:12px">${c.title}</h2><p>${c.text}</p>${c.formula ? `<div class="formula">${c.formula}</div>` : ''}`; }
 function conceptModal(k){ const c = CONCEPTS[k]; showModal(`<div class="tag">${c.t === 'v' ? '🔁 Weet je het nog?' : '📘 Begrip'}</div>${conceptHtml(k)}<button class="cta" onclick="closeModal()">Sluiten</button>`, c.t === 'v'); }
@@ -661,7 +713,7 @@ function runQuiz(id, onDone){
     const def = QUIZZES[id];
     const picked = def.fixed.concat(shuffled(def.pool).slice(0, 4 - def.fixed.length));
     const results = [];
-    showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2><p>${def.intro}</p><p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
+    showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2>${def.who ? say(def.who, def.intro) : `<p>${def.intro}</p>`}<p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
     $('qStart').onclick = () => ask(0);
     const bar = i => `<div class="quiz-progress">${picked.map((_, j) => `<span class="${j < i ? (results[j] ? 'ok' : 'bad') : j === i ? 'cur' : ''}"></span>`).join('')}</div>`;
     function ask(i){
@@ -683,6 +735,387 @@ function runQuiz(id, onDone){
         <div class="msg ${correct >= 3 ? 'good' : correct >= 2 ? 'warn' : 'bad'}">${effect}</div><button class="cta" onclick="closeModal()">Verder</button>`);
     }
   });
+}
+
+// ---------- gedeelde HD-2D-onderdelen (uit game 2) ----------
+const VW = 320, VH = 180, VS = 2;
+
+// ---------- kleuren en hulpjes ----------
+function hexToRgb(h){ const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function rgbToHex(r, g, b){ return '#' + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1); }
+function mixHex(a, b, f){ const x = hexToRgb(a), y = hexToRgb(b); return rgbToHex(x[0] + (y[0] - x[0]) * f, x[1] + (y[1] - x[1]) * f, x[2] + (y[2] - x[2]) * f); }
+function shade(hex, f){ return mixHex(hex, f < 0 ? '#000000' : '#ffffff', Math.abs(f)); }
+function px(c, x, y, w, h, col){ c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); }
+function sprite(c, rows, pal, x, y, flip){
+  rows.forEach((r, j) => { for(let i = 0; i < r.length; i++){ const ch = r[flip ? r.length - 1 - i : i]; if(ch !== '.' && pal[ch]) px(c, x + i, y + j, 1, 1, pal[ch]); } });
+}
+const FONT = { P:['111','101','111','100','100'], A:['010','101','111','101','101'], T:['111','010','010','010','010'], C:['011','100','100','100','011'], E:['111','100','110','100','111'],
+  S:['011','100','010','001','110'], G:['011','100','101','101','011'], L:['100','100','100','100','111'], O:['010','101','101','101','010'], N:['101','111','111','111','101'],
+  '0':['111','101','101','101','111'], '1':['010','110','010','010','111'], '2':['111','001','111','100','111'], '3':['111','001','011','001','111'], '4':['101','101','111','001','001'],
+  '5':['111','100','111','001','111'], '6':['111','100','111','101','111'], '7':['111','001','010','010','010'], '8':['111','101','111','101','111'], '9':['111','101','111','001','111'],
+  ',':['000','000','000','010','100'], '€':['011','100','111','100','011'], ' ':['000','000','000','000','000'] };
+function ptext(c, s, x, y, col){ let cx = x; for(const ch of s){ const g = FONT[ch]; if(g) g.forEach((r, j) => [...r].forEach((b, i) => { if(b === '1') px(c, cx + i, y + j, 1, 1, col); })); cx += 4; } }
+const priceLabel = p => '€' + p.toFixed(2).replace('.', ',');
+
+// ---------- poppetjes ----------
+const PERSON = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.cccccc.','cCccccCc','cCccccCc','sCccccCs','.cccccc.','.pppppp.','.pp..pp.','.pp..pp.','.bb..bb.'];
+const PERSON_WALK = [...PERSON.slice(0, 12), '.pp.pp..', 'pp...pp.', 'bb....bb'];
+const BUST = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.aawwaa.','aawwwwaa','aawwwwaa'];
+const CAP = ['.kkkkkk.','kkkkkkkkk'];
+const CROWD = [
+  { h:'#3b2618', s:'#e9b98b', c:'#2f6fb3', C:'#245a93', p:'#2b2f3a' }, { h:'#151515', s:'#8d5a3b', c:'#c0453a', C:'#9c3530', p:'#3a3a46' },
+  { h:'#c89b3c', s:'#f2c9a0', c:'#2f9e6b', C:'#227a52', p:'#2d3442' }, { h:'#5a2f1b', s:'#c98d5c', c:'#8b55c7', C:'#6c40a0', p:'#2b2f3a' },
+  { h:'#1d1d1d', s:'#f0c39a', c:'#e0a12b', C:'#b98317', p:'#353a48' }, { h:'#7a3b1b', s:'#a8714a', c:'#d9536b', C:'#b23f55', p:'#2b2f3a' },
+  { h:'#2a1a10', s:'#e3a77a', c:'#3aa3a3', C:'#2a8080', p:'#3a3a46' }, { h:'#d7b46a', s:'#f6d2b0', c:'#e76f51', C:'#c3563c', p:'#2d3442' }
+];
+const WORKER_LOOK = { daan:{ h:'#e3c25a', s:'#f1c27d' }, lotte:{ h:'#7c4a1e', s:'#ffe0bd' }, samira:{ h:'#1c1917', s:'#c68642' }, peter:{ h:'#a3a3a3', s:'#ffdbac' }, ahmed:{ h:'#151515', s:'#a0663c' } };
+const palOf = p => ({ h:p.h, s:p.s, e:'#1b1410', D:shade(p.s, -.18), c:p.c, C:p.C, p:p.p, b:'#1a1512' });
+
+const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+const portraitCache = {};
+function portraitUrl(k){
+  if(portraitCache[k]) return portraitCache[k];
+  const c = CHARS[k] || CHARS.chrik, small = document.createElement('canvas'); small.width = 24; small.height = 24;
+  const g = small.getContext('2d'), P = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const sk = c.skin, skD = shade(sk, -.16), skL = shade(sk, .12), hr = c.hair, hrD = shade(hr, -.25), sh = c.shirt, shD = shade(sh, -.25);
+  for(let y = 0; y < 24; y++) P(0, y, 24, 1, mixHex('#3b3046', '#1d1822', y / 24));
+  if(c.long){ P(5, 6, 14, 16, hr); P(5, 18, 3, 6, hrD); P(16, 18, 3, 6, hrD); }
+  P(4, 19, 16, 5, sh); P(3, 21, 18, 3, sh); P(4, 22, 16, 2, shD);
+  if(c.apron){ P(8, 19, 8, 5, c.apron); P(7, 19, 1, 2, c.apron); P(16, 19, 1, 2, c.apron); }
+  if(c.tie) P(11, 19, 2, 5, '#b91c1c');
+  if(c.keys){ P(17, 21, 2, 2, '#d4d4d8'); P(18, 20, 1, 1, '#a1a1aa'); }
+  P(10, 17, 4, 3, skD);
+  P(7, 7, 10, 11, sk); P(6, 9, 1, 6, sk); P(17, 9, 1, 6, sk); P(8, 17, 8, 1, skD); P(16, 8, 1, 9, skD); P(8, 8, 3, 2, skL);
+  if(c.bald){ P(6, 8, 2, 4, hr); P(16, 8, 2, 4, hr); P(8, 6, 8, 1, skD); }
+  else if(c.helmet){ P(6, 3, 12, 5, c.helmet); P(5, 7, 14, 2, c.helmet); P(8, 4, 4, 1, shade(c.helmet, .4)); }
+  else { P(7, 4, 10, 4, hr); P(6, 5, 2, 6, hr); P(16, 5, 2, 5, hr); P(8, 3, 8, 1, hr); P(9, 4, 6, 1, shade(hr, .2)); P(6, 10, 1, 2, hrD); }
+  if(c.cap){ P(6, 3, 12, 4, c.cap); P(14, 6, 6, 2, c.cap); P(8, 4, 4, 1, shade(c.cap, .3)); }
+  if(c.bun) P(10, 1, 4, 3, hr);
+  if(c.ponytail){ P(17, 6, 3, 8, hr); P(18, 13, 2, 3, hrD); }
+  P(9, 11, 2, 2, '#1b1410'); P(13, 11, 2, 2, '#1b1410'); P(9, 11, 1, 1, '#ffffff'); P(13, 11, 1, 1, '#ffffff');
+  if(!c.helmet && !c.bald){ P(8, 10, 3, 1, hrD); P(13, 10, 3, 1, hrD); }
+  if(c.glasses){ P(8, 10, 4, 1, '#111'); P(12, 10, 4, 1, '#111'); P(8, 13, 4, 1, '#111'); P(12, 13, 4, 1, '#111'); P(8, 10, 1, 4, '#111'); P(15, 10, 1, 4, '#111'); P(11, 10, 1, 4, '#111'); P(12, 10, 1, 4, '#111'); }
+  P(11, 13, 2, 1, skD);
+  if(c.mustache) P(9, 15, 6, 1, c.bald ? hr : '#6b7280');
+  if(c.beard){ P(7, 15, 10, 3, hr); P(8, 18, 8, 1, hr); P(10, 16, 4, 1, '#7c2d12'); }
+  else if(c.stubble){ P(8, 16, 8, 2, mixHex(sk, hr, .35)); P(10, 16, 4, 1, '#7c2d12'); }
+  else P(10, 16, 4, 1, '#7c2d12');
+  if(c.earrings){ P(6, 14, 1, 1, '#fcd34d'); P(17, 14, 1, 1, '#fcd34d'); }
+  const big = document.createElement('canvas'); big.width = 96; big.height = 96;
+  const b = big.getContext('2d'); b.imageSmoothingEnabled = false; b.drawImage(small, 0, 0, 96, 96);
+  const rg = b.createRadialGradient(30, 22, 0, 30, 22, 70); rg.addColorStop(0, 'rgba(255,210,150,.35)'); rg.addColorStop(1, 'rgba(255,210,150,0)');
+  b.globalCompositeOperation = 'screen'; b.fillStyle = rg; b.fillRect(0, 0, 96, 96);
+  b.globalCompositeOperation = 'source-over'; const vg = b.createRadialGradient(48, 48, 30, 48, 48, 70); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); b.fillStyle = vg; b.fillRect(0, 0, 96, 96);
+  return (portraitCache[k] = big.toDataURL());
+}
+function faceSvg(k, size = 64){ return `<img class="portrait" src="${portraitUrl(k)}" width="${size}" height="${size}" alt="">`; }
+function say(k, html, whisper){
+  const c = CHARS[k] || CHARS.chrik;
+  return `<div class="say ${whisper ? 'whisper' : ''}"><div class="say-face">${faceSvg(k)}</div><div class="say-bubble"><div class="say-name">${c.name}</div>${html}</div></div>`;
+}
+
+function confettiFrom(el, n = 120){
+  let cv = $('confetti');
+  if(!cv){ cv = document.createElement('canvas'); cv.id = 'confetti'; document.body.appendChild(cv); }
+  const ctx = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const r = el ? el.getBoundingClientRect() : { left: W / 2, top: H / 3, width: 0, height: 0 }, ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+  const cols = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#fde047'];
+  const ps = Array.from({ length:n }, () => { const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 6; return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, s: 3 + Math.floor(Math.random() * 3), c: cols[Math.floor(Math.random() * cols.length)] }; });
+  const start = performance.now();
+  (function tick(now){
+    ctx.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .22; p.vx *= .99; ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); });
+    if(now - start < 2200) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+  })(start);
+}
+
+// =====================================================================
+// GAME 4 · HD-2D: de haven van Rotterdam, de coöperatie in Malawi en de wereldkaart
+// =====================================================================
+const CHARS = {
+  minister:{ name:'Vincent Pottermans, minister', skin:'#f1c9a5', hair:'#4b3621', shirt:'#1f2937', tie:true, glasses:true },
+  grace:{ name:'Grace, boerin in Malawi', skin:'#5a3a24', hair:'#1c1917', shirt:'#f59e0b', bun:true, earrings:true },
+  handelaar:{ name:'Handelaar in Rotterdam', skin:'#f1c27d', hair:'#9ca3af', shirt:'#1d4ed8', cap:'#1e3a8a', mustache:true },
+  importeur:{ name:'Importeur in New York', skin:'#8d5524', hair:'#111111', shirt:'#b91c1c', stubble:true },
+  kvk:{ name:'Exportadviseur, Kamer van Koophandel', skin:'#f5d0b0', hair:'#e2b13c', shirt:'#334155', glasses:true, long:true },
+  adviseur:{ name:'Adviseur productie', skin:'#ffdbac', hair:'#3f2a1d', shirt:'#0f172a', tie:true },
+  radio:{ name:'Radiopresentator', skin:'#e0ac69', hair:'#7c4a1e', shirt:'#7c3aed', ponytail:true, earrings:true }
+};
+const SPRITE_W = 320, SPRITE_H = 180;
+
+function createWorld(root){
+  root.innerHTML = `<div class="hd"><canvas class="hd-bg" width="${VW}" height="${VH}"></canvas><canvas class="hd-mid" width="${VW}" height="${VH}"></canvas><canvas class="hd-fx" width="${VW * VS}" height="${VH * VS}"></canvas><canvas class="hd-fg" width="${VW}" height="${VH}"></canvas><div class="hd-vig"></div></div>`;
+  const el = root.querySelector('.hd'), [cb, cm, cf, cg] = ['bg', 'mid', 'fx', 'fg'].map(k => root.querySelector('.hd-' + k));
+  const bg = cb.getContext('2d'), mid = cm.getContext('2d'), fx = cf.getContext('2d'), fg = cg.getContext('2d');
+  [bg, mid, fg].forEach(c => c.imageSmoothingEnabled = false);
+  const W = { el, running:false, raf:0, last:0, px:0, py:0, cx:0, cy:0, o:{}, glints:[], items:null, smoke:[], gulls: Array.from({ length:4 }, (_, i) => ({ x: 40 + i * 70, y: 20 + i * 6, v: 6 + i * 2 })) };
+  el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); W.px = (e.clientX - r.left) / r.width - .5; W.py = (e.clientY - r.top) / r.height - .5; });
+  el.addEventListener('pointerleave', () => { W.px = 0; W.py = 0; });
+
+  // ---------- haven ----------
+  function harborBg(time){
+    const g = bg.createLinearGradient(0, 0, 0, 110); g.addColorStop(0, '#7cb8e0'); g.addColorStop(1, '#e6f2fa'); bg.fillStyle = g; bg.fillRect(0, 0, VW, VH);
+    [[40, 18, 30], [170, 12, 40], [260, 26, 26]].forEach(([x, y, w], i) => { const xx = ((x + time * (2 + i)) % (VW + 60)) - 30; px(bg, xx, y, w, 5, '#ffffff'); px(bg, xx + 5, y - 4, w - 10, 4, '#ffffff'); });
+    // skyline van Rotterdam: Erasmusbrug en torens
+    const sk = '#8fa6bd';
+    [[150, 62, 8, 34], [160, 54, 7, 42], [170, 66, 10, 30], [186, 58, 6, 38], [196, 70, 12, 26], [214, 60, 8, 36]].forEach(([x, y, w, h]) => px(bg, x, y, w, h, sk));
+    px(bg, 226, 50, 2, 44, '#b8c7d6'); for(let i = 0; i < 9; i++) px(bg, 227 - i * 3, 52 + i * 4, 1, 1, '#b8c7d6'), px(bg, 228 + i * 4, 52 + i * 4, 1, 1, '#b8c7d6');
+    px(bg, 200, 88, 70, 2, '#b8c7d6');
+    // water
+    px(bg, 0, 96, VW, 84, '#3f7fb3');
+    for(let y = 98; y < VH; y += 5) for(let x = ((y * 7) % 13) + Math.floor(time * 6) % 10; x < VW; x += 22) px(bg, x, y, 6, 1, '#6aa3d1');
+  }
+  function harborMid(time, dt){
+    const o = W.o;
+    mid.clearRect(0, 0, VW, VH);
+    // kade
+    px(mid, 0, 118, 150, 62, '#9ca3af'); px(mid, 0, 118, 150, 2, '#d1d5db'); for(let x = 0; x < 150; x += 12) px(mid, x, 120, 1, 60, '#8b929b');
+    px(mid, 148, 118, 4, 62, '#6b7280');
+    // fabriek LEKKR
+    px(mid, 6, 64, 70, 56, '#b45309'); px(mid, 6, 64, 70, 3, '#7c2d12'); for(let y = 70; y < 118; y += 4) for(let x = 8 + ((y / 4) % 2) * 3; x < 74; x += 7) px(mid, x, y, 1, 1, '#92400e');
+    px(mid, 52, 40, 10, 26, '#78350f'); px(mid, 51, 38, 12, 3, '#57210b');
+    px(mid, 14, 70, 54, 12, '#111827');
+    lekkrSign(mid, 20, 73);
+    for(let i = 0; i < 3; i++){ px(mid, 12 + i * 20, 90, 12, 10, '#fde68a'); px(mid, 17 + i * 20, 90, 1, 10, '#92400e'); }
+    px(mid, 30, 104, 22, 16, '#374151'); for(let y = 106; y < 120; y += 3) px(mid, 30, y, 22, 1, '#4b5563');
+    if(o.location && o.location !== 'nl'){ px(mid, 4, 56, 30, 8, '#1f2937'); px(mid, 6, 58, 4, 4, o.location === 'polen' ? '#ffffff' : '#da251d'); px(mid, 6, 60, 4, 2, o.location === 'polen' ? '#dc143c' : '#da251d'); if(o.location === 'vietnam') px(mid, 7, 59, 2, 2, '#ffff00'); ptext(mid, o.location === 'polen' ? 'PL' : 'VN', 13, 57, '#fde68a'); }
+    // pallets op de kade (aantal = je planning)
+    const n = Math.min(o.pallets || 0, 24);
+    for(let i = 0; i < n; i++){ const col = i % 8, row = Math.floor(i / 8), x = 82 + col * 8, y = 132 - row * 6;
+      px(mid, x, y, 7, 5, '#c08457'); px(mid, x, y + 4, 7, 1, '#7c4a2a'); px(mid, x + 1, y + 1, 5, 3, o.palletCol || '#dc2626'); px(mid, x + 2, y + 2, 3, 1, '#fde68a'); }
+    // kraan
+    px(mid, 128, 36, 4, 84, '#ea580c'); px(mid, 112, 36, 52, 4, '#ea580c'); px(mid, 126, 32, 8, 6, '#c2410c');
+    const hookX = 150 + Math.sin(time * .6) * 6; px(mid, hookX, 40, 1, 26, '#111827'); px(mid, hookX - 5, 66, 11, 6, o.shipCol || '#2563eb');
+    // containerschip
+    if(o.ship){ const sx = 156 + Math.sin(time * .8) * 1, sy = 128 + Math.sin(time * 1.3) * .8;
+      px(mid, sx, sy, 150, 14, '#1f2937'); px(mid, sx + 4, sy + 14, 142, 4, '#b91c1c'); px(mid, sx, sy, 150, 2, '#374151');
+      px(mid, sx + 126, sy - 22, 18, 22, '#f8fafc'); px(mid, sx + 128, sy - 18, 14, 3, '#1f2937'); px(mid, sx + 134, sy - 30, 4, 8, '#1f2937');
+      const cols = ['#2563eb','#16a34a','#dc2626','#f59e0b','#7c3aed','#0891b2'], nC = Math.min(18, o.containers || 0);
+      for(let i = 0; i < nC; i++){ const c = i % 9, r = Math.floor(i / 9); px(mid, sx + 8 + c * 13, sy - 7 - r * 7, 12, 6, cols[(i * 7) % cols.length]); px(mid, sx + 8 + c * 13, sy - 7 - r * 7, 12, 1, 'rgba(255,255,255,.35)'); }
+      lekkrSign(mid, sx + 62, sy + 5); }
+    // vrachtwagens die vertrekken
+    (o.trucks || []).forEach((t, i) => { const per = 9 + i * 2, f = ((time + i * 3.1) % per) / per, x = -40 + f * 200, y = 150 + i * 9;
+      if(x > 155) return;
+      px(mid, x, y, 26, 10, t.col); px(mid, x + 26, y + 3, 9, 7, '#1f2937'); px(mid, x + 28, y + 4, 5, 3, '#93c5fd'); px(mid, x + 3, y + 10, 5, 3, '#111'); px(mid, x + 20, y + 10, 5, 3, '#111'); px(mid, x + 29, y + 10, 4, 3, '#111');
+      lekkrSign(mid, x + 3, y + 3); });
+    // meeuwen
+    W.gulls.forEach(gl => { gl.x += gl.v * dt; if(gl.x > VW + 10) gl.x = -10; const wing = Math.floor(time * 4 + gl.x) % 2; px(mid, gl.x, gl.y, 2, 1, '#f8fafc'); px(mid, gl.x - 2, gl.y - wing, 2, 1, '#f8fafc'); px(mid, gl.x + 2, gl.y - wing, 2, 1, '#f8fafc'); });
+    // vlaggen van je markten
+    (o.flags || []).forEach((f, i) => { const x = 84 + i * 16; px(mid, x, 100, 1, 18, '#6b7280'); f.forEach((c, j) => px(mid, x + 1, 100 + j * 2, 9, 2, c)); });
+    if(o.tariff){ px(mid, 236, 92, 26, 11, '#b91c1c'); ptext(mid, '25', 242, 95, '#fde68a'); px(mid, 251, 95, 1, 1, '#fde68a'); px(mid, 254, 99, 1, 1, '#fde68a'); px(mid, 252, 97, 2, 1, '#fde68a'); }
+  }
+  function lekkrSign(c, x, y){
+    const L = ['1000','1000','1000','1000','1111'], E = ['1111','1000','1110','1000','1111'], K = ['1001','1010','1100','1010','1001'], R = ['1110','1001','1110','1010','1001'];
+    [L, E, K, K, R].forEach((g, n) => g.forEach((row, j) => [...row].forEach((b, i) => { if(b === '1') px(c, x + n * 5 + i, y + j, 1, 1, '#fcd34d'); })));
+  }
+  // ---------- Malawi ----------
+  function farmBg(time){
+    const g = bg.createLinearGradient(0, 0, 0, 100); g.addColorStop(0, '#5aa9e6'); g.addColorStop(1, '#fde7c2'); bg.fillStyle = g; bg.fillRect(0, 0, VW, VH);
+    bg.fillStyle = '#fff4c8'; bg.beginPath(); bg.arc(262, 30, 11, 0, 7); bg.fill();
+    // bergen
+    bg.fillStyle = '#7b8f6a'; bg.beginPath(); bg.moveTo(0, 92); for(let x = 0; x <= VW; x += 10) bg.lineTo(x, 70 + Math.sin(x * .03) * 10 + Math.sin(x * .11) * 4); bg.lineTo(VW, 100); bg.lineTo(0, 100); bg.fill();
+    // baobab
+    px(bg, 40, 58, 8, 36, '#6b4f3a'); px(bg, 30, 52, 28, 8, '#4d7c3a'); px(bg, 26, 56, 8, 4, '#4d7c3a'); px(bg, 54, 54, 10, 4, '#4d7c3a');
+  }
+  function farmMid(time, dt){
+    const o = W.o, dry = o.drought;
+    mid.clearRect(0, 0, VW, VH);
+    px(mid, 0, 92, VW, 88, dry ? '#c9a46b' : '#b98a55');
+    // akkers met pindaplanten
+    for(let r = 0; r < 6; r++){ const y = 104 + r * 12; px(mid, 0, y + 6, 200, 2, dry ? '#a8824e' : '#8a6238');
+      for(let x = 6 + (r % 2) * 6; x < 196; x += 12){ const sway = Math.round(Math.sin(time * 1.5 + x * .1 + r) * .6);
+        if(dry){ px(mid, x, y + 2, 4, 3, '#a7884a'); px(mid, x + 1, y + 1, 2, 1, '#8b6f3a'); }
+        else { px(mid, x + sway, y, 5, 5, o.irrigated ? '#2f9e44' : '#4c9a3a'); px(mid, x + 1 + sway, y - 1, 3, 1, '#6cc04a'); } } }
+    // irrigatiekanaal
+    if(o.irrigated){ for(let r = 0; r < 6; r++){ const y = 110 + r * 12; px(mid, 0, y, 200, 1, '#38bdf8'); px(mid, ((time * 20 + r * 30) % 200), y, 6, 1, '#bae6fd'); } px(mid, 198, 104, 3, 70, '#0ea5e9'); }
+    // pomp van Grace
+    if(o.pump){ px(mid, 204, 132, 10, 14, '#475569'); px(mid, 206, 126, 6, 7, '#64748b'); const h = Math.round(Math.sin(time * 4) * 2); px(mid, 210, 122 + h, 10, 2, '#94a3b8'); px(mid, 214, 146, 2, 6, '#0ea5e9'); }
+    // coöperatie (hut)
+    px(mid, 226, 96, 66, 36, '#d6b48a'); for(let y = 100; y < 132; y += 4) px(mid, 226, y, 66, 1, '#c09a6c');
+    mid.fillStyle = '#8b6b3a'; mid.beginPath(); mid.moveTo(220, 98); mid.lineTo(259, 74); mid.lineTo(298, 98); mid.fill();
+    for(let x = 224; x < 296; x += 4) px(mid, x, 96 - Math.abs(x - 259) * .6 + 18, 1, 2, '#6f5228');
+    px(mid, 252, 112, 14, 20, '#5b3a1e'); px(mid, 232, 106, 12, 8, '#3b2a1a');
+    if(o.fairtrade){ px(mid, 270, 104, 18, 12, '#f8fafc'); px(mid, 272, 106, 6, 8, '#0ea5e9'); px(mid, 278, 106, 8, 8, '#16a34a'); px(mid, 275, 108, 6, 1, '#111'); }
+    // pellerij
+    if(o.pellerij){ px(mid, 256, 136, 52, 26, '#e5e7eb'); px(mid, 254, 132, 56, 5, '#9ca3af'); px(mid, 262, 144, 10, 18, '#374151'); px(mid, 280, 142, 22, 8, '#93c5fd');
+      px(mid, 292, 120, 4, 14, '#6b7280'); if(Math.random() < .3) W.smoke.push({ x: 294, y: 118, r: 2, life: 1 }); }
+    // zakken pinda's
+    const sacks = Math.min(12, o.sacks || 0);
+    for(let i = 0; i < sacks; i++){ const x = 210 + (i % 4) * 9, y = 158 - Math.floor(i / 4) * 6; px(mid, x, y, 8, 7, '#d8c08a'); px(mid, x + 2, y - 1, 4, 1, '#b89b5e'); px(mid, x + 3, y + 3, 2, 2, '#8b5a2b'); }
+    // Grace en boeren
+    const gy = 140 + (Math.sin(time * 2) > .9 ? -1 : 0);
+    sprite(mid, PERSON, palOf({ h:'#1c1917', s:'#5a3a24', c:'#f59e0b', C:'#d97706', p:'#7c2d12' }), 214, gy);
+    px(mid, 214, gy - 2, 8, 2, '#16a34a');
+    [[60, 132, 0], [120, 120, 1], [160, 146, 2]].forEach(([x, y, i]) => { const bend = Math.floor(time * 1.5 + i) % 2;
+      sprite(mid, PERSON, palOf({ h:'#151515', s:['#4a2f1d','#6b4429','#3d2616'][i], c:['#16a34a','#dc2626','#2563eb'][i], C:['#15803d','#b91c1c','#1d4ed8'][i], p:'#3a2a1a' }), x, y + bend); });
+    // vrachtwagen met pinda's naar de haven
+    if(o.truck){ const f = (time % 10) / 10, x = 330 - f * 380, y = 162;
+      px(mid, x, y, 9, 8, '#1f2937'); px(mid, x + 1, y + 1, 5, 3, '#93c5fd'); px(mid, x + 9, y - 2, 26, 10, '#a16207'); for(let i = 0; i < 4; i++) px(mid, x + 11 + i * 6, y - 4, 5, 3, '#d8c08a');
+      px(mid, x + 2, y + 8, 4, 3, '#111'); px(mid, x + 26, y + 8, 4, 3, '#111'); }
+  }
+  function drawFx(time, dt){
+    const Wd = VW * VS, Hd = VH * VS, harbor = W.o.scene !== 'farm';
+    fx.clearRect(0, 0, Wd, Hd);
+    const [sx, sy] = harbor ? [300, 14] : [262, 30], g = fx.createRadialGradient(sx * VS, sy * VS, 0, sx * VS, sy * VS, 170 * VS);
+    g.addColorStop(0, harbor ? 'rgba(255,240,200,.45)' : 'rgba(255,220,150,.55)'); g.addColorStop(1, 'rgba(255,230,180,0)'); fx.fillStyle = g; fx.fillRect(0, 0, Wd, Hd);
+    if(harbor){ if(Math.random() < .35) W.smoke.push({ x: 57, y: 38, r: 2, life: 1 });
+      for(let i = 0; i < 6; i++){ const x = (i * 57 + time * 8) % VW, y = 100 + (i * 13) % 70; fx.fillStyle = `rgba(255,255,255,${.25 + Math.sin(time * 3 + i) * .2})`; fx.fillRect(x * VS, y * VS, 3 * VS, VS * .6); } }
+    else if(W.o.drought){ fx.fillStyle = 'rgba(255,170,60,.12)'; fx.fillRect(0, 0, Wd, Hd);
+      for(let i = 0; i < 5; i++){ const y = 95 + i * 14 + Math.sin(time * 2 + i) * 2; fx.fillStyle = 'rgba(255,240,210,.06)'; fx.fillRect(0, y * VS, Wd, 4 * VS); } }
+    for(let i = W.smoke.length - 1; i >= 0; i--){ const s = W.smoke[i]; s.y -= 7 * dt; s.x += 4 * dt; s.r += 2.5 * dt; s.life -= .35 * dt;
+      if(s.life <= 0){ W.smoke.splice(i, 1); continue; } fx.fillStyle = `rgba(235,235,240,${s.life * .35})`; fx.beginPath(); fx.arc(s.x * VS, s.y * VS, s.r * VS, 0, 7); fx.fill(); }
+    for(let i = W.glints.length - 1; i >= 0; i--){ const gl = W.glints[i]; gl.t += dt; if(gl.t > 1.3){ W.glints.splice(i, 1); continue; }
+      const a = Math.sin(gl.t / 1.3 * Math.PI), s = 3 + gl.t * 6; fx.fillStyle = `rgba(255,250,210,${a})`;
+      fx.fillRect((gl.x - s) * VS, gl.y * VS, s * 2 * VS, VS); fx.fillRect(gl.x * VS, (gl.y - s) * VS, VS, s * 2 * VS);
+      fx.fillStyle = `rgba(255,255,255,${a * .8})`; fx.beginPath(); fx.arc((gl.x + .5) * VS, (gl.y + .5) * VS, 2.5 * VS, 0, 7); fx.fill(); }
+  }
+  const SPOTS = { pump:[210,128], irrigated:[100,112], fairtrade:[279,110], pellerij:[282,146], ship:[230,120], tariff:[249,97], location:[20,60] };
+  function track(){
+    const o = W.o, now = new Set(Object.keys(SPOTS).filter(k => o[k] && o[k] !== 'nl'));
+    if(W.items) now.forEach(k => { if(!W.items.has(k)) W.glints.push({ x: SPOTS[k][0], y: SPOTS[k][1], t: 0 }); });
+    W.items = now;
+  }
+  function drawFg(){
+    fg.clearRect(0, 0, VW, VH);
+    if(W.o.scene === 'farm'){ fg.fillStyle = '#5c7a3a'; [[8, 172, 14], [24, 176, 10], [300, 170, 16], [314, 162, 10]].forEach(([x, y, r]) => { fg.beginPath(); fg.arc(x, y, r, 0, 7); fg.fill(); }); }
+    else { px(fg, 0, 168, 60, 12, '#374151'); px(fg, 6, 160, 6, 10, '#facc15'); px(fg, 300, 150, 20, 30, '#1f2937'); px(fg, 302, 146, 4, 6, '#ef4444'); }
+  }
+  let fgKey = '';
+  function frame(now){
+    if(!W.running) return;
+    const dt = Math.min(.05, (now - W.last) / 1000 || 0), time = now / 1000; W.last = now;
+    W.cx += (W.px - W.cx) * .06; W.cy += (W.py - W.cy) * .06;
+    [[cb, 5], [cm, 10], [cf, 10], [cg, 22]].forEach(([c, d]) => c.style.transform = `translate(${(-W.cx * d).toFixed(2)}px,${(-W.cy * d * .6).toFixed(2)}px)`);
+    track();
+    if(W.o.scene === 'farm'){ farmBg(time); farmMid(time, dt); } else { harborBg(time); harborMid(time, dt); }
+    drawFx(time, dt);
+    if(fgKey !== W.o.scene){ fgKey = W.o.scene; W.smoke = []; W.glints = []; drawFg(); }
+    W.raf = requestAnimationFrame(frame);
+  }
+  W.start = () => { if(W.running) return; W.running = true; W.last = performance.now(); W.raf = requestAnimationFrame(frame); };
+  W.stop = () => { W.running = false; cancelAnimationFrame(W.raf); };
+  return W;
+}
+
+let world = null;
+const FLAG = { nl:['#ae1c28','#ffffff','#21468b'], eu:['#000000','#dd0000','#ffce00'], vs:['#b22234','#ffffff','#3c3b6e'], ca:['#d52b1e','#ffffff','#d52b1e'] };
+function worldOpts(){
+  const a = state.alloc, m = Math.min(state.month, LAST);
+  if(part === 2) return { scene:'farm', drought: m === 6,
+    irrigated: state.help === 'struct' && m >= 7, pump: state.micro && m >= 5, fairtrade: state.fairtrade && m >= 3, pellerij: state.pellerij && m >= 8,
+    sacks: Math.max(2, Math.round((state.alloc.vs + state.alloc.eu + state.alloc.nl + state.alloc.ca) / 2) - (state.capPenalty || 0) * 2), truck: true };
+  const trucks = []; if(a.nl) trucks.push({ col:'#ae1c28' }); if(a.eu) trucks.push({ col:'#2563eb' }); if(a.eu > 4) trucks.push({ col:'#16a34a' });
+  const flags = MARKETS.filter(x => marketOpen(x.k) && a[x.k] > 0).map(x => FLAG[x.k]);
+  return { scene:'harbor', pallets: totalAlloc(), ship: marketOpen('vs') || marketOpen('ca'), containers: (a.vs || 0) + (a.ca || 0), trucks, flags,
+    tariff: state.tariff === 'hold' || state.tariff === 'lower', location: state.location };
+}
+function renderWorld(){
+  const box = $('worldScene'); if(!box || !state) return;
+  placeScene();
+  if(!world || !box.contains(world.el)) world = createWorld(box);
+  world.o = worldOpts();
+  if(!$('gameScreen').classList.contains('hidden') && !clockRunning) world.start(); else world.stop();
+  const o = world.o, cap = [];
+  if(o.scene === 'harbor'){ cap.push(`${o.pallets} pallets op de kade`); if(o.containers) cap.push(`${o.containers} containers naar Noord-Amerika`); if(state.location !== 'nl') cap.push(`productie in ${state.location === 'polen' ? 'Polen' : 'Vietnam'}`); }
+  else { cap.push('de coöperatie van Grace'); if(o.drought) cap.push('droogte'); if(o.fairtrade) cap.push('fairtrade'); if(o.pump) cap.push('pomp'); if(o.irrigated) cap.push('irrigatie'); if(o.pellerij) cap.push('pellerij'); }
+  $('worldCaption').textContent = cap.join(' · ');
+}
+document.addEventListener('visibilitychange', () => { if(world){ if(document.hidden) world.stop(); else if(state && !$('gameScreen').classList.contains('hidden') && !clockRunning) world.start(); } });
+function placeScene(target){
+  const sc = $('sceneBox'); if(!sc) return;
+  const t = target || (innerWidth > 860 ? $('sceneDock') : $('sceneTop'));
+  if(t && sc.parentNode !== t) t.appendChild(sc);
+}
+function showSceneIn(box){ if(!box || !world) return; placeScene(box); world.o = worldOpts(); world.start(); }
+window.addEventListener('resize', () => { if($('overlay').classList.contains('hidden')) placeScene(); });
+
+// ---------- pixel-wereldkaart tijdens het verschepen ----------
+const MAP_W = 320, MAP_H = 165;
+const ROUTES = {
+  vs:[[220,56],[210,65],[200,70],[185,70],[150,75],[100,80],[59,75]],
+  ca:[[220,56],[210,60],[200,59],[185,56],[150,47],[110,45],[75,49]],
+  mw:[[270,150],[280,125],[280,100],[260,90],[235,85],[210,80],[200,70],[205,62],[220,56]]
+};
+function bez(pts, t){ const n = pts.length - 1, f = Math.min(n - 1e-6, t * n), i = Math.floor(f), k = f - i, a = pts[i], b = pts[i + 1]; return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; }
+function drawMapBase(c){
+  c.fillStyle = '#2f6fa3'; c.fillRect(0, 0, MAP_W, MAP_H);
+  for(let y = 2; y < MAP_H; y += 6) for(let x = (y * 3) % 11; x < MAP_W; x += 18) px(c, x, y, 4, 1, '#3f82b8');
+  const land = (pts, col) => { c.fillStyle = col; c.beginPath(); pts.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fill(); };
+  land([[10,20],[40,10],[100,15],[125,30],[130,55],[115,75],[100,95],[85,115],[75,125],[60,120],[45,100],[20,90],[12,70]], '#c9b98a');
+  land([[195,20],[220,10],[260,12],[300,22],[307,40],[295,55],[280,62],[260,70],[235,68],[215,64],[200,58],[192,40]], '#c9b98a');
+  land([[205,85],[230,80],[265,80],[288,90],[295,115],[285,145],[270,162],[250,162],[235,145],[220,120],[210,105]], '#c9b98a');
+  [[40,40],[70,30],[90,60],[230,30],[270,40],[240,110],[260,130]].forEach(([x, y]) => { px(c, x, y, 6, 4, '#a9b77a'); px(c, x + 2, y - 1, 3, 1, '#8ea263'); });
+  Object.values(ROUTES).forEach((pts, i) => { if(i === 2 && part !== 2) return; for(let t = 0; t < 1; t += .03){ const [x, y] = bez(pts, t); px(c, x, y, 1, 1, i === 2 ? '#e9c46a' : '#cfe8ff'); } });
+  px(c, 218, 54, 4, 4, '#f59e0b'); px(c, 219, 55, 2, 2, '#fde68a');
+}
+function runShipPixel(h, done){
+  if(clockRunning) return;
+  clockRunning = true;
+  if(world) world.stop();
+  const ov = $('clockOverlay');
+  $('mapBox').innerHTML = `<div class="pmap"><canvas width="${MAP_W}" height="${MAP_H}"></canvas><div class="pmap-labels">
+    <span style="left:69%;top:26%">Rotterdam</span><span style="left:62%;top:42%">Antwerpen</span><span style="left:73%;top:16%">Hamburg</span>
+    <span style="left:9%;top:47%">New York</span><span style="left:17%;top:22%">Halifax</span>${part === 2 ? '<span style="left:72%;top:92%">Malawi</span>' : ''}
+    ${state.location === 'polen' ? '<span style="left:84%;top:20%">🏭 Polen</span>' : ''}${state.location === 'vietnam' ? '<span style="left:86%;top:42%">🏭 → Vietnam</span>' : ''}</div></div>`;
+  const cv = $('mapBox').querySelector('canvas'), c = cv.getContext('2d'); c.imageSmoothingEnabled = false;
+  ov.classList.add('show'); ov.setAttribute('aria-hidden', 'false'); ov.style.background = 'rgba(30,58,90,.55)';
+  $('clockText').textContent = `🚢 ${Mcap(h.month)}`;
+  $('clockSub').textContent = h.koers ? `Koers: € 1 = $ ${rate(h.koers)}` : 'Vrachtwagens op weg naar de buurlanden';
+  $('liveServed').textContent = '0'; $('liveRev').textContent = eur0(0); $('liveWalk').textContent = h.koers ? '$ ' + rate(h.koers) : '–'; $('liveFull').textContent = '';
+  const movers = [], sold = h.lines.reduce((s, l) => s + l.sold, 0) || 1;
+  h.lines.forEach(l => { if(!l.alloc) return;
+    if(l.k === 'nl') movers.push({ kind:'truck', path:[[220,56],[224,52]] });
+    if(l.k === 'eu'){ movers.push({ kind:'truck', path:[[220,56],[214,64]] }); movers.push({ kind:'truck', path:[[220,56],[232,46]] }); }
+    if(l.k === 'vs') movers.push({ kind:'ship', path: ROUTES.vs });
+    if(l.k === 'ca') movers.push({ kind:'ship', path: ROUTES.ca }); });
+  if(part === 2) movers.push({ kind:'nuts', path: ROUTES.mw });
+  const start = performance.now(), base = document.createElement('canvas'); base.width = MAP_W; base.height = MAP_H; drawMapBase(base.getContext('2d'));
+  function frame(now){
+    const t = Math.min(1, (now - start) / CLOCK_DURATION), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    c.drawImage(base, 0, 0);
+    movers.forEach(mv => {
+      const k = mv.kind === 'truck' ? Math.min(1, e * 2.2) : e, [x, y] = bez(mv.path, k), bob = Math.round(Math.sin(now / 200 + x) * .5);
+      if(mv.kind === 'ship'){ px(c, x - 4, y + bob, 9, 3, '#1f2937'); px(c, x - 3, y - 2 + bob, 3, 2, '#2563eb'); px(c, x, y - 2 + bob, 3, 2, '#dc2626'); px(c, x + 3, y - 3 + bob, 2, 3, '#f8fafc'); px(c, x - 6, y + 1, 2, 1, '#cfe8ff'); }
+      else if(mv.kind === 'truck'){ px(c, x - 3, y - 2, 5, 3, '#f8fafc'); px(c, x + 2, y - 1, 2, 2, '#1f2937'); }
+      else { px(c, x - 4, y + bob, 9, 3, '#7c2d12'); px(c, x - 3, y - 2 + bob, 6, 2, '#d8c08a'); px(c, x + 3, y - 3 + bob, 2, 3, '#f8fafc'); }
+    });
+    $('liveServed').textContent = Math.round(sold * e);
+    $('liveRev').textContent = eur0(h.revenue * e);
+    if(part === 2 && t > .5 && h.cap < CAPACITY) $('liveFull').textContent = `🥜 Minder pinda's binnen: maximaal ${h.cap} pallets deze maand.`;
+    if(t < 1) requestAnimationFrame(frame);
+    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; if(world && state) world.start(); done(); }, 700);
+  }
+  requestAnimationFrame(frame);
+}
+
+// ---------- feest en oorkonde ----------
+function celebration(h){
+  const others = state.history.filter(x => x !== h), after = totalNet(), before = after - h.net;
+  let sb, sa, txt;
+  if(part === 1){ sb = stars1(before); sa = stars1(after); txt = sa > sb ? `Je totale winst is nu <b>${eur0(after)}</b>, boven het doel van ${eur0(GOALS[1][sa - 1])}.${sa < 3 ? ` De volgende ster haal je bij ${eur0(GOALS[1][sa])}.` : ' Alle drie de sterren!'}` : ''; }
+  else { sb = stars2(before, avgFarm({ history: others, fairtrade: state.fairtrade })); sa = stars2(after, avgFarm()); txt = sa > sb ? `Je totale winst is <b>${eur0(after)}</b> en de boeren verdienen gemiddeld <b>${eur0(avgFarm())}</b> per maand.` : ''; }
+  if(sa > sb) return { kind:'star', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(sa)}</div><div><b>Ster ${sa} behaald!</b><br>${txt}</div></div>` };
+  if(others.length >= 2 && h.net > 0 && h.net > Math.max(...others.map(x => x.net)))
+    return { kind:'record', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">🏆</div><div><b>Je beste maand tot nu toe!</b><br>Nettoresultaat: <b>${eur0(h.net)}</b>. Je vorige record was ${eur0(Math.max(...others.map(x => x.net)))}.</div></div>` };
+  return { kind:null, html:'' };
+}
+function celebrateNow(cel){ if(cel && cel.kind) setTimeout(() => { const el = $('celebrate'); if(el) confettiFrom(el, cel.kind === 'star' ? 160 : 70); }, 350); }
+function starsBanner(st){ return st ? `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(st)}</div><div><b>Gefeliciteerd: ${st} ster${st > 1 ? 'ren' : ''}!</b><br>${part === 1 ? 'LEKKR verovert de wereld.' : st === 3 ? 'Veel winst én een goed inkomen voor de boeren.' : st === 2 ? 'Winst gemaakt en de boeren geholpen.' : 'Winst gemaakt, maar de boeren hadden meer nodig.'}</div></div>` : ''; }
+function certificateModal(back){
+  const v = totalNet(), st = part === 1 ? stars1(v) : stars2(v, avgFarm()), name = session.student ? escapeHtml(session.student.name) : 'Jij';
+  const today = new Date().toLocaleDateString('nl-NL', { day:'numeric', month:'long', year:'numeric' });
+  const title = part === 1 ? 'Nederland en het buitenland' : 'Ontwikkelingslanden';
+  const line = part === 1 ? 'heeft LEKKR over de grens gebracht: geëxporteerd naar Europa en Noord-Amerika, en slim omgegaan met wisselkoersen, importheffingen en globalisering.'
+    : 'heeft pinda\'s ingekocht in Malawi en laten zien dat winst maken en bijdragen aan meer welvaart in een ontwikkelingsland samengaan.';
+  showModal(`<div class="cert" id="cert"><div class="cert-in">
+        <div class="cert-top">🍟 SNACK EMPIRE · GAME 4</div><h2>Oorkonde</h2><div class="cert-sub">${title}</div>
+        <p class="cert-name">${name}</p><p>${line}</p>
+        <div class="cert-stars">${'⭐'.repeat(st)}${'☆'.repeat(3 - st)}</div>
+        <p><b>Totale winst: ${eur0(v)}</b>${part === 2 ? ` · boereninkomen gemiddeld ${eur0(avgFarm())}` : ''} · ${state.quizCorrect} van de ${state.quizTotal} vragen goed</p>
+        <div class="cert-foot"><span>${today}</span><span class="cert-sign">Vincent Pottermans<br><small>Minister voor Buitenlandse Handel</small></span></div>
+      </div></div>
+    <div class="noprint" style="display:flex;gap:8px;margin-top:10px"><button class="ghost" style="flex:1" id="certBack">⬅ Terug</button><button class="cta" style="flex:1;margin-top:0" onclick="window.print()">🖨️ Printen</button></div>`);
+  $('certBack').onclick = back;
 }
 
 // =====================================================================
@@ -717,7 +1150,7 @@ function events1(m){
   }
   if(m === 2){
     teachV(2); teachN(2);
-    calcQuestion('⚓ Rotterdam', 'Hoe open is de Nederlandse economie?', `<p>Een Rotterdamse handelaar vertelt trots: "Nederland voert jaarlijks voor <b>€ 850 miljard</b> uit. Het nationaal inkomen is ongeveer <b>€ 1.000 miljard</b>."</p>
+    calcQuestion('⚓ Rotterdam', 'Hoe open is de Nederlandse economie?', `${say('handelaar', 'Nederland voert jaarlijks voor <b>€ 850 miljard</b> uit. Het nationaal inkomen is ongeveer <b>€ 1.000 miljard</b>. Wij zijn een echt handelsland!')}
       <p><b>Bereken de exportquote van Nederland (in %).</b> Goed? Dan krijg je korting op je kruiden.</p>`, 85, 0.5, 'Exportquote = € 850 miljard ÷ € 1.000 miljard × 100% = <b>85%</b>. Nederland is een open economie.', ok => {
         if(ok){ state.mIncome.push(['Korting op kruiden (handelaar)', 300]); state.bonus.push('Exportquote goed → € 300 korting op kruiden'); }
         return ok ? 'De handelaar geeft je <b>€ 300 korting</b> op je kruiden.' : 'Geen korting deze keer.';
@@ -735,7 +1168,7 @@ function events1(m){
   }
   if(m === 4){
     teachV(4);
-    calcQuestion('🇺🇸 Op naar Amerika', 'Hoeveel euro krijg je?', `<p>Je importeur in New York betaalt <b>$ 1.500</b> per pallet. De koers is nu <b>€ 1 = $ 1,10</b>.</p>
+    calcQuestion('🇺🇸 Op naar Amerika', 'Hoeveel euro krijg je?', `${say('importeur', 'Welcome to New York! I pay you <b>$ 1,500</b> per pallet. Deal?')}<p>De koers is nu <b>€ 1 = $ 1,10</b>.</p>
       <p><b>Hoeveel euro krijg je voor één pallet?</b> Rond af op hele euro's. Goed? Dan bestelt de importeur 1 pallet per maand extra.</p>`, 1364, 1.01, '$ 1.500 ÷ 1,10 = <b>€ 1.363,64</b>, afgerond € 1.364.', ok => {
         state.vsBonus = ok ? 1 : 0;
         if(ok) state.bonus.push('Wisselkoers goed → VS bestelt 1 pallet per maand extra');
@@ -755,7 +1188,7 @@ function events1(m){
   }
   if(m === 6){
     teachN(6);
-    queueModal(() => simpleModal('🇨🇦 Handelsmissie', `Met minister ${MINISTER} naar Canada`, `<p>"Goed je weer te zien!" zegt minister Pottermans. "Ik ben nu minister voor <b>Buitenlandse Handel en Ontwikkelingssamenwerking</b>. Dankzij het handelsverdrag tussen de EU en Canada betaal je daar geen invoerrechten. En Canadezen betalen je in euro's."</p><p>Vanaf nu kun je ook naar Canada exporteren.</p>`));
+    queueModal(() => simpleModal('🇨🇦 Handelsmissie', `Met minister ${MINISTER} naar Canada`, `${say('minister', 'Goed je weer te zien! Ik ben nu minister voor <b>Buitenlandse Handel en Ontwikkelingssamenwerking</b>. Dankzij het handelsverdrag tussen de EU en Canada betaal je daar geen invoerrechten. En Canadezen betalen je in euro\'s.')}<p>Vanaf nu kun je ook naar Canada exporteren.</p>`));
     runQuiz('missie', c => {
       state.caBonus = c;
       state.bonus.push(`Handelsmissie: ${c}/4 → Canada bestelt ${3 + c} pallets per maand`);
@@ -773,7 +1206,7 @@ function events1(m){
       if(k === 'kwaliteit'){ state.mCost.push(['Kwaliteit en reclame', 1000]); }
       return '<p>Door <b>globalisering</b> concurreer je met fabrieken over de hele wereld. Je <b>concurrentiepositie</b> hangt af van je prijs én je kwaliteit.</p>';
     });
-    choiceModal('🏭 Een adviseur', 'Verhuis je de productie?', `<p>De adviseur zegt: "In Nederland zijn de loonkosten hoog. Elders kun je goedkoper produceren."</p>`, [
+    choiceModal('🏭 Een adviseur', 'Verhuis je de productie?', say('adviseur', 'In Nederland zijn de loonkosten hoog. Elders kun je goedkoper produceren. Ik heb twee opties voor je.'), [
       { k:'nl', title:'In Nederland blijven', text:'Kostprijs € 1,20 per fles. Je 12 medewerkers houden hun baan.' },
       { k:'polen', title:'Naar Polen – € 2.500 verhuiskosten', text:'Kostprijs € 1,00 per fles. In de EU, dus geen invoerrechten en een korte rit.' },
       { k:'vietnam', title:'Naar Vietnam – € 4.000 verhuiskosten', text:'Kostprijs € 0,80 per fles. Maar elke pallet moet eerst per schip naar Europa: + € 80 per pallet.' }
@@ -799,12 +1232,12 @@ function events2(m){
   }
   if(m === 2){
     teachN(2);
-    queueModal(() => simpleModal('🇲🇼 Op de coöperatie', 'Grace vertelt', `<div class="speech"><b>Grace:</b> "Bijna iedereen hier verbouwt pinda's of tabak. Is de prijs laag, dan heeft het hele dorp een probleem. Mijn kinderen helpen op het land in plaats van naar school te gaan. Zonder school vinden ze later geen beter werk… en dan blijven ze arm, net als wij."</div>
+    queueModal(() => simpleModal('🇲🇼 Op de coöperatie', 'Grace vertelt', `${say('grace', 'Bijna iedereen hier verbouwt pinda\'s of tabak. Is de prijs laag, dan heeft het hele dorp een probleem. Mijn kinderen helpen op het land in plaats van naar school te gaan. Zonder school vinden ze later geen beter werk… en dan blijven ze arm, net als wij.')}
       <p>Je ziet een <b>vicieuze cirkel</b> en een land dat afhankelijk is van een paar producten: <b>monocultuur</b>. Ook de wegen zijn slecht: de pinda's doen er dagen over naar de haven.</p>`));
   }
   if(m === 3){
     teachN(3);
-    calcQuestion('🚜 De tractor', 'De ruilvoet van Malawi', `<p>Grace laat zien: sinds het basisjaar is de prijs van pinda's gedaald (prijsindexcijfer <b>90</b>), de prijs van tractoren gestegen (prijsindexcijfer <b>120</b>).</p>
+    calcQuestion('🚜 De tractor', 'De ruilvoet van Malawi', `${say('grace', 'Kijk: sinds het basisjaar is de prijs van onze pinda\'s gedaald (prijsindexcijfer <b>90</b>), maar een tractor is duurder geworden (prijsindexcijfer <b>120</b>).')}
       <p><b>Bereken de ruilvoet.</b> Goed? Dan help je Grace bij de onderhandeling over een tractor.</p>`, 75, 0.5, 'Ruilvoet = 90 ÷ 120 × 100 = <b>75</b>. Malawi moet veel meer pinda\'s verkopen om dezelfde tractor te kunnen kopen.', ok => {
         state.ruilOk = ok;
         if(ok) state.bonus.push('Ruilvoet goed → Grace onderhandelt beter: + € 2 per maand voor de boeren');
@@ -827,7 +1260,7 @@ function events2(m){
   }
   if(m === 5){
     teachN(5);
-    choiceModal('💧 De pomp van Grace', 'Geef je een microkrediet?', '<p>Grace wil een irrigatiepomp van <b>€ 200</b>. De grote bank leent niet aan kleine boeren. Jij kunt het geld lenen: ze betaalt in april <b>€ 220</b> terug.</p>', [
+    choiceModal('💧 De pomp van Grace', 'Geef je een microkrediet?', say('grace', 'Met een irrigatiepomp van <b>€ 200</b> kan ik ook in droge tijden oogsten. Maar de grote bank leent niet aan kleine boeren zoals ik…') + '<p>Jij kunt het geld lenen: ze betaalt in april <b>€ 220</b> terug.</p>', [
       { k:'ja', title:'Ja, microkrediet van € 200', text:'Met de pomp verdienen de boeren + € 4 per maand vanaf februari' },
       { k:'nee', title:'Nee', text:'Je houdt je geld in je bedrijf' }
     ], k => {
@@ -857,7 +1290,7 @@ function events2(m){
   }
   if(m === 8){
     if(state.micro){ state.mIncome.push(['Grace lost haar microkrediet af (met rente)', 220]); }
-    choiceModal('🏛️ Minister Pottermans', 'Een pindapellerij in Malawi?', `<p>"Nederland combineert hulp en handel," zegt de minister. "Investeert u in Malawi, dan betalen wij de helft." Een pellerij in het dorp kost <b>€ 3.000</b>; met subsidie betaal jij <b>€ 1.500</b>.</p>`, [
+    choiceModal('🏛️ Minister Pottermans', 'Een pindapellerij in Malawi?', `${say('minister', 'Nederland combineert hulp en handel. Investeert u in Malawi, dan betalen wij de helft.')}<p>Een pellerij in het dorp kost <b>€ 3.000</b>; met subsidie betaal jij <b>€ 1.500</b>.</p>`, [
       { k:'ja', title:'Ja, bouw de pellerij – € 1.500', text:'Er blijft meer toegevoegde waarde en werk in Malawi: boeren + € 8 per maand' },
       { k:'nee', title:'Nee', text:'De pinda\'s worden in Nederland gepeld, zoals altijd' }
     ], k => {
@@ -885,7 +1318,7 @@ function playMonth(){
   }
   state.history.push(h);
   save();
-  runShip(h, () => reportModal(h));
+  runShipPixel(h, () => reportModal(h));
 }
 function reportModal(h){
   const m = h.month, parts = [];
@@ -905,11 +1338,14 @@ function reportModal(h){
     ${h.mIncome.map(c => `<div class="calc-row"><span>+ ${c[0]}</span><b>${eur0(c[1])}</b></div>`).join('')}
     <div class="calc-row total"><span>= Nettoresultaat</span><b style="color:var(--${h.net >= 0 ? 'good' : 'bad'})">${eur0(h.net)}</b></div>`;
   if(h.farm != null) parts.push(`<div class="msg info">🌍 Inkomen van de pindaboeren deze maand: <b>${eur0(h.farm)}</b> per boer. ${farmExplain(h.month)}</div>`);
-  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: nettoresultaat ${eur0(h.net)}</h2>
+  const cel = celebration(h);
+  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: nettoresultaat ${eur0(h.net)}</h2>${cel.html}
+    <div id="repScene" class="rep-scene"></div>
     <div class="report-grid"><div class="kpi"><div class="k">Pallets verkocht</div><div class="v">${h.lines.reduce((s, l) => s + l.sold, 0)} van ${h.produced}</div></div>
       <div class="kpi"><div class="k">${h.koers ? 'Koers' : 'Totale winst'}</div><div class="v">${h.koers ? '€ 1 = $ ' + rate(h.koers) : eur0(totalNet())}</div></div></div>
     <div class="calc">${calc}</div>${parts.join('')}
     <button class="cta" id="nextBtn">${m >= LAST ? 'Afsluiten 🏁' : 'Volgende maand ➡️'}</button>`);
+  showSceneIn($('repScene')); celebrateNow(cel);
   const nb = $('nextBtn'), label = nb.textContent; let left = REPORT_READ_SECONDS;
   nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je maandrapport… ${left}`;
   const iv = setInterval(() => { left--; if(left > 0){ nb.textContent = `📖 Lees je maandrapport… ${left}`; return; } clearInterval(iv); nb.disabled = false; nb.classList.remove('wait'); nb.textContent = label; }, 1000);
@@ -1007,7 +1443,7 @@ function qs(id){ return state.quiz[id] ? `${state.quiz[id].correct}/4` : '–'; 
 function endReport1(){
   const v = totalNet(), st = stars1(v);
   showModal(`<div class="tag">🏁 Eindrapport deel 1${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Nederland en het buitenland</h2>
-    <div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3 - st)}</div>
+    <div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3 - st)}</div>${starsBanner(st)}
     <div class="report-grid">
       <div class="kpi"><div class="k">Totale winst (nettoresultaat)</div><div class="v">${eur0(v)}</div></div>
       <div class="kpi"><div class="k">Kennisvragen goed</div><div class="v">${state.quizCorrect} van ${state.quizTotal}</div></div>
@@ -1019,13 +1455,16 @@ function endReport1(){
       <tr><td>🏭 Productie</td><td>${{ nl:'Nederland', polen:'Polen', vietnam:'Vietnam' }[state.location]}</td></tr>
     </tbody></table>
     <p class="small">${starText()}</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport1);
+  if(st) celebrateNow({ kind:'star' });
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 function endReport2(){
   const v = totalNet(), f = avgFarm(), st = stars2(v, f);
   showModal(`<div class="tag">🏁 Eindrapport deel 2${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Ontwikkelingslanden</h2>
-    <div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3 - st)}</div>
+    <div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3 - st)}</div>${starsBanner(st)}
     <div class="report-grid">
       <div class="kpi"><div class="k">💰 Totale winst</div><div class="v">${eur0(v)}</div></div>
       <div class="kpi"><div class="k">🌍 Boereninkomen (gemiddeld per maand)</div><div class="v">${eur0(f)}</div></div>
@@ -1040,7 +1479,10 @@ function endReport2(){
     </tbody></table>
     <p class="small">${starText()}</p>
     <p class="small">💡 Ondernemen in een wereld vol verschillen: winst maken én bijdragen aan meer welvaart in ontwikkelingslanden gaan prima samen.</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport2);
+  if(st) celebrateNow({ kind:'star' });
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1092,6 +1534,7 @@ function render(){
   $('terms').innerHTML = state.concepts.length ? state.concepts.map(k => `<span class="term ${CONCEPTS[k].t === 'v' ? 'vk' : ''}" data-k="${k}">${CONCEPTS[k].title}</span>`).join('') : '<span class="small muted">Nog geen begrippen.</span>';
   document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
   renderChart();
+  renderWorld();
 }
 function renderChart(){
   const N = LAST, W = 420, H = 226, pad = { l:50, r:30, t:16, b:26 };
