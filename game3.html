@@ -174,6 +174,57 @@
   .news h3{margin:0 0 4px;font-size:18px}
   .speech{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;position:relative}
   .speech b{color:var(--accent)}
+  /* ===== beeld in HD-2D ===== */
+  body{transition:background-color .8s ease}
+  body.w-rain{background:#e4e8ee}
+  body.w-cold{background:#eaf2fa}
+  .scene{margin:4px 0 12px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#1d1822}
+  .scene-cap{padding:5px 10px;background:var(--panel);border-top:1px solid var(--line)}
+  .hd{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#1d1822}
+  .hd canvas{position:absolute;left:-3%;top:-3%;width:106%;height:106%;image-rendering:pixelated;image-rendering:crisp-edges}
+  .hd .hd-bg{filter:blur(1.2px) saturate(1.05)}
+  .hd .hd-fg{filter:blur(2.6px)}
+  .hd .hd-fx{image-rendering:auto;mix-blend-mode:screen}
+  .hd-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,rgba(0,0,0,0) 55%,rgba(0,0,0,.5) 100%),linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,0) 22%,rgba(0,0,0,0) 80%,rgba(0,0,0,.2))}
+  .clock-shell{max-width:640px}
+  .plein{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .portrait{display:block;border-radius:12px;image-rendering:pixelated;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+  .say{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+  .say-face{flex:none}
+  .say-bubble{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px;flex:1;font-size:15px;line-height:1.45}
+  .say-bubble:before{content:"";position:absolute;left:-8px;top:18px;border:8px solid transparent;border-right-color:#fff;border-left:0}
+  .say-name{font-size:12px;font-weight:800;color:var(--accent);margin-bottom:2px}
+  .say.whisper .say-bubble{background:#f5f3ff;border-style:dashed}
+  .say.whisper .say-bubble:before{border-right-color:#f5f3ff}
+  .cand-head{display:flex;gap:10px;align-items:center}
+  .opt-face{display:flex!important;gap:10px;align-items:center;flex-wrap:wrap}
+  .opt-face img{flex:none}
+  .modal.pop{animation:pop .28s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .scene-dock{position:sticky;top:96px;z-index:4}
+  .scene-dock:empty{display:none}
+  .scene-dock .scene{margin-top:0;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+  .rep-scene .scene{margin:6px auto 10px;max-width:440px}
+  .rep-scene:empty{display:none}
+  .celebrate{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#fff7d6,#ffe8b0);border:2px solid #f59e0b;border-radius:14px;padding:10px 14px;margin:8px 0 12px;animation:pop .4s ease-out}
+  .cel-icon{font-size:28px;flex:none}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:200;image-rendering:pixelated}
+  .cert{border:10px double #d97706;border-radius:18px;padding:6px;background:#fffbeb}
+  .cert-in{border:2px solid #fcd34d;border-radius:12px;padding:20px 18px;text-align:center}
+  .cert-top{font-size:12px;letter-spacing:2px;font-weight:800;color:#b45309}
+  .cert h2{font-family:Georgia,serif;font-size:34px;margin:6px 0 0;color:#7c2d12}
+  .cert-sub{font-style:italic;color:#92400e;margin-bottom:10px}
+  .cert-name{font-family:Georgia,serif;font-size:28px;font-weight:700;margin:8px 0;border-bottom:2px solid #fcd34d;display:inline-block;padding:0 18px 4px}
+  .cert-stars{font-size:34px;margin:6px 0}
+  .cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;font-size:13px;color:#78350f}
+  .cert-sign{font-family:'Brush Script MT',cursive;font-size:22px;text-align:right;line-height:1}
+  .cert-sign small{font-family:inherit;font-size:11px}
+  @media print{ body *{visibility:hidden} #cert,#cert *{visibility:visible} #cert{position:fixed;left:0;top:0;width:100%} .noprint{display:none} }
+  @media (max-width:520px){ .say-face img{width:48px;height:48px} .cert h2{font-size:26px} .cert-name{font-size:22px} }
+  .cal{zoom:.8}
+  .clock-overlay .plein{max-width:400px;margin:8px auto 0}
+  .clock-shell{gap:8px}
+  @media (max-width:520px){ .cal{zoom:.7} }
   @media (max-width:860px){ .menu-grid{grid-template-columns:1fr} .grid{grid-template-columns:minmax(0,1fr)} }
   @media (max-width:520px){
     .topbar{margin:0 6px 10px;padding:10px 12px;position:static}
@@ -236,6 +287,7 @@
     <div>
       <section class="panel" id="playPanel">
         <h2>🏪 <span id="pDay">Januari</span> – je kraam op het schoolplein</h2>
+        <div id="sceneTop"><div class="scene" id="sceneBox"><div id="stallScene"></div><div class="small muted scene-cap" id="stallCaption"></div></div></div>
         <div id="dayNews" class="msg info"></div>
 
         <div id="priceArea">
@@ -282,6 +334,7 @@
     </div>
 
     <div>
+      <div id="sceneDock" class="scene-dock"></div>
       <section class="panel chart">
         <h2>📊 Nettoresultaat per maand</h2>
         <div id="chart"></div>
@@ -300,7 +353,7 @@
         <div id="envInfo"></div>
       </section>
       <section class="panel hidden" id="competitorPanel">
-        <h2>🌭 Concurrent: SnackPoint</h2>
+        <h2>🌭 Concurrent: Cees Patat</h2>
         <div id="compInfo"></div>
       </section>
       <div class="center"><button class="linkbtn" id="toMenuBtn">⬅ Terug naar het menu (je voortgang is bewaard)</button></div>
@@ -324,6 +377,7 @@
         <div><div class="k">💶 In de kassa</div><div class="v" id="liveRev">€ 0,00</div></div>
       </div>
       <div class="live-full" id="liveFull"></div>
+      <div class="plein" id="plein"></div>
     </div>
   </div>
 </div>
@@ -429,7 +483,7 @@ const SCHEDULE = {
       4:{v:[], n:[]}, 5:{v:[], n:['ontduiking']}, 6:{v:['loonvk','verzekeringenvk','toeslagenvk'], n:[]}, 7:{v:[], n:['actieven','nivellering','beginselen']}, 8:{v:[], n:[]} }
 };
 const NEWS = {
-  1:{ 1:'Gelukkig nieuwjaar! Je kraam draait goed: een moderne frituur, een medewerker en SnackPoint aan de overkant.', 2:'Post van de gemeente… en de provincie legt een nieuwe fietsroute naar school aan.',
+  1:{ 1:'Gelukkig nieuwjaar! Je kraam draait goed: een moderne frituur, een medewerker en Cees Patat aan de overkant.', 2:'Post van de gemeente… en de provincie legt een nieuwe fietsroute naar school aan.',
       3:'De school gaat de kantine anders regelen. Eerst de ondernemersavond van de gemeente.', 4:'Het CPB meldt: de economie groeit! Mensen geven meer uit.',
       5:'📉 De economie zit in een recessie. Leerlingen houden hun zakgeld liever vast.', 6:'De recessie houdt aan. Vanavond: een lezing van een econoom.',
       7:'Zomervakantie in zicht, en het is nog steeds rustig. Wat doe je met je medewerker?', 8:'De school begint weer. Wie stopt daar bij het schoolplein?',
@@ -441,14 +495,14 @@ const NEWS = {
 
 // ---------- QUIZZEN ----------
 const QUIZZES = {
-  gemeente: { title:'🏛️ Ondernemersavond van de gemeente', intro:'De gemeente vertelt ondernemers over de plannen in de stad. Elk goed antwoord: <b>€ 5 per maand korting</b> op je marktvergunning. Elk fout antwoord: <b>€ 5 per maand duurder</b>.', fixed:[], pool:[
+  gemeente: { who:'wethouder', title:'🏛️ Ondernemersavond van de gemeente', intro:'De gemeente vertelt ondernemers over de plannen in de stad. Elk goed antwoord: <b>€ 5 per maand korting</b> op je marktvergunning. Elk fout antwoord: <b>€ 5 per maand duurder</b>.', fixed:[], pool:[
     { k:'herkennen', q:'De school laat de kantine voortaan runnen door een cateringbedrijf. Hoe heet dat?', o:['Privatisering','Marktwerking','Subsidie','Collectieve sector'], a:0, e:'Een dienst of activiteit gaat van de overheid (hier de openbare school) naar de particuliere sector: privatisering.' },
     { k:'herkennen', q:'Wie hoort bij de particuliere sector?', o:['De gemeente','Het UWV','Jouw snackkraam','De provincie'], a:2, e:'De particuliere sector: alle burgers en bedrijven. De gemeente, de provincie en het UWV horen bij de collectieve sector.' },
     { k:'redeneren', q:'Door de cateraar in de kantine heb jij een extra concurrent. Wat is daar het gevolg van voor leerlingen?', o:['Minder keus','Meer keus en scherpere prijzen door marktwerking','Hogere btw','Niets'], a:1, e:'Aanbieders concurreren op kwaliteit en prijs: marktwerking. Goed voor de klant.' },
     { k:'herkennen', q:'Wie regelt de aanleg van een provinciale weg?', o:['De gemeente','De provincie','Het rijk','De Belastingdienst'], a:1, e:'De provincie is verantwoordelijk voor een deel van de infrastructuur, zoals provinciale wegen.' },
     { k:'herkennen', q:'Welke belasting betaal jij aan de gemeente voor je opslagruimte?', o:['Btw','Ozb','Accijns','Inkomstenbelasting'], a:1, e:'De onroerendezaakbelasting (ozb) betaal je als eigenaar aan de gemeente.' }
   ]},
-  econoom: { title:'📈 Lezing van een econoom', intro:'Een econoom legt uit hoe de economie werkt en hoe je als ondernemer met een recessie omgaat. Per goed antwoord bedenk je een slimme actie (patat + drinken): <b>1 klant per dag extra</b> voor de rest van het jaar.', fixed:[], pool:[
+  econoom: { who:'econoom', title:'📈 Lezing van een econoom', intro:'Een econoom legt uit hoe de economie werkt en hoe je als ondernemer met een recessie omgaat. Per goed antwoord bedenk je een slimme actie (patat + drinken): <b>1 klant per dag extra</b> voor de rest van het jaar.', fixed:[], pool:[
     { k:'herkennen', q:'De economische groei is twee kwartalen lager dan in de periode daarvoor, en lager dan gemiddeld. Hoe heet dat?', o:['Economische groei','Recessie','Inflatie','Begrotingstekort'], a:1, e:'Dat is een recessie. Houdt die lang aan of krimpt het bbp, dan spreek je van een economische crisis.' },
     { k:'herkennen', q:'In welke economie bepaalt de overheid wat er geproduceerd wordt, hoeveel en tegen welke prijs?', o:['Planeconomie','Vrijemarkteconomie','Sociale markteconomie','Verzorgingsstaat'], a:0, e:'In een planeconomie beslist de overheid. In een vrijemarkteconomie bepalen vraag en aanbod alles.' },
     { k:'redeneren', q:'Nederland is een sociale markteconomie. Wat betekent dat?', o:['De overheid bepaalt alle prijzen','Vraag en aanbod bepalen de prijzen, maar de overheid kan ingrijpen','De overheid grijpt nooit in','Er is geen concurrentie'], a:1, e:'Vraag en aanbod bepalen de prijzen, maar de overheid grijpt in om basisbehoeften betaalbaar te houden en iedereen een redelijk bestaan te geven.' },
@@ -456,21 +510,21 @@ const QUIZZES = {
     { k:'herkennen', q:'Welke organisatie adviseert de regering over lonen, werkgelegenheid en uitkeringen?', o:['De SER','Het CPB','De Belastingdienst','De provincie'], a:0, e:'De Sociaal-Economische Raad (SER) adviseert de regering over sociaaleconomische onderwerpen.' },
     { k:'redeneren', q:'Het bbp daalt. Wat merk jij daar waarschijnlijk van in je kraam?', o:['Meer klanten','Minder klanten, want mensen geven minder uit','Lagere huur','Niets'], a:1, e:'Als de totale productie daalt, dalen ook de inkomens en de bestedingen. Je verkoopt minder.' }
   ]},
-  uwv: { title:'🏢 Voorlichting van het UWV', intro:'Het UWV vertelt werkgevers over de sociale zekerheid. Heb je een medewerker, dan sluit je ook een verzuimverzekering af. Elk goed antwoord: <b>€ 5 per maand lagere premie</b>. Elk fout antwoord: <b>€ 5 per maand hoger</b>.', fixed:[], pool:[
+  uwv: { who:'uwv', title:'🏢 Voorlichting van het UWV', intro:'Het UWV vertelt werkgevers over de sociale zekerheid. Heb je een medewerker, dan sluit je ook een verzuimverzekering af. Elk goed antwoord: <b>€ 5 per maand lagere premie</b>. Elk fout antwoord: <b>€ 5 per maand hoger</b>.', fixed:[], pool:[
     { k:'herkennen', q:'Oma krijgt AOW. Wat voor uitkering is dat?', o:['Een volksverzekering','Een werknemersverzekering','Een sociale voorziening','Een subsidie'], a:0, e:'De AOW is een volksverzekering: iedere inwoner heeft er recht op.' },
     { k:'herkennen', q:'Je oud-medewerker wordt werkloos en krijgt WW. Wat voor uitkering is dat?', o:['Een volksverzekering','Een werknemersverzekering','Een sociale voorziening','Huurtoeslag'], a:1, e:'De WW is een werknemersverzekering, voor mensen die in loondienst werken of gewerkt hebben.' },
     { k:'redeneren', q:'Waarom betaal jij mee aan uitkeringen, ook als je zelf nooit werkloos wordt?', o:['Solidariteitsbeginsel','Profijtbeginsel','Marktwerking','Privatisering'], a:0, e:'Iedereen met een inkomen staat een deel af voor mensen die zelf geen inkomen kunnen verdienen: het solidariteitsbeginsel.' },
     { k:'herkennen', q:'Na de WW heeft iemand nog steeds geen werk en geen geld. Wat krijgt hij dan?', o:['AOW','Bijstand (sociale voorziening)','Dividend','Een subsidie'], a:1, e:'De bijstand is een sociale voorziening, betaald uit belastinggeld, tot het sociaal minimum.' },
     { k:'herkennen', q:'Een land waarin de overheid zorgt voor sociale zekerheid, zorg, huisvesting en onderwijs voor iedereen, heet een…', o:['Planeconomie','Verzorgingsstaat','Vrijemarkteconomie','Monopolie'], a:1, e:'Dat is een verzorgingsstaat, zoals Nederland.' }
   ]},
-  adviseur: { title:'🧾 De belastingadviseur', intro:'Je adviseur legt uit hoe je aangifte werkt. Zijn rekening is € 300. Elk goed antwoord: <b>€ 25 korting</b>. Elk fout antwoord: <b>€ 25 extra</b> (hij moet meer uitleggen).', fixed:[], pool:[
+  adviseur: { who:'adviseur', title:'🧾 De belastingadviseur', intro:'Je adviseur legt uit hoe je aangifte werkt. Zijn rekening is € 300. Elk goed antwoord: <b>€ 25 korting</b>. Elk fout antwoord: <b>€ 25 extra</b> (hij moet meer uitleggen).', fixed:[], pool:[
     { k:'herkennen', q:'Je gebruikt de bus van de zaak ook in het weekend. Welk bedrag tel je dan bij je inkomen op?', o:['Een bijtelling','Een aftrekpost','Het eigenwoningforfait','De heffingskorting'], a:0, e:'Gebruik je een auto van de zaak ook privé, dan tel je een bijtelling op bij je inkomen.' },
     { k:'herkennen', q:'Je hebt een eigen appartement. Welk bedrag tel je daarvoor bij je inkomen op?', o:['Het eigenwoningforfait','De bijtelling','De ozb','De huurtoeslag'], a:0, e:'Wie een eigen huis bezit, telt het eigenwoningforfait op bij het inkomen.' },
     { k:'redeneren', q:'Je betaalt hypotheekrente. Wat doet die met je belastbaar inkomen?', o:['Het wordt hoger','Het wordt lager, want het is een aftrekpost','Er verandert niets','Het wordt dubbel geteld'], a:1, e:'Hypotheekrente is een aftrekpost: je trekt hem af van je inkomen, dus je belastbaar inkomen wordt lager.' },
     { k:'herkennen', q:'Over welk inkomen betaal je als eigenaar van een eenmanszaak inkomstenbelasting?', o:['Over de omzet','Over de winst','Over de inkoopwaarde','Over de btw'], a:1, e:'Als ondernemer met een eenmanszaak betaal je inkomstenbelasting over de winst van je bedrijf.' },
     { k:'rekenen', q:'Een liter diesel kost € 1,80. Daarvan is € 0,52 accijns. Welk deel van de prijs is accijns (afgerond)?', o:['Ongeveer 18%','Ongeveer 29%','Ongeveer 52%','Ongeveer 71%'], a:1, e:'€ 0,52 ÷ € 1,80 × 100% ≈ 29%.' }
   ]},
-  bank: { title:'🏦 Bij de bank', intro:'Je bespreekt je spaargeld. Elk goed antwoord: <b>0,1% hogere rente</b> op je spaarrekening. Elk fout antwoord: 0,1% lager.', fixed:[], pool:[
+  bank: { who:'leon', title:'🏦 Bij de bank', intro:'Je bespreekt je spaargeld. Elk goed antwoord: <b>0,1% hogere rente</b> op je spaarrekening. Elk fout antwoord: 0,1% lager.', fixed:[], pool:[
     { k:'herkennen', q:'Wat is je vermogen?', o:['Je inkomen per jaar','Al je spaargeld en beleggingen na aftrek van je schulden','Je winst','Je omzet'], a:1, e:'Vermogen = spaargeld + beleggingen − schulden.' },
     { k:'redeneren', q:'Waarom heet het rendement in box 3 "fictief"?', o:['Omdat het niet bestaat','Omdat de overheid ervan uitgaat dat je dat percentage verdient, ook al verdien je in het echt meer of minder','Omdat de bank het verzint','Omdat het altijd 0% is'], a:1, e:'De overheid rekent met een vast percentage dat je verondersteld wordt te verdienen: het fictief rendement.' },
     { k:'rekenen', q:'Je vermogen is € 70.000 en het heffingsvrij vermogen € 50.000. Over hoeveel bereken je het fictief rendement?', o:['€ 70.000','€ 50.000','€ 20.000','€ 120.000'], a:2, e:'Belastbaar vermogen = € 70.000 − € 50.000 = € 20.000.' },
@@ -558,7 +612,7 @@ function econ(){
 }
 function demandPerDay(p){
   let d = 90 - 20 * (p - 2) - 14 * Math.pow(p - 2, 2) + POPULAR + econ() + state.actionBonus;
-  d -= 10 + Math.max(0, p - COMPETITOR_PRICE) * 40;        // SnackPoint
+  d -= 10 + Math.max(0, p - COMPETITOR_PRICE) * 40;        // Cees Patat
   if(part === 2 || state.month >= 3) d -= KANTINE_LOSS;      // cateraar in de kantine
   if(part === 2 && state.reputationHit) d -= 6;               // krantenbericht over belastingfraude
   return Math.max(0, d);
@@ -582,7 +636,7 @@ function simulateMonth(p, noise){
 let modalQueue = [];
 function queueModal(fn){ modalQueue.push(fn); if(modalQueue.length === 1) fn(); }
 function closeModal(){ modalQueue.shift(); if(modalQueue.length) modalQueue[0](); else { $('overlay').classList.add('hidden'); $('modal').classList.remove('voork'); render(); } }
-function showModal(html, voork){ $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
+function showModal(html, voork){ { const sb = $('sceneBox'); if(sb && $('modal').contains(sb)) placeScene(); } $('modal').classList.toggle('voork', !!voork); $('modal').innerHTML = html; $('modal').classList.remove('pop'); void $('modal').offsetWidth; $('modal').classList.add('pop'); $('overlay').classList.remove('hidden'); $('modal').scrollTop = 0; }
 function simpleModal(tag, title, html, btn = 'Verder'){ showModal(`<div class="tag">${tag}</div><h2>${title}</h2>${html}<button class="cta" onclick="closeModal()">${btn}</button>`); }
 function conceptHtml(k){ const c = CONCEPTS[k]; return `<h2 style="margin-top:12px">${c.title}</h2><p>${c.text}</p>${c.formula ? `<div class="formula">${c.formula}</div>` : ''}`; }
 function conceptModal(k){ const c = CONCEPTS[k]; showModal(`<div class="tag">${c.t === 'v' ? '🔁 Weet je het nog?' : '📘 Begrip'}</div>${conceptHtml(k)}<button class="cta" onclick="closeModal()">Sluiten</button>`, c.t === 'v'); }
@@ -621,7 +675,7 @@ function runQuiz(id, onDone){
   const def = QUIZZES[id];
   const picked = def.fixed.concat(shuffled(def.pool).slice(0, 4 - def.fixed.length));
   const results = [];
-  showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2><p>${def.intro}</p><p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
+  showModal(`<div class="tag">🎓 Quizmoment</div><h2>${def.title}</h2>${def.who ? say(def.who, def.intro) : `<p>${def.intro}</p>`}<p class="small muted">4 vragen. Na elke vraag krijg je uitleg.</p><button class="cta" id="qStart">Start ▶️</button>`);
   $('qStart').onclick = () => ask(0);
   const bar = i => `<div class="quiz-progress">${picked.map((_, j) => `<span class="${j < i ? (results[j] ? 'ok' : 'bad') : j === i ? 'cur' : ''}"></span>`).join('')}</div>`;
   function ask(i){
@@ -657,10 +711,10 @@ function beginMonth(){
 // ---------- DEEL 1 ----------
 function beginMonth1(m){
   if(m === 2) queueModal(() => simpleModal('📬 Post van de gemeente', 'Aanslag onroerendezaakbelasting', `<p>Je hebt een kleine opslagruimte gekocht voor je voorraad. Als eigenaar betaal je daarover <b>ozb</b> aan de gemeente: <b>${eur0(OZB)}</b> deze maand.</p><p>Ondertussen legt de <b>provincie</b> een nieuwe fietsroute naar school aan: infrastructuur.</p>`));
-  if(m === 3 && !state.quiz.gemeente) queueModal(() => simpleModal('🏛️ Gemeentehuis', 'Ondernemersavond', '<p>De gemeente nodigt alle ondernemers uit voor een avond over de plannen in de stad. Daarna hoor je nog nieuws over de kantine van je school…</p>'));
+  if(m === 3 && !state.quiz.gemeente) queueModal(() => simpleModal('🏛️ Gemeentehuis', 'Ondernemersavond', say('wethouder', 'Welkom op onze ondernemersavond! Ik vertel u over de plannen voor de stad, en daarna heb ik nog nieuws over de kantine van uw school…')));
   if(m === 4) queueModal(() => simpleModal('📈 Nieuws', 'Het CPB: de economie groeit', '<div class="news"><h3>CPB: economie groeit dit voorjaar</h3>Het Centraal Planbureau verwacht dat het bbp de komende maanden stijgt. Huishoudens geven meer uit.</div>'));
   if(m === 5) queueModal(() => simpleModal('📉 Nieuws', 'Recessie!', '<div class="news"><h3>Nederland in recessie</h3>De economie groeide twee kwartalen op rij minder dan daarvoor en minder dan gemiddeld. Consumenten geven minder uit.</div><p>Je zult merken dat er minder klanten komen.</p>'));
-  if(m === 6 && !state.quiz.econoom) queueModal(() => simpleModal('🎤 Lezing', 'Een econoom over de recessie', '<p>De ondernemersvereniging heeft een econoom uitgenodigd. Hoe werkt de economie, en hoe kom je als ondernemer door een recessie heen?</p>'));
+  if(m === 6 && !state.quiz.econoom) queueModal(() => simpleModal('🎤 Lezing', 'Een econoom over de recessie', say('econoom', 'Goedenavond. Vanavond: hoe werkt de economie, en hoe komt u als ondernemer door een recessie heen?')));
   if(m === 10 && !state.quiz.uwv && state.worker) queueModal(() => simpleModal('🏢 UWV', 'Voorlichting voor werkgevers', '<p>Het UWV geeft voorlichting aan werkgevers over de sociale zekerheid en de verzuimverzekering die je als werkgever nodig hebt.</p>'));
   if(m === 10 && !state.quiz.uwv && !state.worker) queueModal(() => simpleModal('🏢 UWV', 'Voorlichting over de sociale zekerheid', '<p>Je oud-medewerker vroeg je om mee te gaan naar een voorlichting van het UWV over uitkeringen. Een goede kans om te leren hoe het zit.</p>'));
   teachMonth(m);
@@ -678,7 +732,8 @@ function beginMonth1(m){
 }
 function workerModal(){
   showModal(`<div class="tag">👷 Je medewerker</div><h2>Houden of laten gaan?</h2>
-    <p>Door de recessie komen er minder klanten. Je kunt je medewerker eigenlijk missen: in je eentje kun je ${CAP_ALONE} porties per dag maken, en zoveel klanten komen er nu niet. Zijn loon kost je ${eur0(WAGE)} per maand.</p>
+    ${say('daan', 'Het is rustig, hè? Ik hoop dat je me kunt houden…')}
+    <p>Door de recessie komen er minder klanten. Je kunt Daan eigenlijk missen: in je eentje kun je ${CAP_ALONE} porties per dag maken, en zoveel klanten komen er nu niet. Zijn loon kost je ${eur0(WAGE)} per maand.</p>
     ${optionList('wOpts', [{ k:'keep', title:'🤝 Ik houd hem', text:'Hij hoort erbij. En als de economie aantrekt, heb ik hem weer nodig.' }, { k:'fire', title:'👋 Ik laat hem gaan', text:'Dat scheelt loonkosten. Hij krijgt WW.' }])}
     <button class="cta" id="wGo" disabled>Bevestig mijn keuze</button>`);
   bindOptions('wOpts', 'wGo', k => {
@@ -691,13 +746,13 @@ function workerModal(){
 function ministerVisit(){
   showModal(`<div class="tag">🚗 Bezoek</div><h2>Wie stopt daar?</h2>
     <p>Een zwarte auto stopt bij het schoolplein. Minister van Financiën <b>${MINISTER}</b> is op werkbezoek bij jouw school, en bestelt een patatje met.</p>
-    <div class="speech"><b>${MINISTER}:</b> "Lekker! Hoe gaan de zaken?"</div>
+    ${say('minister', `"Lekker! Hoe gaan de zaken?"`)}
     ${optionList('vOpts', [{ k:'recessie', title:'"Door de recessie komen er minder klanten."' }, { k:'belasting', title:'"Al die belastingen maken het me moeilijk."' }, { k:'goed', title:'"Het gaat prima, dank u!"' }])}
     <button class="cta" id="vGo" disabled>Zeg het</button>`);
   bindOptions('vOpts', 'vGo', k => {
     state.visitAnswer = k; save();
     const reply = { recessie:'Dat hoor ik overal. Door de recessie krijgen wij ook minder belasting binnen, en betalen we meer uitkeringen.', belasting:'Iedereen wil minder belasting. Maar van dat geld betalen we de zorg, de AOW en de scholen.', goed:'Fijn om te horen! Bij ons is het minder rooskleurig.' }[k];
-    simpleModal('🚗 Bezoek', `${MINISTER} antwoordt`, `<div class="speech"><b>${MINISTER}:</b> "${reply} En we hebben een tekort op de begroting. Weet je wat? Volgende maand maak ik de miljoenennota. Kom een dag meedenken op het ministerie. Ik wil horen wat een jonge ondernemer zou doen."</div><p>Je krijgt een uitnodiging voor een dag als <b>adviseur</b> op het ministerie van Financiën.</p>`, 'Afgesproken!');
+    simpleModal('🚗 Bezoek', `${MINISTER} antwoordt`, `${say('minister', `"${reply} En we hebben een tekort op de begroting. Weet je wat? Volgende maand maak ik de miljoenennota. Kom een dag meedenken op het ministerie. Ik wil horen wat een jonge ondernemer zou doen."`)}<p>Je krijgt een uitnodiging voor een dag als <b>adviseur</b> op het ministerie van Financiën.</p>`, 'Afgesproken!');
   });
 }
 // ---------- DE DAG OP HET MINISTERIE ----------
@@ -727,13 +782,13 @@ function ministryDay(){
   const step = i => {
     if(i === 0){
       showModal(`<div class="tag">🏛️ Ministerie van Financiën – Den Haag</div><h2>Welkom, adviseur!</h2>
-        <div class="speech"><b>${MINISTER}:</b> "Dit is de <b>rijksbegroting</b> voor volgend jaar, in afgeronde bedragen. Kijk eens mee."</div>
+        ${say('minister', `"Dit is de <b>rijksbegroting</b> voor volgend jaar, in afgeronde bedragen. Kijk eens mee."`)}
         ${budgetTable()}<p class="small">De <b>staatsschuld</b> is al € ${BUDGET.debt} miljard: geleend in alle jaren met een tekort.</p>
         <button class="cta" id="mGo">Ik heb het bekeken</button>`);
       $('mGo').onclick = () => askQuestion('🏛️ Ministerie – vraag 1 van 4', qs[0], () => askQuestion('🏛️ Ministerie – vraag 2 van 4', qs[1], () => step(1)));
     } else if(i === 1){
       showModal(`<div class="tag">🏛️ Ministerie – jouw advies</div><h2>De opdracht van de minister</h2>
-        <div class="speech"><b>${MINISTER}:</b> "Door de recessie en de vergrijzing hebben we een tekort van <b>€ 20 miljard</b>. Jouw opdracht: <b>zorg dat het tekort minstens half zo groot wordt</b>, maar maak de economie niet kapot. Kies <b>twee</b> maatregelen."</div>
+        ${say('minister', `"Door de recessie en de vergrijzing hebben we een tekort van <b>€ 20 miljard</b>. Jouw opdracht: <b>zorg dat het tekort minstens half zo groot wordt</b>, maar maak de economie niet kapot. Kies <b>twee</b> maatregelen."`)}
         <div class="options" id="mOpts">${MEASURES.map(x => `<button class="option" data-k="${x.k}"><b>${x.title}</b><span class="small">${x.text}</span></button>`).join('')}</div>
         <div class="small muted" id="mCount">0 van 2 gekozen</div>
         <button class="cta" id="mConfirm" disabled>Laat het CPB rekenen 🧮</button>`);
@@ -801,9 +856,9 @@ function taxFigures(){
 }
 function beginMonth2(m){
   if(m === 1 && state.busPrivate == null) queueModal(situationModal);
-  if(m === 2 && !state.quiz.adviseur) queueModal(() => simpleModal('🧾 Afspraak', 'Bij je belastingadviseur', '<p>In het voorjaar moet je <b>aangifte inkomstenbelasting</b> doen over vorig jaar. Je adviseur legt uit hoe dat werkt. Zijn rekening is normaal € 300…</p>'));
+  if(m === 2 && !state.quiz.adviseur) queueModal(() => simpleModal('🧾 Afspraak', 'Bij je belastingadviseur', say('adviseur', 'In het voorjaar moet u <b>aangifte inkomstenbelasting</b> doen over vorig jaar. Ik leg uit hoe dat werkt. Mijn rekening is normaal € 300…')));
   if(m === 3 && !state.aangifte) queueModal(() => simpleModal('📝 Belastingdienst', 'Tijd voor je aangifte', '<p>Je hebt een brief gekregen: doe vóór <b>1 mei</b> aangifte inkomstenbelasting over vorig jaar. Je doet het zelf, met de stappenplannen die je kent.</p>'));
-  if(m === 4 && !state.quiz.bank) queueModal(() => simpleModal('🏦 Afspraak', 'Bij de bank', `<p>Je hebt <b>${eur0(state.priveMoney)}</b> privé gespaard. De bank wil met je praten over je spaargeld, en over de belasting die je erover betaalt in box 3.</p>`));
+  if(m === 4 && !state.quiz.bank) queueModal(() => simpleModal('🏦 Afspraak', 'Bij de bank', say('leon', `Goed u weer te zien! U heeft <b>${eur0(state.priveMoney)}</b> privé gespaard. Laten we het hebben over uw spaargeld, en over de belasting die u erover betaalt in box 3.`)));
   if(m === 5 && !state.evasion) queueModal(evasionModal);
   if(m === 6 && !state.payslipDone) queueModal(payslipModal);
   if(m === 7 && !state.levelling) queueModal(minister2);
@@ -924,7 +979,7 @@ function aangifteModal(){
 }
 function evasionModal(){
   showModal(`<div class="tag">🤫 Een "slimme" tip</div><h2>Contant geld</h2>
-    <div class="speech"><b>Collega-ondernemer:</b> "Jij krijgt toch veel contant geld bij de catering? Als je € 4.000 daarvan gewoon niet opgeeft, scheelt dat je zo € 2.000 belasting. Niemand die het merkt…"</div>
+    ${say('cees', '"Jij krijgt toch veel contant geld bij de catering? Als je € 4.000 daarvan gewoon niet opgeeft, scheelt dat je zo € 2.000 belasting. Niemand die het merkt…"', true)}
     ${optionList('evOpts', [{ k:'yes', title:'🤫 Ik doe het', text:'Ik corrigeer mijn aangifte niet en houd het geld buiten de boeken.' }, { k:'no', title:'✋ Nee, dat doe ik niet', text:'Ik geef alles eerlijk op.' }])}
     <button class="cta" id="evGo" disabled>Bevestig mijn keuze</button>`);
   bindOptions('evOpts', 'evGo', k => {
@@ -938,7 +993,7 @@ function evasionModal(){
 }
 function payslipModal(){
   showModal(`<div class="tag">💬 Je medewerker</div><h2>Vragen over de loonstrook</h2>
-    <p>Je medewerker werkt ook bij FrisFood. Hij laat zijn loonstrook van die baan zien en snapt er niets van.</p>
+    ${say('daan', 'Ik werk naast de kraam ook nog bij FrisFood. Kijk, mijn loonstrook van die baan. Ik snap er niets van. Wat krijg ik nou eigenlijk?')}
     <div class="calc" style="font-size:14px"><b>🧾 Loonstrook (per maand)</b>
       <div class="calc-row"><span>Brutoloon</span><b>€ 1.600,00</b></div>
       <div class="calc-row"><span>− Loonheffing (loonbelasting + premies volksverzekeringen)</span><b>€ 190,00</b></div>
@@ -952,7 +1007,7 @@ function payslipModal(){
 }
 function minister2(){
   showModal(`<div class="tag">🚗 Bezoek</div><h2>${MINISTER} is er weer!</h2>
-    <div class="speech"><b>${MINISTER}:</b> "Weer een patatje met, graag. Hoe ging je aangifte? … Ik zit met een vraag. We hebben € 2 miljard over om de belasting te verlagen. Wie moet dat krijgen? Jij mag het zeggen."</div>
+    ${say('minister', `"Weer een patatje met, graag. Hoe ging je aangifte? … Ik zit met een vraag. We hebben € 2 miljard over om de belasting te verlagen. Wie moet dat krijgen? Jij mag het zeggen."`)}
     ${optionList('lvOpts', [{ k:'niv', title:'⚖️ Vooral de lage inkomens', text:'Hogere heffingskorting en huurtoeslag. De verschillen tussen inkomens worden kleiner.' }, { k:'deniv', title:'📊 Iedereen hetzelfde percentage minder', text:'Lager tarief in beide schijven. Wie meer verdient, gaat er in euro\'s meer op vooruit.' }])}
     <button class="cta" id="lvGo" disabled>Geef je advies</button>`);
   bindOptions('lvOpts', 'lvGo', k => {
@@ -965,12 +1020,12 @@ function minister2(){
         <tr><td>👨‍👩‍👧 Gezin met een modaal inkomen (<b>actief</b>)</td><td>${niv ? '+ € 310' : '+ € 280'}</td></tr>
         <tr><td>🍟 Jij, ondernemer met een hoog inkomen (<b>actief</b>)</td><td>${niv ? '+ € 40' : '+ € 950'}</td></tr></tbody></table>
       <p class="small">${niv ? 'De verschillen tussen de inkomens worden in verhouding <b>kleiner</b>: nivellering. Dat past bij het <b>draagkrachtbeginsel</b>: wie veel kan betalen, betaalt in verhouding meer.' : 'De verschillen tussen de inkomens worden in verhouding <b>groter</b>: denivellering. Je gaat er zelf het meest op vooruit.'}</p>
-      <div class="speech"><b>${MINISTER}:</b> "Lastig hè, kiezen? Er zijn trouwens steeds meer ouderen en steeds minder werkenden die de AOW betalen. Dat noemen we vergrijzing."</div>
+      ${say('minister', `"Lastig hè, kiezen? Er zijn trouwens steeds meer ouderen en steeds minder werkenden die de AOW betalen. Dat noemen we vergrijzing."`)}
       <button class="cta" id="lvNext">Verder</button>`);
     $('lvNext').onclick = () => askQuestion('🚗 De minister vraagt', { k:'herkennen', q:'Oma Ria is gepensioneerd en krijgt AOW. Is zij actief of inactief?', o:['Actief','Inactief'], a:1, e:'Inactieven zijn mensen zonder betaald werk die een uitkering ontvangen, bijvoorbeeld omdat ze boven de pensioenleeftijd zijn.' },
       () => askQuestion('🚗 De minister vraagt', { k:'redeneren', q:'Waarom is vergrijzing een probleem voor de overheid?', o:['Er komen meer inactieven per actieve: meer AOW en zorg, minder belastingbetalers','Ouderen betalen meer belasting','Er komen meer scholen','De btw stijgt vanzelf'], a:0, e:'Bij vergrijzing stijgt het aandeel ouderen. Er zijn meer mensen met AOW en meer zorgkosten, terwijl het aantal werkenden dat premie en belasting betaalt niet meegroeit.' },
         () => askQuestion('🚗 De minister vraagt', { k:'herkennen', q:'Voor een nieuwe tunnel betalen automobilisten tol. Welk beginsel is dat?', o:['Draagkrachtbeginsel','Profijtbeginsel','Solidariteitsbeginsel','Progressief tarief'], a:1, e:'Je betaalt voor het gebruik van iets wat de overheid levert: het profijtbeginsel. Bij de inkomstenbelasting geldt het draagkrachtbeginsel.' },
-          () => simpleModal('🚗 Tot ziens', `${MINISTER} gaat weer`, `<div class="speech"><b>${MINISTER}:</b> "Dank je wel voor je advies, en voor de patat! Wie weet tot ziens."</div>`, 'Terug naar mijn kraam'))));
+          () => simpleModal('🚗 Tot ziens', `${MINISTER} gaat weer`, `${say('minister', `"Dank je wel voor je advies, en voor de patat! Wie weet tot ziens."`)}`, 'Terug naar mijn kraam'))));
   });
 }
 function reportExtras2(h){
@@ -996,7 +1051,7 @@ function endReport2(){
   const net = totalNet(), stars = starsFor(net), f = state.aangifte;
   const rente = Math.round(state.priveMoney * (0.015 + state.interestAdj) * 8 / 12);
   showModal(`<div class="tag">🏁 Eindrapport deel 2${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Iedereen betaalt belasting</h2>
-    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>${starsBanner(stars)}
     <div class="report-grid">
       <div class="kpi"><div class="k">Nettoresultaat kraam (jan–aug)</div><div class="v">${eur(net)}</div></div>
       <div class="kpi"><div class="k">Privé spaargeld (+ rente)</div><div class="v">${eur0(state.priveMoney + rente)}</div></div>
@@ -1010,7 +1065,10 @@ function endReport2(){
       <tr><td>⚖️ Advies aan de minister</td><td>${state.levelling === 'niv' ? 'Nivelleren' : state.levelling === 'deniv' ? 'Denivelleren' : '–'}</td></tr>
     </tbody></table>
     <p class="small muted">Je resultaten zijn opgeslagen. Goed gedaan: je hebt hoofdstuk 5 én 6 doorlopen!</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu2">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport2);
+  if(stars) celebrateDay({ kind:'star' });
   $('endMenu2').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1055,11 +1113,14 @@ function reportModal(h){
     ${h.subsidy ? `<div class="calc-row"><span>+ Subsidie zuinige frituur</span><b>${eur(h.subsidy)}</b></div>` : ''}
     <div class="calc-row total"><span>= Nettoresultaat</span><b style="color:var(--${h.net >= 0 ? 'good' : 'bad'})">${eur(h.net)}</b></div>
     <div class="small muted" style="margin-top:6px">${h.days} schooldagen · in de kassa zat ${eur(h.revenue + h.btwTotal)}, waarvan ${eur(h.btwTotal)} btw voor de Belastingdienst.</div>`;
-  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: nettoresultaat ${eur(h.net)}</h2>
+  const cel = celebration(h);
+  showModal(`<div class="tag">📊 Maandrapport</div><h2>${Mcap(m)}: nettoresultaat ${eur(h.net)}</h2>${cel.html}
+    <div id="repScene" class="rep-scene"></div>
     <div class="report-grid"><div class="kpi"><div class="k">Klanten per dag (vraag)</div><div class="v">${h.wantDay}</div></div>
       <div class="kpi"><div class="k">Porties deze maand (afzet)</div><div class="v">${h.sold.toLocaleString('nl-NL')}</div></div></div>
     <div class="calc">${calc}</div>${parts.join('')}
     <button class="cta" id="nextBtn">${m >= lastMonth() ? 'Afsluiten 🏁' : 'Volgende maand ➡️'}</button>`);
+  showSceneIn($('repScene')); celebrateDay(cel);
   const nb = $('nextBtn'), label = nb.textContent; let left = REPORT_READ_SECONDS;
   nb.disabled = true; nb.classList.add('wait'); nb.textContent = `📖 Lees je maandrapport… ${left}`;
   const iv = setInterval(() => { left--; if(left > 0){ nb.textContent = `📖 Lees je maandrapport… ${left}`; return; } clearInterval(iv); nb.disabled = false; nb.classList.remove('wait'); nb.textContent = label; }, 1000);
@@ -1094,6 +1155,7 @@ function runCalendar(h, done){
   ov.classList.add('show'); ov.setAttribute('aria-hidden', 'false'); ov.style.background = 'rgba(120,94,36,.5)';
   $('liveServed').textContent = '0'; $('liveWalk').textContent = '0'; $('liveRev').textContent = eur(0); $('liveFull').textContent = '';
   $('clockText').textContent = `📅 ${Mcap(h.month)}`; $('clockSub').textContent = `${h.days} schooldagen · economie: ${ECON_LABEL[part][h.month - 1]}`;
+  pleinInit(h);
   // alle dagen van de maand lopen gelijkmatig voorbij; op schooldagen wordt er verkocht
   const start = performance.now();
   let shown = 0, doneDays = 0;
@@ -1111,8 +1173,9 @@ function runCalendar(h, done){
     $('liveWalk').textContent = ((h.wantDay - h.soldDay) * doneDays).toLocaleString('nl-NL');
     $('liveRev').textContent = eur(h.soldDay * doneDays * h.price);
     if(h.wantDay > h.soldDay && doneDays) $('liveFull').textContent = `⚠️ Elke dag lopen er klanten weg: je kunt maar ${h.cap} porties per dag maken.`;
+    pleinUpdate(t, h.soldDay * doneDays, (h.wantDay - h.soldDay) * doneDays, 30 * doneDays);
     if(t < 1) requestAnimationFrame(frame);
-    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; done(); }, 700);
+    else setTimeout(() => { ov.classList.remove('show'); ov.setAttribute('aria-hidden', 'true'); clockRunning = false; pleinStop(); done(); }, 700);
   }
   requestAnimationFrame(frame);
 }
@@ -1127,7 +1190,7 @@ function endReport1(){
   const q = id => state.quiz[id] ? `${state.quiz[id].correct}/4` : '–';
   const names = MEASURES.filter(x => state.advice.includes(x.k)).map(x => x.title).join('<br>');
   showModal(`<div class="tag">🏁 Eindrapport deel 1${session.student ? ' – ' + escapeHtml(session.student.name) : ''}</div><h2>Hoe werkt de overheid?</h2>
-    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+    <div class="stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>${starsBanner(stars)}
     <div class="report-grid">
       <div class="kpi"><div class="k">Jaarwinst (totaal nettoresultaat)</div><div class="v">${eur(net)}</div></div>
       <div class="kpi"><div class="k">In kas</div><div class="v">${eur(state.money)}</div></div>
@@ -1141,7 +1204,10 @@ function endReport1(){
       <tr><td>📉 Begrotingstekort na jouw advies</td><td>${state.deficitAfter != null ? `€ ${state.deficitAfter} miljard ${state.deficitAfter <= 10 ? '✅ gehalveerd' : '❌ niet gehalveerd'}` : '–'}</td></tr>
     </tbody></table>
     <p class="small">💡 Over deze jaarwinst moet je in het voorjaar <b>inkomstenbelasting</b> betalen. Dat doe je in deel 2.</p>
+    <button class="ghost" style="width:100%;margin-top:8px" id="certBtn">🏅 Bekijk je oorkonde</button>
     <button class="cta" id="endMenu">Terug naar het menu</button>`);
+  $('certBtn').onclick = () => certificateModal(endReport1);
+  if(stars) celebrateDay({ kind:'star' });
   $('endMenu').onclick = () => { modalQueue = []; $('overlay').classList.add('hidden'); openMenu(); };
 }
 
@@ -1183,7 +1249,7 @@ function render(){
   $('investInfo').innerHTML = `<table><tbody>
     <tr><td>Productiecapaciteit</td><td>${s.capacity} porties per dag</td></tr>
     <tr><td>Werkenden</td><td>${s.workers === 2 ? '2 (jij en je medewerker)' : '1 (jij)'}</td></tr>
-    <tr><td>Concurrenten</td><td>SnackPoint (${eur(COMPETITOR_PRICE)})${part === 2 || state.month >= 3 ? ' + kantine FrisFood' : ''}</td></tr>
+    <tr><td>Concurrenten</td><td>Cees Patat (${eur(COMPETITOR_PRICE)})${part === 2 || state.month >= 3 ? ' + kantine FrisFood' : ''}</td></tr>
     ${part === 1 && state.advice.length ? `<tr><td>Jouw advies</td><td>${MEASURES.filter(x => has(x.k)).map(x => x.title.split(' ')[0]).join(' ')}</td></tr>` : ''}
     ${part === 2 && state.busPrivate != null ? `<tr><td>Bestelbus</td><td>${state.busPrivate ? 'ook privé (bijtelling)' : 'alleen zakelijk'}</td></tr>` : ''}
     ${part === 2 ? `<tr><td>Privé spaargeld</td><td>${eur0(state.priveMoney)}</td></tr>` : ''}
@@ -1205,6 +1271,7 @@ function render(){
   $('terms').innerHTML = state.concepts.length ? state.concepts.map(k => `<span class="term ${CONCEPTS[k].t === 'v' ? 'vk' : ''}" data-k="${k}">${CONCEPTS[k].title}</span>`).join('') : '<span class="small muted">Nog geen begrippen.</span>';
   document.querySelectorAll('.term').forEach(t => t.onclick = () => queueModal(() => conceptModal(t.dataset.k)));
   renderChart();
+  renderStall();
 }
 function renderChart(){
   const N = lastMonth(), W = 420, H = 226, pad = { l:50, r:10, t:34, b:26 };
@@ -1291,7 +1358,7 @@ function startPart(n, saved, d1){
 }
 function intro1(){
   showModal(`<div class="tag">Snack Empire · Game 3 · Deel 1</div><h2>🏛️ Hoe werkt de overheid?</h2>
-    <p>Je bent 25 en je snackkraam op het schoolplein loopt goed: een moderne frituur, een medewerker en vaste klanten. SnackPoint aan de overkant is je concurrent.</p>
+    <p>Je bent 25 en je snackkraam op het schoolplein loopt goed: een moderne frituur, een medewerker en vaste klanten. Cees Patat aan de overkant is je concurrent.</p>
     <p>Dit spel duurt <b>een heel jaar</b>. Elke beurt is een maand. Je merkt hoe de <b>economie</b> en de <b>overheid</b> je kraam raken. En halverwege het jaar krijg je bijzonder bezoek…</p>
     <div class="msg warn"><b>🎯 Doel:</b> een zo hoog mogelijke jaarwinst (nettoresultaat).<br>⭐ ${eur0(GOALS[1][0])} &nbsp; ⭐⭐ ${eur0(GOALS[1][1])} &nbsp; ⭐⭐⭐ ${eur0(GOALS[1][2])}</div>
     <button class="cta" id="startBtn">Start het jaar 🚀</button>`);
@@ -1343,6 +1410,419 @@ function teacherTest(n){
   try{ localStorage.removeItem(LOCAL_KEY + KEY1); localStorage.removeItem(LOCAL_KEY + KEY2); }catch(e){}
   startPart(n, null, null);
 }
+
+
+// =====================================================================
+// BEELD in HD-2D: pixel-art met diepte en licht
+// (alleen weergave – verandert niets aan de spelregels of de opslag)
+// =====================================================================
+const VW = 320, VH = 180, VS = 2;
+
+// ---------- kleuren en hulpjes ----------
+function hexToRgb(h){ const n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function rgbToHex(r, g, b){ return '#' + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1); }
+function mixHex(a, b, f){ const x = hexToRgb(a), y = hexToRgb(b); return rgbToHex(x[0] + (y[0] - x[0]) * f, x[1] + (y[1] - x[1]) * f, x[2] + (y[2] - x[2]) * f); }
+function shade(hex, f){ return mixHex(hex, f < 0 ? '#000000' : '#ffffff', Math.abs(f)); }
+function px(c, x, y, w, h, col){ c.fillStyle = col; c.fillRect(Math.round(x), Math.round(y), w, h); }
+function sprite(c, rows, pal, x, y, flip){
+  rows.forEach((r, j) => { for(let i = 0; i < r.length; i++){ const ch = r[flip ? r.length - 1 - i : i]; if(ch !== '.' && pal[ch]) px(c, x + i, y + j, 1, 1, pal[ch]); } });
+}
+const FONT = { P:['111','101','111','100','100'], A:['010','101','111','101','101'], T:['111','010','010','010','010'], C:['011','100','100','100','011'], E:['111','100','110','100','111'],
+  S:['011','100','010','001','110'], G:['011','100','101','101','011'], L:['100','100','100','100','111'], O:['010','101','101','101','010'], N:['101','111','111','111','101'],
+  '0':['111','101','101','101','111'], '1':['010','110','010','010','111'], '2':['111','001','111','100','111'], '3':['111','001','011','001','111'], '4':['101','101','111','001','001'],
+  '5':['111','100','111','001','111'], '6':['111','100','111','101','111'], '7':['111','001','010','010','010'], '8':['111','101','111','101','111'], '9':['111','101','111','001','111'],
+  ',':['000','000','000','010','100'], '€':['011','100','111','100','011'], ' ':['000','000','000','000','000'] };
+function ptext(c, s, x, y, col){ let cx = x; for(const ch of s){ const g = FONT[ch]; if(g) g.forEach((r, j) => [...r].forEach((b, i) => { if(b === '1') px(c, cx + i, y + j, 1, 1, col); })); cx += 4; } }
+const priceLabel = p => '€' + p.toFixed(2).replace('.', ',');
+
+// ---------- poppetjes ----------
+const PERSON = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.cccccc.','cCccccCc','cCccccCc','sCccccCs','.cccccc.','.pppppp.','.pp..pp.','.pp..pp.','.bb..bb.'];
+const PERSON_WALK = [...PERSON.slice(0, 12), '.pp.pp..', 'pp...pp.', 'bb....bb'];
+const BUST = ['..hhhh..','.hhhhhh.','.hsssshh','.sesses.','.ssssss.','..sDss..','.aawwaa.','aawwwwaa','aawwwwaa'];
+const CAP = ['.kkkkkk.','kkkkkkkkk'];
+const CROWD = [
+  { h:'#3b2618', s:'#e9b98b', c:'#2f6fb3', C:'#245a93', p:'#2b2f3a' }, { h:'#151515', s:'#8d5a3b', c:'#c0453a', C:'#9c3530', p:'#3a3a46' },
+  { h:'#c89b3c', s:'#f2c9a0', c:'#2f9e6b', C:'#227a52', p:'#2d3442' }, { h:'#5a2f1b', s:'#c98d5c', c:'#8b55c7', C:'#6c40a0', p:'#2b2f3a' },
+  { h:'#1d1d1d', s:'#f0c39a', c:'#e0a12b', C:'#b98317', p:'#353a48' }, { h:'#7a3b1b', s:'#a8714a', c:'#d9536b', C:'#b23f55', p:'#2b2f3a' },
+  { h:'#2a1a10', s:'#e3a77a', c:'#3aa3a3', C:'#2a8080', p:'#3a3a46' }, { h:'#d7b46a', s:'#f6d2b0', c:'#e76f51', C:'#c3563c', p:'#2d3442' }
+];
+const WORKER_LOOK = { daan:{ h:'#e3c25a', s:'#f1c27d' }, lotte:{ h:'#7c4a1e', s:'#ffe0bd' }, samira:{ h:'#1c1917', s:'#c68642' }, peter:{ h:'#a3a3a3', s:'#ffdbac' }, ahmed:{ h:'#151515', s:'#a0663c' } };
+const palOf = p => ({ h:p.h, s:p.s, e:'#1b1410', D:shade(p.s, -.18), c:p.c, C:p.C, p:p.p, b:'#1a1512' });
+
+// ---------- licht door de dag ----------
+const LIGHT_KEYS = [
+  { t:0,   sky0:'#2b3a67', sky1:'#f3a46b', sun:[18, 96], sunA:.6, light:[255,170,110], shadow:[2.2,.5], lamp:.55, ground:'#a99887', win:1 },
+  { t:.3,  sky0:'#f3b27a', sky1:'#fde2bd', sun:[60, 42], sunA:1, light:[255,195,120], shadow:[1.6,.6], lamp:.25, ground:'#c9b7a2', win:0 },
+  { t:.5,  sky0:'#5fb4ea', sky1:'#d6eefb', sun:[165, 18], sunA:1, light:[255,245,205], shadow:[.2,.35], lamp:.15, ground:'#cfc6ba', win:0 },
+  { t:.78, sky0:'#c4607a', sky1:'#f6b36b', sun:[290, 70], sunA:1, light:[255,140,85], shadow:[-1.9,.55], lamp:.45, ground:'#b9a08f', win:1 },
+  { t:1,   sky0:'#0f1a33', sky1:'#2d3c66', sun:[318, 110], sunA:0, light:[170,190,255], shadow:[0,.2], lamp:.85, ground:'#5d6070', win:1 }
+];
+function lightAt(t, weather){
+  let a = LIGHT_KEYS[0], b = LIGHT_KEYS[LIGHT_KEYS.length - 1];
+  for(let i = 1; i < LIGHT_KEYS.length; i++) if(t <= LIGHT_KEYS[i].t){ a = LIGHT_KEYS[i - 1]; b = LIGHT_KEYS[i]; break; }
+  const f = b.t === a.t ? 0 : (t - a.t) / (b.t - a.t), m = (x, y) => x + (y - x) * f;
+  const L = { sky0: mixHex(a.sky0, b.sky0, f), sky1: mixHex(a.sky1, b.sky1, f), sun: [m(a.sun[0], b.sun[0]), m(a.sun[1], b.sun[1])], sunA: m(a.sunA, b.sunA),
+    light: a.light.map((v, i) => m(v, b.light[i])), shadow: [m(a.shadow[0], b.shadow[0]), m(a.shadow[1], b.shadow[1])], lamp: m(a.lamp, b.lamp), ground: mixHex(a.ground, b.ground, f), win: m(a.win, b.win), weather };
+  if(weather === 'rain'){ Object.assign(L, { sky0: mixHex('#4f5966', L.sky0, .15), sky1: mixHex('#8f99a5', L.sky1, .15), sunA: 0, light:[200,215,235], shadow:[0,.2], lamp: Math.max(.5, L.lamp), ground: mixHex('#7f868d', L.ground, .2), win: 1 }); }
+  if(weather === 'cold'){ Object.assign(L, { sky0: mixHex('#a9c7e4', L.sky0, .25), sky1: mixHex('#eef5fb', L.sky1, .25), sunA: L.sunA * .5, light:[220,235,255], ground: mixHex('#e4e9ee', L.ground, .2), lamp: Math.max(.4, L.lamp) }); }
+  return L;
+}
+const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+
+// ---------- een scène (kraam op het plein) ----------
+function createScene(root){
+  root.innerHTML = `<div class="hd"><canvas class="hd-bg" width="${VW}" height="${VH}"></canvas><canvas class="hd-mid" width="${VW}" height="${VH}"></canvas><canvas class="hd-fx" width="${VW * VS}" height="${VH * VS}"></canvas><canvas class="hd-fg" width="${VW}" height="${VH}"></canvas><div class="hd-vig"></div></div>`;
+  const el = root.querySelector('.hd'), [cb, cm, cf, cg] = ['bg', 'mid', 'fx', 'fg'].map(k => root.querySelector('.hd-' + k));
+  const bg = cb.getContext('2d'), mid = cm.getContext('2d'), fx = cf.getContext('2d'), fg = cg.getContext('2d');
+  [bg, mid, fg].forEach(c => c.imageSmoothingEnabled = false);
+  const S = { el, t:.45, weather:null, people:[], running:false, raf:0, last:0, steam:[], motes: Array.from({ length:30 }, () => ({ x: Math.random() * VW, y: Math.random() * 130, v: .5 + Math.random(), p: Math.random() * 6.28 })),
+    flakes: Array.from({ length:120 }, () => ({ x: Math.random() * VW, y: Math.random() * VH, v: 140 + Math.random() * 90 })), px:0, py:0, cx:0, cy:0, opts:{}, glints:[], cashCoins:[], cash:0, flash:0, items:null, lastPrice:null };
+  el.addEventListener('pointermove', e => { const r = el.getBoundingClientRect(); S.px = (e.clientX - r.left) / r.width - .5; S.py = (e.clientY - r.top) / r.height - .5; });
+  el.addEventListener('pointerleave', () => { S.px = 0; S.py = 0; });
+
+  function drawBg(L, time){
+    const g = bg.createLinearGradient(0, 0, 0, 120); g.addColorStop(0, L.sky0); g.addColorStop(1, L.sky1); bg.fillStyle = g; bg.fillRect(0, 0, VW, VH);
+    if(L.sunA > .02){ bg.globalAlpha = L.sunA; const [sx, sy] = L.sun, sc = rgbToHex(...L.light.map(v => Math.min(255, v + 20)));
+      for(let r = 10; r > 0; r--){ bg.fillStyle = r > 8 ? shade(sc, -.05) : sc; bg.beginPath(); bg.arc(sx, sy, r, 0, 7); bg.fill(); } bg.globalAlpha = 1; }
+    if(L.win > .6 && L.weather !== 'rain') for(let i = 0; i < 30; i++){ px(bg, (i * 53) % VW, (i * 29) % 60, 1, 1, `rgba(255,255,255,${(L.win - .6) * 1.5})`); }
+    const cloud = L.weather === 'rain' ? '#6f7a86' : mixHex('#ffffff', L.sky0, .25);
+    [[30, 22, 26], [150, 14, 34], [230, 34, 22]].forEach(([x, y, w], i) => { const xx = ((x + time * (2 + i)) % (VW + 60)) - 30;
+      px(bg, xx, y, w, 5, cloud); px(bg, xx + 5, y - 4, w - 10, 4, cloud); px(bg, xx + 3, y + 5, w - 6, 2, shade(cloud, -.08)); });
+    const tree = mixHex(L.weather === 'cold' ? '#5f7f6a' : '#3f7a4a', L.sky0, .25);
+    for(let x = 0; x < VW; x += 6){ const hh = 10 + Math.round(Math.sin(x * .19) * 4 + Math.sin(x * .07) * 5); px(bg, x, 118 - hh, 6, hh + 10, tree); px(bg, x, 118 - hh, 6, 2, L.weather === 'cold' ? '#f3f6f9' : shade(tree, .18)); }
+    const brick = mixHex('#a85a3f', L.sky0, .2);
+    px(bg, 6, 56, 92, 74, brick); px(bg, 4, 52, 96, 5, shade(brick, -.25));
+    for(let y = 60; y < 128; y += 4) for(let x = 6 + ((y / 4) % 2) * 3; x < 98; x += 7) px(bg, x, y, 1, 1, shade(brick, -.12));
+    const lit = L.win > .5;
+    for(let r = 0; r < 3; r++) for(let c = 0; c < 4; c++){ const wx = 13 + c * 21, wy = 64 + r * 20; px(bg, wx, wy, 12, 12, '#2c3e50'); px(bg, wx + 1, wy + 1, 10, 10, lit && (r + c) % 3 ? '#f8d58a' : mixHex('#bfe3f3', L.sky0, .3)); px(bg, wx + 6, wy + 1, 1, 10, '#2c3e50'); px(bg, wx + 1, wy + 6, 10, 1, '#2c3e50'); }
+    px(bg, 42, 110, 16, 20, '#4b2a1d'); px(bg, 43, 111, 14, 1, '#6b3e2a');
+  }
+  function stall(L, o, time){
+    const wood = '#6b3b22';
+    px(mid, 128, 72, 3, 78, wood); px(mid, 205, 72, 3, 78, wood); px(mid, 129, 72, 1, 78, '#8a5131');
+    px(mid, 131, 86, 74, 34, '#6b3f26'); px(mid, 131, 86, 74, 2, '#4e2c1a'); for(let y = 92; y < 118; y += 5) px(mid, 131, y, 74, 1, '#5c341f');
+    px(mid, 136, 90, 16, 6, '#f3dfb4'); px(mid, 137, 91, 14, 1, '#c62828'); px(mid, 137, 93, 10, 1, '#3b1d10');
+    if(o.owner){
+      const turn = (time % 3.2) > 2.2, ox = turn ? 147 : 142, oy = 105 + ((time % 3.2) > 2.5 && (time % 3.2) < 2.9 ? -1 : 0);
+      sprite(mid, BUST, { h:'#3b2618', s:'#e9b98b', e:'#1b1410', D:'#cf9c70', a:'#d66a1f', w:'#f3efe6' }, ox, oy); sprite(mid, CAP, { k:'#b33b2a' }, ox, oy - 2);
+      if((time % 5.1) < .12){ px(mid, ox + 2, oy + 3, 1, 1, '#e9b98b'); px(mid, ox + 5, oy + 3, 1, 1, '#e9b98b'); }
+      // een puntzak patat gaat van de frituur naar de toonbank
+      if(!o.closed){ const f = (time % 3.2) / 3.2;
+        if(f > .35 && f < .7){ const k = (f - .35) / .35, x = 186 - k * 34, y = 110 - Math.sin(k * Math.PI) * 6; px(mid, x, y + 2, 4, 4, '#d9581f'); px(mid, x, y, 4, 2, '#fcd34d'); }
+        else if(f >= .7 && f < .95){ px(mid, 150, 114, 4, 4, '#d9581f'); px(mid, 150, 112, 4, 2, '#fcd34d'); } } }
+    if(o.worker){ const w = WORKER_LOOK[o.worker] || WORKER_LOOK.daan, wy = 106 + ((time % 2.4) < .3 ? -1 : 0);
+      sprite(mid, BUST, { h:w.h, s:w.s, e:'#1b1410', D:shade(w.s, -.18), a:'#0f8a7e', w:'#f3efe6' }, 160, wy);
+      if(((time + 1.7) % 4.6) < .12){ px(mid, 162, wy + 3, 1, 1, w.s); px(mid, 165, wy + 3, 1, 1, w.s); } }
+    if(o.fryer === 'modern'){ px(mid, 176, 104, 24, 15, '#a9b4bd'); px(mid, 176, 104, 24, 2, '#e1e7ec'); px(mid, 178, 107, 20, 3, '#1f2328'); px(mid, 180, 108, 6, 1, '#4ade80'); px(mid, 196, 114, 2, 2, '#4ade80'); }
+    else if(o.fryer === 'used'){ px(mid, 178, 107, 20, 12, '#8f9aa3'); px(mid, 178, 107, 20, 1, '#b8c1c8'); px(mid, 180, 110, 16, 3, '#2a2f35'); px(mid, 194, 115, 2, 2, '#e24a3b'); }
+    else { px(mid, 182, 112, 14, 6, '#4b4f55'); px(mid, 182, 112, 14, 1, '#6b7078'); px(mid, 196, 114, 6, 1, '#3a3d42'); }
+    px(mid, 125, 118, 86, 4, '#4a2617'); px(mid, 125, 118, 86, 1, '#7a4429');
+    px(mid, 127, 122, 82, 28, '#d9581f'); for(let y = 128; y < 150; y += 6) px(mid, 127, y, 82, 1, '#b8461a'); px(mid, 127, 122, 82, 1, '#ef7a3c');
+    for(let i = 0; i < 14; i++){ const x = 124 + i * 6, col = i % 2 ? '#f6ead5' : '#ef6c2c';
+      px(mid, x, 66, 6, 12, col); px(mid, x, 66, 6, 1, shade(col, .2)); px(mid, x, 76, 6, 2, shade(col, -.15)); if(i % 2 === 0) px(mid, x + 1, 78, 4, 2, shade(col, -.1)); }
+    px(mid, 146, 54, 46, 11, '#3b1d10'); px(mid, 146, 54, 46, 1, '#5a2d18'); px(mid, 150, 65, 2, 2, wood); px(mid, 186, 65, 2, 2, wood);
+    ptext(mid, 'PATAT', 159, 57, '#fcd34d');
+    if(o.price != null){ px(mid, 186, 130, 26, 11, '#1f2328'); ptext(mid, priceLabel(o.price), 188, 133, '#fde68a');
+      if(S.flash > 0){ const a = Math.min(1, S.flash); mid.strokeStyle = `rgba(253,224,71,${a})`; mid.lineWidth = 1; mid.strokeRect(184.5, 128.5, 29, 14); } }
+    if(o.sauce){ px(mid, 134, 111, 4, 7, '#c62828'); px(mid, 135, 109, 2, 2, '#f2c94c'); }
+    if(o.paper){ px(mid, 140, 112, 8, 6, '#f3efe6'); px(mid, 141, 113, 6, 1, '#16a34a'); px(mid, 141, 115, 4, 1, '#16a34a'); }
+    if(o.kassa){ px(mid, 166, 112, 10, 6, '#374151'); px(mid, 167, 110, 8, 3, '#4b5563'); px(mid, 168, 111, 3, 1, '#4ade80'); }
+    if(o.closed){ px(mid, 132, 96, 72, 15, '#1f2328'); px(mid, 132, 96, 72, 1, '#3a3f46'); ptext(mid, 'GESLOTEN', 152, 101, '#f87171'); }
+  }
+  function compStall(o){
+    const x0 = 250, wood = '#5a2a1c';
+    px(mid, x0, 92, 2, 58, wood); px(mid, x0 + 56, 92, 2, 58, wood);
+    px(mid, x0 + 2, 102, 54, 22, '#5d3a2a');
+    if(o.compOwner) sprite(mid, BUST, { h:'#4a3020', s:'#eab28c', e:'#1b1410', D:'#c98f68', a:'#c0262d', w:'#f3efe6' }, x0 + 22, 114);
+    px(mid, x0 - 2, 122, 62, 3, '#3b1a12'); px(mid, x0, 125, 58, 25, '#b91c1c'); for(let y = 131; y < 150; y += 6) px(mid, x0, y, 58, 1, '#991b1b'); px(mid, x0, 125, 58, 1, '#e04848');
+    for(let i = 0; i < 10; i++){ const col = i % 2 ? '#f8f1e7' : '#d72631'; px(mid, x0 - 2 + i * 6, 86, 6, 9, col); px(mid, x0 - 2 + i * 6, 93, 6, 2, shade(col, -.15)); }
+    px(mid, x0 + 4, 74, 50, 10, '#2a0f0b'); ptext(mid, 'CEES PATAT', x0 + 9, 76, '#fde68a');
+    px(mid, x0 + 30, 134, 26, 11, '#1f2328'); ptext(mid, priceLabel(o.compPrice), x0 + 32, 137, '#fde68a');
+  }
+  function person(L, x, y, p, flip, time, walking, extra){
+    const [sdx, sdy] = L.shadow;
+    mid.fillStyle = 'rgba(25,18,14,.3)'; mid.beginPath(); mid.ellipse(x + 4 + sdx * 4, y + 15 + sdy * 2, 4 + Math.abs(sdx) * 3, 2, 0, 0, 7); mid.fill();
+    const step = walking && Math.floor(time * 7 + x * .05) % 2;
+    sprite(mid, step ? PERSON_WALK : PERSON, palOf(p), Math.round(x), y - (step ? 1 : 0), flip);
+    if(extra === 'fries'){ px(mid, x + (flip ? -1 : 7), y + 8, 3, 3, '#d9581f'); px(mid, x + (flip ? -1 : 7), y + 6, 3, 2, '#fcd34d'); }
+    if(extra === 'angry'){ px(mid, x + 3, y - 6, 2, 3, '#ef4444'); px(mid, x + 3, y - 2, 2, 1, '#ef4444'); }
+  }
+  function drawMid(L, time, dt){
+    const o = S.opts;
+    mid.clearRect(0, 0, VW, VH);
+    const tile = shade(L.ground, -.08);
+    px(mid, 0, 128, VW, 52, L.ground);
+    for(let y = 128; y < VH; y += 7){ px(mid, 0, y, VW, 1, tile); for(let x = ((y / 7) % 2) * 6; x < VW; x += 12) px(mid, x, y, 1, 7, tile); }
+    if(L.weather === 'rain') for(let i = 0; i < 9; i++){ const x = (i * 41 + 13) % VW, y = 140 + (i * 17) % 34; px(mid, x, y, 14, 2, shade(L.ground, .18)); px(mid, x + 3, y + 2, 8, 1, shade(L.ground, .3)); }
+    if(L.weather === 'cold') for(let i = 0; i < 14; i++){ const x = (i * 29 + 7) % VW, y = 132 + (i * 11) % 44; px(mid, x, y, 6 + (i % 3) * 3, 2, '#f8fbff'); }
+    const [sdx, sdy] = L.shadow;
+    mid.fillStyle = 'rgba(25,18,14,.26)'; mid.beginPath(); mid.moveTo(124, 150); mid.lineTo(212, 150); mid.lineTo(212 + 60 * sdx, 150 + 22 * sdy); mid.lineTo(124 + 60 * sdx, 150 + 22 * sdy); mid.closePath(); mid.fill();
+    if(o.competitor){ mid.beginPath(); mid.moveTo(248, 150); mid.lineTo(308, 150); mid.lineTo(308 + 40 * sdx, 150 + 16 * sdy); mid.lineTo(248 + 40 * sdx, 150 + 16 * sdy); mid.closePath(); mid.fill(); compStall(o); }
+    stall(L, o, time);
+    if(o.car){ const cx = 20, cy = 150;
+      px(mid, cx, cy - 10, 54, 12, '#111827'); px(mid, cx + 10, cy - 19, 30, 10, '#111827'); px(mid, cx + 13, cy - 17, 11, 7, '#475569'); px(mid, cx + 26, cy - 17, 11, 7, '#475569');
+      px(mid, cx + 2, cy - 6, 50, 1, '#334155'); px(mid, cx + 6, cy, 9, 5, '#030712'); px(mid, cx + 39, cy, 9, 5, '#030712'); px(mid, cx + 51, cy - 8, 3, 2, '#fde68a'); px(mid, cx, cy - 8, 2, 2, '#ef4444');
+      px(mid, cx + 4, cy - 22, 1, 4, '#9ca3af'); px(mid, cx + 5, cy - 22, 4, 2, '#ef4444'); px(mid, cx + 5, cy - 20, 4, 1, '#fff'); px(mid, cx + 5, cy - 19, 4, 1, '#1d4ed8'); }
+    if(o.van){ const vx = 222, vy = 150;
+      px(mid, vx, vy - 20, 30, 20, '#f8fafc'); px(mid, vx + 30, vy - 13, 10, 13, '#f8fafc'); px(mid, vx + 31, vy - 12, 7, 5, '#93c5fd'); px(mid, vx, vy - 20, 30, 1, '#e2e8f0');
+      ptext(mid, 'PATAT', vx + 5, vy - 14, '#ea580c'); px(mid, vx + 4, vy, 8, 4, '#111827'); px(mid, vx + 28, vy, 8, 4, '#111827'); }
+    if(o.kiosk){ px(mid, 213, 116, 10, 34, '#1f2328'); px(mid, 214, 117, 8, 1, '#3a3f46'); px(mid, 215, 119, 6, 9, '#38bdf8'); px(mid, 216, 122, 4, 2, '#fcd34d'); px(mid, 216, 131, 4, 1, '#4b5563'); }
+    if(o.bins){ px(mid, 109, 134, 9, 15, '#2f6b45'); px(mid, 108, 132, 11, 3, '#24563a'); px(mid, 111, 137, 1, 10, '#3f8a5a'); }
+    if(o.litter) for(let i = 0; i < 12; i++){ const x = (i * 47 + 30) % 300 + 6, y = 152 + (i * 13) % 24; px(mid, x, y, 3, 2, '#f5f5f4'); px(mid, x + 1, y + 2, 1, 1, '#d6d3d1'); }
+    if(o.queue){
+      // de rij schuift op: de voorste krijgt patat en loopt weg, achteraan sluit iemand aan
+      const P = 4, c = time / P, k = Math.floor(c), f = c - k, m = Math.min(1, f / .35), slot = [90, 76, 62];
+      const look = j => CROWD[((o.seed + j) % CROWD.length + CROWD.length) % CROWD.length];
+      if(m < 1){ const x = 90 - 18 * m, y = 137 + 26 * m; person(L, x, y, look(k - 1), true, time, true, 'fries'); }
+      const N = o.queueN || 3;
+      for(let i = 0; i < N; i++){ const from = i < N - 1 ? slot[i + 1] : 40, x = from + (slot[i] - from) * m; person(L, x, 136 + ((k + i) % 2), look(k + i), false, time, m < 1); }
+    }
+    S.people.forEach(p => { if(!p.gone) person(L, p.x, p.y, CROWD[p.look % CROWD.length], p.dir < 0, time, p.phase !== 'wait', p.extra); });
+  }
+  function drawFx(L, time, dt){
+    const W = VW * VS, H = VH * VS, o = S.opts;
+    fx.clearRect(0, 0, W, H);
+    if(L.sunA > .02){
+      const [sx, sy] = L.sun, g = fx.createRadialGradient(sx * VS, sy * VS, 0, sx * VS, sy * VS, 160 * VS);
+      g.addColorStop(0, rgba(L.light, .5 * L.sunA)); g.addColorStop(.3, rgba(L.light, .14 * L.sunA)); g.addColorStop(1, rgba(L.light, 0));
+      fx.fillStyle = g; fx.fillRect(0, 0, W, H);
+      fx.save(); fx.globalAlpha = (.09 + Math.sin(time * .6) * .03) * L.sunA;
+      const base = Math.atan2(140 - sy, 168 - sx);
+      for(let i = 0; i < 5; i++){ const a = base + (i - 2) * .14 + Math.sin(time * .2 + i) * .02;
+        fx.beginPath(); fx.moveTo(sx * VS, sy * VS); fx.lineTo((sx + Math.cos(a - .03) * 420) * VS, (sy + Math.sin(a - .03) * 420) * VS); fx.lineTo((sx + Math.cos(a + .03) * 420) * VS, (sy + Math.sin(a + .03) * 420) * VS); fx.closePath(); fx.fillStyle = rgba(L.light, 1); fx.fill(); }
+      fx.restore();
+    }
+    const lg = fx.createRadialGradient(168 * VS, 100 * VS, 0, 168 * VS, 100 * VS, 55 * VS);
+    lg.addColorStop(0, `rgba(255,190,100,${L.lamp})`); lg.addColorStop(1, 'rgba(255,170,80,0)'); fx.fillStyle = lg; fx.fillRect(0, 0, W, H);
+    if(o.competitor){ const cg = fx.createRadialGradient(279 * VS, 112 * VS, 0, 279 * VS, 112 * VS, 30 * VS); cg.addColorStop(0, `rgba(255,160,120,${L.lamp * .6})`); cg.addColorStop(1, 'rgba(255,160,120,0)'); fx.fillStyle = cg; fx.fillRect(0, 0, W, H); }
+    if(!o.closed){ const rate = o.fryer === 'modern' ? .7 : o.fryer === 'used' ? .45 : .25; if(Math.random() < rate) S.steam.push({ x: 182 + Math.random() * 14, y: 104, r: 2 + Math.random() * 2, life: 1 }); }
+    for(let i = S.steam.length - 1; i >= 0; i--){ const s = S.steam[i]; s.y -= 9 * dt; s.x += Math.sin(time * 2 + s.y) * 3 * dt; s.r += 3 * dt; s.life -= .45 * dt;
+      if(s.life <= 0){ S.steam.splice(i, 1); continue; } fx.fillStyle = `rgba(255,250,240,${s.life * .2})`; fx.beginPath(); fx.arc(s.x * VS, s.y * VS, s.r * VS, 0, 7); fx.fill(); }
+    if(!L.weather && L.sunA > .3) S.motes.forEach(m => { m.y -= m.v * dt * 2; m.x += Math.sin(time + m.p) * dt * 3; if(m.y < 0){ m.y = 130; m.x = Math.random() * VW; }
+      fx.fillStyle = rgba(L.light, Math.max(0, .25 + Math.sin(time * 2 + m.p) * .2)); fx.fillRect(m.x * VS, m.y * VS, VS * .9, VS * .9); });
+    if(L.weather === 'rain'){ fx.strokeStyle = 'rgba(200,215,235,.35)'; fx.lineWidth = 1;
+      S.flakes.forEach(r => { r.y += r.v * dt; r.x -= r.v * dt * .15; if(r.y > VH){ r.y = -5; r.x = Math.random() * (VW + 30); } fx.beginPath(); fx.moveTo(r.x * VS, r.y * VS); fx.lineTo((r.x + 1.5) * VS, (r.y - 6) * VS); fx.stroke(); });
+      for(let i = 0; i < 6; i++){ const x = (i * 53 + 20) % VW, y = 145 + (i * 13) % 28, rr = ((time * 1.3 + i * .37) % 1) * 7;
+        fx.strokeStyle = `rgba(210,225,240,${.4 * (1 - rr / 7)})`; fx.beginPath(); fx.ellipse(x * VS, y * VS, rr * VS, rr * .35 * VS, 0, 0, 7); fx.stroke(); } }
+    // glinstering bij iets nieuws, munten uit de kassa
+    for(let i = S.glints.length - 1; i >= 0; i--){ const g = S.glints[i]; g.t += dt; if(g.t > 1.3){ S.glints.splice(i, 1); continue; }
+      const a = Math.sin(g.t / 1.3 * Math.PI), s = 3 + g.t * 6; fx.fillStyle = `rgba(255,250,210,${a})`;
+      fx.fillRect((g.x - s) * VS, g.y * VS, s * 2 * VS, VS); fx.fillRect(g.x * VS, (g.y - s) * VS, VS, s * 2 * VS);
+      fx.fillStyle = `rgba(255,255,255,${a * .8})`; fx.beginPath(); fx.arc((g.x + .5) * VS, (g.y + .5) * VS, 2.5 * VS, 0, 7); fx.fill(); }
+    if(S.cash > 0){ S.cash -= dt; if(Math.random() < .5) S.cashCoins.push({ x: 171, y: 110, vx: (Math.random() - .5) * 40, vy: -50 - Math.random() * 30, t: 0 }); }
+    for(let i = S.cashCoins.length - 1; i >= 0; i--){ const c = S.cashCoins[i]; c.t += dt; c.x += c.vx * dt; c.y += c.vy * dt; c.vy += 120 * dt;
+      if(c.t > .9){ S.cashCoins.splice(i, 1); continue; } fx.fillStyle = '#f2c94c'; fx.fillRect(c.x * VS, c.y * VS, 3 * VS, 3 * VS); fx.fillStyle = '#fde68a'; fx.fillRect(c.x * VS, c.y * VS, 3 * VS, VS); }
+    if(L.weather === 'cold'){ fx.fillStyle = 'rgba(255,255,255,.85)';
+      S.flakes.forEach((r, i) => { r.y += r.v * dt * .12; r.x += Math.sin(time + i) * dt * 6; if(r.y > VH){ r.y = -3; r.x = Math.random() * VW; } fx.fillRect(r.x * VS, r.y * VS, VS * (i % 3 ? .9 : 1.6), VS * (i % 3 ? .9 : 1.6)); }); }
+  }
+  function drawFg(L){
+    fg.clearRect(0, 0, VW, VH);
+    const leaf = mixHex(L.weather === 'cold' ? '#4f6b58' : '#2e5a36', L.sky0, .15), leafL = shade(leaf, L.weather === 'cold' ? .6 : .15);
+    for(let i = 0; i < 9; i++){ const x = -8 + i * 9, y = 160 + Math.round(Math.sin(i) * 4); fg.fillStyle = leaf; fg.beginPath(); fg.arc(x, y, 12, 0, 7); fg.fill(); fg.fillStyle = leafL; fg.beginPath(); fg.arc(x - 3, y - 4, 5, 0, 7); fg.fill(); }
+    for(let i = 0; i < 6; i++){ const x = 272 + i * 10, y = 166 + Math.round(Math.cos(i) * 4); fg.fillStyle = leaf; fg.beginPath(); fg.arc(x, y, 12, 0, 7); fg.fill(); fg.fillStyle = leafL; fg.beginPath(); fg.arc(x - 3, y - 5, 5, 0, 7); fg.fill(); }
+  }
+  const SPOTS = { fryer:[188,108], sauce:[136,112], paper:[144,114], bins:[113,138], kiosk:[218,124], worker:[164,110], competitor:[279,100] };
+  function itemsOf(o){ const s = new Set(); if(o.fryer) s.add('fryer:' + o.fryer); ['sauce','paper','bins','kiosk','competitor'].forEach(k => { if(o[k]) s.add(k); }); if(o.worker) s.add('worker'); return s; }
+  function track(dt){
+    const o = S.opts;
+    if(S.items == null){ S.items = itemsOf(o); S.lastPrice = o.price; return; }
+    const now = itemsOf(o);
+    now.forEach(k => { if(!S.items.has(k)){ const key = k.split(':')[0]; if(SPOTS[key]) S.glints.push({ x: SPOTS[key][0], y: SPOTS[key][1], t: 0 }); } });
+    S.items = now;
+    if(o.price != null && o.price !== S.lastPrice){ if(S.lastPrice != null) S.flash = 1.4; S.lastPrice = o.price; }
+    if(S.flash > 0) S.flash -= dt;
+  }
+  let fgKey = '';
+  function frame(now){
+    if(!S.running) return;
+    const dt = Math.min(.05, (now - S.last) / 1000 || 0), time = now / 1000; S.last = now;
+    if(S.onFrame) S.onFrame(dt);
+    track(dt);
+    const L = lightAt(S.t, S.weather);
+    S.cx += (S.px - S.cx) * .06; S.cy += (S.py - S.cy) * .06;
+    [[cb, 5], [cm, 10], [cf, 10], [cg, 22]].forEach(([c, d]) => c.style.transform = `translate(${(-S.cx * d).toFixed(2)}px,${(-S.cy * d * .6).toFixed(2)}px)`);
+    drawBg(L, time); drawMid(L, time, dt); drawFx(L, time, dt);
+    const k = L.sky0 + L.weather; if(k !== fgKey){ fgKey = k; drawFg(L); }
+    S.raf = requestAnimationFrame(frame);
+  }
+  S.start = () => { if(S.running) return; S.running = true; S.last = performance.now(); S.raf = requestAnimationFrame(frame); };
+  S.stop = () => { S.running = false; cancelAnimationFrame(S.raf); };
+  return S;
+}
+
+// ---------- de kraam in het speelscherm (game 3) ----------
+let mainScene = null;
+const calMonthOf = m => part === 1 ? m : m;
+function econNow(m = state.month){ return ECON[part][Math.min(m, lastMonth()) - 1]; }
+function sceneOpts(extra = {}){
+  const m = Math.min(state.month, lastMonth()), e = econNow(m);
+  return Object.assign({ owner: true, worker: state.worker ? 'daan' : null, fryer: 'modern', sauce: true, price: state.price, closed: false,
+    competitor: true, compOwner: true, compPrice: COMPETITOR_PRICE, kiosk: false, bins: true, paper: false, litter: false,
+    queue: true, queueN: e <= -8 ? 1 : e < 0 ? 2 : 3, seed: m + part * 13, kassa: true,
+    car: (part === 1 && m === 8) || (part === 2 && m === 7), van: part === 2 }, extra);
+}
+function weatherNow(){ const cm = Math.min(state.month, lastMonth()); return (cm <= 2 || cm === 12) && !state.finished ? 'cold' : null; }
+function renderStall(){
+  const box = $('stallScene'); if(!box) return;
+  placeScene();
+  if(!mainScene || !box.contains(mainScene.el)) mainScene = createScene(box);
+  mainScene.opts = sceneOpts(); mainScene.weather = weatherNow(); mainScene.t = .42;
+  if(!mainScene.walkers){ mainScene.walkers = true;
+    mainScene.onFrame = dt => { const n = Math.max(0, (mainScene.opts.queueN || 3) - 1);
+      while(mainScene.people.length < n) mainScene.people.push({ x: mainScene.people.length ? 330 : -10, y: 152 + mainScene.people.length * 6, dir: mainScene.people.length ? -1 : 1, look: 3 + mainScene.people.length * 2, phase:'go', sp: 12 });
+      mainScene.people.length = n;
+      mainScene.people.forEach(p => { p.x += p.dir * p.sp * dt; if(p.x > 340) p.x = -14; if(p.x < -20) p.x = 336; }); }; }
+  if(!$('gameScreen').classList.contains('hidden') && !clockRunning) mainScene.start(); else mainScene.stop();
+  const e = econNow(), cap = [];
+  cap.push(state.worker ? 'jij en Daan' : 'jij alleen');
+  cap.push(e <= -8 ? 'recessie: stil op het plein' : e < 0 ? 'herstel' : e > 2 ? 'groei: druk!' : 'normaal');
+  if(part === 2) cap.push('bestelbus voor de catering');
+  $('stallCaption').textContent = cap.join(' · ');
+}
+document.addEventListener('visibilitychange', () => { if(mainScene){ if(document.hidden) mainScene.stop(); else if(state && !$('gameScreen').classList.contains('hidden') && !clockRunning) mainScene.start(); } });
+
+// ---------- schoolplein tijdens de kalender ----------
+let plein = null, pleinScene = null;
+function pleinInit(h){
+  const box = $('plein'); if(!box) return;
+  if(mainScene) mainScene.stop();
+  if(!pleinScene || !box.contains(pleinScene.el)) pleinScene = createScene(box);
+  pleinScene.opts = sceneOpts({ queue:false, price: h.price, worker: h.workers === 2 ? 'daan' : null });
+  pleinScene.weather = weatherNow(); pleinScene.people = []; pleinScene.t = .2; pleinScene.onFrame = null;
+  const perDay = h.wantDay + 30;
+  plein = { served:0, walk:0, comp:0, k: 50, compTarget: 30 * h.days, last: performance.now(), speed: 160, n:0 };
+  pleinScene.start();
+}
+function pleinSpawn(kind){
+  const id = plein.n++, lane = 140 + (id % 4) * 6;
+  pleinScene.people.push({ kind, x: 50, y: lane, dir: 1, look: id, phase: 'go', t: 0, sp: plein.speed * (.85 + (id % 5) * .08),
+    tx: kind === 'comp' ? 262 + (id % 3) * 10 : kind === 'walk' ? 100 - (id % 4) * 8 : 110 + (id % 4) * 6, extra: null });
+}
+function pleinUpdate(t, served, walk, comp){
+  if(!plein || !pleinScene) return;
+  pleinScene.t = .25 + t * .55;
+  const now = performance.now(), dt = Math.min(.05, (now - plein.last) / 1000); plein.last = now;
+  const K = plein.k; served = Math.floor(served / K); walk = Math.ceil(walk / K); comp = Math.floor(comp / K);
+  let budget = 3;
+  while(plein.served < served && budget-- > 0){ plein.served++; pleinSpawn('serve'); }
+  while(plein.walk < walk && budget-- > 0){ plein.walk++; pleinSpawn('walk'); }
+  while(plein.comp < comp && budget-- > 0){ plein.comp++; pleinSpawn('comp'); }
+  pleinScene.people.forEach(p => {
+    if(p.gone) return;
+    if(p.phase === 'go'){ const dx = p.tx - p.x; p.x += Math.sign(dx) * Math.min(Math.abs(dx), p.sp * dt); if(Math.abs(dx) < 1){ p.phase = 'wait'; p.t = 0; } }
+    else if(p.phase === 'wait'){ p.t += dt; p.extra = p.kind === 'walk' ? 'angry' : 'fries'; if(p.t > .4){ p.phase = 'leave'; p.dir = p.kind === 'walk' ? -1 : 1; } }
+    else { p.x += p.dir * p.sp * 1.2 * dt; p.y += (p.kind === 'walk' ? 0 : 8 * dt); if(p.x > 340 || p.x < -20) p.gone = true; }
+  });
+  pleinScene.people = pleinScene.people.filter(p => !p.gone);
+}
+function pleinStop(){ if(pleinScene) pleinScene.stop(); if(mainScene && state && !$('gameScreen').classList.contains('hidden')) mainScene.start(); }
+
+// ---------- pixel-portretten ----------
+const CHARS = {
+  minister:{ name:'Vincent Pottermans, minister van Financiën', skin:'#f1c9a5', hair:'#4b3621', shirt:'#1f2937', tie:true, glasses:true },
+  wethouder:{ name:'De wethouder', skin:'#e8b48c', hair:'#9ca3af', shirt:'#0f766e', bun:true, earrings:true },
+  econoom:{ name:'De econoom', skin:'#c68642', hair:'#1c1917', shirt:'#4338ca', glasses:true, beard:true },
+  uwv:{ name:'Voorlichter van het UWV', skin:'#ffdbac', hair:'#b45309', shirt:'#0369a1', long:true },
+  adviseur:{ name:'Je belastingadviseur', skin:'#f1c27d', hair:'#111111', shirt:'#334155', tie:true, stubble:true },
+  leon:{ name:'Leon Kleineburger, bankadviseur', skin:'#f1c27d', hair:'#3f2a1d', shirt:'#1e3a8a', tie:true },
+  cees:{ name:'Cees van Cees Patat', skin:'#eab28c', hair:'#4a3020', shirt:'#f3efe6', apron:'#c0262d', bald:true, mustache:true },
+  daan:{ name:'Daan, je medewerker', skin:'#f1c27d', hair:'#e3c25a', shirt:'#0f8a7e' }
+};
+const portraitCache = {};
+function portraitUrl(k){
+  if(portraitCache[k]) return portraitCache[k];
+  const c = CHARS[k] || CHARS.chrik, small = document.createElement('canvas'); small.width = 24; small.height = 24;
+  const g = small.getContext('2d'), P = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const sk = c.skin, skD = shade(sk, -.16), skL = shade(sk, .12), hr = c.hair, hrD = shade(hr, -.25), sh = c.shirt, shD = shade(sh, -.25);
+  for(let y = 0; y < 24; y++) P(0, y, 24, 1, mixHex('#3b3046', '#1d1822', y / 24));
+  if(c.long){ P(5, 6, 14, 16, hr); P(5, 18, 3, 6, hrD); P(16, 18, 3, 6, hrD); }
+  P(4, 19, 16, 5, sh); P(3, 21, 18, 3, sh); P(4, 22, 16, 2, shD);
+  if(c.apron){ P(8, 19, 8, 5, c.apron); P(7, 19, 1, 2, c.apron); P(16, 19, 1, 2, c.apron); }
+  if(c.tie) P(11, 19, 2, 5, '#b91c1c');
+  if(c.keys){ P(17, 21, 2, 2, '#d4d4d8'); P(18, 20, 1, 1, '#a1a1aa'); }
+  P(10, 17, 4, 3, skD);
+  P(7, 7, 10, 11, sk); P(6, 9, 1, 6, sk); P(17, 9, 1, 6, sk); P(8, 17, 8, 1, skD); P(16, 8, 1, 9, skD); P(8, 8, 3, 2, skL);
+  if(c.bald){ P(6, 8, 2, 4, hr); P(16, 8, 2, 4, hr); P(8, 6, 8, 1, skD); }
+  else if(c.helmet){ P(6, 3, 12, 5, c.helmet); P(5, 7, 14, 2, c.helmet); P(8, 4, 4, 1, shade(c.helmet, .4)); }
+  else { P(7, 4, 10, 4, hr); P(6, 5, 2, 6, hr); P(16, 5, 2, 5, hr); P(8, 3, 8, 1, hr); P(9, 4, 6, 1, shade(hr, .2)); P(6, 10, 1, 2, hrD); }
+  if(c.cap){ P(6, 3, 12, 4, c.cap); P(14, 6, 6, 2, c.cap); P(8, 4, 4, 1, shade(c.cap, .3)); }
+  if(c.bun) P(10, 1, 4, 3, hr);
+  if(c.ponytail){ P(17, 6, 3, 8, hr); P(18, 13, 2, 3, hrD); }
+  P(9, 11, 2, 2, '#1b1410'); P(13, 11, 2, 2, '#1b1410'); P(9, 11, 1, 1, '#ffffff'); P(13, 11, 1, 1, '#ffffff');
+  if(!c.helmet && !c.bald){ P(8, 10, 3, 1, hrD); P(13, 10, 3, 1, hrD); }
+  if(c.glasses){ P(8, 10, 4, 1, '#111'); P(12, 10, 4, 1, '#111'); P(8, 13, 4, 1, '#111'); P(12, 13, 4, 1, '#111'); P(8, 10, 1, 4, '#111'); P(15, 10, 1, 4, '#111'); P(11, 10, 1, 4, '#111'); P(12, 10, 1, 4, '#111'); }
+  P(11, 13, 2, 1, skD);
+  if(c.mustache) P(9, 15, 6, 1, c.bald ? hr : '#6b7280');
+  if(c.beard){ P(7, 15, 10, 3, hr); P(8, 18, 8, 1, hr); P(10, 16, 4, 1, '#7c2d12'); }
+  else if(c.stubble){ P(8, 16, 8, 2, mixHex(sk, hr, .35)); P(10, 16, 4, 1, '#7c2d12'); }
+  else P(10, 16, 4, 1, '#7c2d12');
+  if(c.earrings){ P(6, 14, 1, 1, '#fcd34d'); P(17, 14, 1, 1, '#fcd34d'); }
+  const big = document.createElement('canvas'); big.width = 96; big.height = 96;
+  const b = big.getContext('2d'); b.imageSmoothingEnabled = false; b.drawImage(small, 0, 0, 96, 96);
+  const rg = b.createRadialGradient(30, 22, 0, 30, 22, 70); rg.addColorStop(0, 'rgba(255,210,150,.35)'); rg.addColorStop(1, 'rgba(255,210,150,0)');
+  b.globalCompositeOperation = 'screen'; b.fillStyle = rg; b.fillRect(0, 0, 96, 96);
+  b.globalCompositeOperation = 'source-over'; const vg = b.createRadialGradient(48, 48, 30, 48, 48, 70); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); b.fillStyle = vg; b.fillRect(0, 0, 96, 96);
+  return (portraitCache[k] = big.toDataURL());
+}
+function faceSvg(k, size = 64){ return `<img class="portrait" src="${portraitUrl(k)}" width="${size}" height="${size}" alt="">`; }
+function say(k, html, whisper){
+  const c = CHARS[k] || CHARS.chrik;
+  return `<div class="say ${whisper ? 'whisper' : ''}"><div class="say-face">${faceSvg(k)}</div><div class="say-bubble"><div class="say-name">${c.name}</div>${html}</div></div>`;
+}
+
+// ---------- feest: alleen met een duidelijke reden ----------
+function confettiFrom(el, n = 120){
+  let cv = $('confetti');
+  if(!cv){ cv = document.createElement('canvas'); cv.id = 'confetti'; document.body.appendChild(cv); }
+  const ctx = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const r = el ? el.getBoundingClientRect() : { left: W / 2, top: H / 3, width: 0, height: 0 }, ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+  const cols = ['#f59e0b','#ef4444','#22c55e','#3b82f6','#a855f7','#fde047'];
+  const ps = Array.from({ length:n }, () => { const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 6; return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, s: 3 + Math.floor(Math.random() * 3), c: cols[Math.floor(Math.random() * cols.length)] }; });
+  const start = performance.now();
+  (function tick(now){
+    ctx.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .22; p.vx *= .99; ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s); });
+    if(now - start < 2200) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+  })(start);
+}
+function celebration(h){
+  const after = totalNet(), before = after - h.net, sb = starsFor(before), sa = starsFor(after), G = GOALS[part];
+  if(sa > sb) return { kind:'star', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(sa)}</div><div><b>Ster ${sa} behaald!</b><br>Je totale nettoresultaat is nu <b>${eur0(after)}</b>. Daarmee kom je boven het doel van ${eur0(G[sa - 1])}.${sa < 3 ? ` De volgende ster haal je bij ${eur0(G[sa])}.` : ' Je hebt alle drie de sterren!'}</div></div>` };
+  const others = state.history.filter(x => x !== h);
+  if(others.length >= 2 && h.net > 0 && h.net > Math.max(...others.map(x => x.net)))
+    return { kind:'record', html: `<div class="celebrate" id="celebrate"><div class="cel-icon">🏆</div><div><b>Je beste maand tot nu toe!</b><br>Nettoresultaat: <b>${eur0(h.net)}</b>. Je vorige record was ${eur0(Math.max(...others.map(x => x.net)))}.</div></div>` };
+  return { kind:null, html:'' };
+}
+function celebrateDay(cel){ if(cel && cel.kind) setTimeout(() => { const el = $('celebrate'); if(el) confettiFrom(el, cel.kind === 'star' ? 160 : 70); }, 350); }
+function starsBanner(stars){ return stars ? `<div class="celebrate" id="celebrate"><div class="cel-icon">${'⭐'.repeat(stars)}</div><div><b>Gefeliciteerd: ${stars} ster${stars > 1 ? 'ren' : ''}!</b><br>Je totale nettoresultaat kwam boven ${eur0(GOALS[part][stars - 1])}.</div></div>` : ''; }
+
+// ---------- oorkonde ----------
+function certificateModal(back){
+  const net = totalNet(), stars = starsFor(net), name = session.student ? escapeHtml(session.student.name) : 'Jij';
+  const today = new Date().toLocaleDateString('nl-NL', { day:'numeric', month:'long', year:'numeric' });
+  const title = part === 1 ? 'Hoe werkt de overheid?' : 'Iedereen betaalt belasting';
+  const line = part === 1 ? 'heeft een heel jaar ondernomen in goede en slechte tijden, en de minister van Financiën geadviseerd over de rijksbegroting.'
+    : 'heeft zelf aangifte inkomstenbelasting gedaan, box 1 en box 3 uitgerekend en eerlijk belasting betaald.';
+  showModal(`<div class="cert" id="cert"><div class="cert-in">
+        <div class="cert-top">🍟 SNACK EMPIRE · GAME 3</div><h2>Oorkonde</h2><div class="cert-sub">${title}</div>
+        <p class="cert-name">${name}</p><p>${line}</p>
+        <div class="cert-stars">${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+        <p><b>Nettoresultaat: ${eur0(net)}</b> · ${state.quizCorrect} van de ${state.quizTotal} vragen goed</p>
+        <div class="cert-foot"><span>${today}</span><span class="cert-sign">Vincent Pottermans<br><small>Minister van Financiën</small></span></div>
+      </div></div>
+    <div class="noprint" style="display:flex;gap:8px;margin-top:10px"><button class="ghost" style="flex:1" id="certBack">⬅ Terug</button><button class="cta" style="flex:1;margin-top:0" onclick="window.print()">🖨️ Printen</button></div>`);
+  $('certBack').onclick = back;
+}
+
+// ---------- de tekening blijft in beeld ----------
+function placeScene(target){
+  const sc = $('sceneBox'); if(!sc) return;
+  const t = target || (innerWidth > 860 ? $('sceneDock') : $('sceneTop'));
+  if(t && sc.parentNode !== t) t.appendChild(sc);
+}
+function showSceneIn(box){ if(!box || !mainScene) return; placeScene(box); mainScene.opts = sceneOpts(); mainScene.weather = weatherNow();
+  const last = state.history[state.history.length - 1]; if(last && last.net > 0) mainScene.cash = 1.4; mainScene.start(); }
+window.addEventListener('resize', () => { if($('overlay').classList.contains('hidden')) placeScene(); });
 
 // ---------- START ----------
 $('loginBtn').onclick = doLogin;
